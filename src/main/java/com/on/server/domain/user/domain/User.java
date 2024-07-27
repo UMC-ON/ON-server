@@ -6,6 +6,7 @@ import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -13,11 +14,8 @@ import lombok.*;
 @Table(name = "user")
 public class User extends BaseEntity {
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -49,9 +47,11 @@ public class User extends BaseEntity {
     @Column(name = "status", nullable = false)
     private UserStatus userStatus;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "country_id")
     private Country country;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "university_id")
     private University university;
 
