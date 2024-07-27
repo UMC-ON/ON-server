@@ -2,6 +2,8 @@ package com.on.server.domain.country;
 
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -9,6 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 @Table(name = "country")
 public class Country extends BaseEntity {
 

@@ -1,4 +1,4 @@
-package com.on.server.domain.user.dto;
+package com.on.server.global.login.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

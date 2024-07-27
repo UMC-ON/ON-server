@@ -1,4 +1,4 @@
-package com.on.server.domain.user.presentation;
+package com.on.server.global.login.presentation;
 
 import com.on.server.global.login.application.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;

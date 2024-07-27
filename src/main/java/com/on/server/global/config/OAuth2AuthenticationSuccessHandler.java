@@ -1,4 +1,4 @@
-package com.on.server.global.config.oauth2;
+package com.on.server.global.config;
 
 import com.on.server.global.login.application.RefreshTokenService;
 import com.on.server.global.login.application.JwtTokenProvider;

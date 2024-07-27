@@ -1,6 +1,7 @@
 package com.on.server.global.login.exception;
 
-import capstone.safeat.base.BaseException;
+
+import com.on.server.global.error.BaseException;
 
 public class LoginException extends BaseException {
 

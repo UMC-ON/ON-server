@@ -1,7 +1,7 @@
 package com.on.server.global.login.application;
 
-import com.on.server.domain.user.dto.KakaoTokenResponseDto;
-import com.on.server.domain.user.dto.KakaoUserInfoResponseDto;
+import com.on.server.global.login.dto.KakaoTokenResponseDto;
+import com.on.server.global.login.dto.KakaoUserInfoResponseDto;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.on.server.global.config.oauth2;
+package com.on.server.global.login.presentation;
 
 
 import lombok.Getter;

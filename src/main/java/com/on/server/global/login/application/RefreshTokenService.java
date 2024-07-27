@@ -16,6 +16,9 @@ public class RefreshTokenService {
     @Value("${jwt.refreshExpirationMs}")
     private long refreshExpirationMs;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     public void saveRefreshToken(String userId, String refreshToken) {
         redisTemplate.opsForValue().set(userId, refreshToken, refreshExpirationMs, TimeUnit.MILLISECONDS);
     }
@@ -26,5 +29,9 @@ public class RefreshTokenService {
 
     public void deleteRefreshToken(String userId) {
         redisTemplate.delete(userId);
+    }
+
+    public boolean validateToken(String refreshToken) {
+        return jwtTokenProvider.validateToken(refreshToken);
     }
 }

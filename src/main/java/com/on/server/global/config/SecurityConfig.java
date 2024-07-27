@@ -1,12 +1,13 @@
-package com.on.server.global.config.security;
+package com.on.server.global.config;
 
 import com.on.server.global.login.application.CustomOAuth2UserService;
-import com.on.server.global.config.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.on.server.global.login.application.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -14,27 +15,32 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler successHandler;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, OAuth2AuthenticationSuccessHandler successHandler) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, OAuth2AuthenticationSuccessHandler successHandler, JwtTokenProvider jwtTokenProvider) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.successHandler = successHandler;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF 비활성화
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**", "/login/**").permitAll()
+                        .requestMatchers("/auth/**", "/login/**", "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources",
+                                "/swagger-resources/**", "/configuration/ui", "/configuration/security", "/swagger-ui/**",
+                                "/webjars/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        .successHandler(successHandler) // 성공 핸들러 설정
+                        .successHandler(successHandler)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                );
+                )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -2,6 +2,7 @@ package com.on.server.domain.university;
 
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 @Table(name = "university")
 public class University extends BaseEntity {
 

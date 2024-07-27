@@ -1,9 +1,8 @@
-package com.on.server.domain.user.presentation;
+package com.on.server.global.login.thymeleaf;
 
 
-import com.on.server.global.config.oauth2.KakaoApi;
+import com.on.server.global.login.presentation.KakaoApi;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

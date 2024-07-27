@@ -1,6 +1,6 @@
 package com.on.server.global.login.exception;
 
-import capstone.safeat.base.BaseExceptionType;
+import com.on.server.global.error.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
