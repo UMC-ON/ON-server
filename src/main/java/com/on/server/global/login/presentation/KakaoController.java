@@ -38,6 +38,10 @@ public class KakaoController {
 
         KakaoUserInfoResponseDto kakaoUserInfoResponseDto = kakaoService.getUserInfo(accessToken);
 
+        System.out.println("[[[[[user Email]]]]");
+        System.out.println(kakaoUserInfoResponseDto.getKakaoAccount().getEmail());
+        System.out.println("[[[[[user Email]]]]");
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
