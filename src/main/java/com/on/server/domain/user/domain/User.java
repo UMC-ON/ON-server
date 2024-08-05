@@ -5,6 +5,14 @@ import com.on.server.domain.university.University;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -13,7 +21,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "user")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -55,5 +63,53 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id")
     private University university;
+
+
+    // Jwt 전용 설정 (UserDetails 인터페이스 구현)
+
+    @Column(length = 100, nullable = false, unique = true)
+    private String keyCode; // 로그인 식별키
+
+    @ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
+    private List<String> roles = new ArrayList<>();
+
+    @Override   //사용자의 권한 목록 리턴
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return keyCode;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    // Jwt 전용 설정 종료
 
 }

@@ -1,7 +1,14 @@
 package com.on.server.global.login.application;
 
+import com.on.server.domain.user.domain.User;
+import com.on.server.domain.user.domain.repository.UserRepository;
+import com.on.server.global.common.CustomException;
+import com.on.server.global.common.ResponseCode;
 import com.on.server.global.login.dto.KakaoTokenResponseDto;
+import com.on.server.global.login.dto.KakaoUserInfo;
+import com.on.server.global.login.dto.KakaoUserInfoResponse;
 import com.on.server.global.login.dto.KakaoUserInfoResponseDto;
+import com.on.server.global.login.presentation.KakaoApi;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,16 +28,20 @@ import reactor.core.publisher.Mono;
 @Transactional(readOnly = true)
 public class KakaoService {
 
-    private String clientId;
-    private final String KAUTH_TOKEN_URL_HOST;
-    private final String KAUTH_USER_URL_HOST;
+    private String clientId = KakaoApi.getKakaoApiKey();
+    private final String KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
+    private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
-    @Autowired
-    public KakaoService(@Value("${kakao.api_key}") String clientId) {
-        this.clientId = clientId;
-        KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
-        KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
+    private final KakaoUserInfo kakaoUserInfo;
+    private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public Long isSignedUp(String token){
+        KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
+        User user = userRepository.findByKeyCode(userInfo.getId().toString()).orElseThrow(() -> new UsernameNotFoundException(ResponseCode.ROW_DOES_NOT_EXIST.getMessage()));
+        return user.getId();
     }
+
 
     public String getAccessTokenFromKakao(String code) {
 

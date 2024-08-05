@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Slf4j
@@ -32,6 +33,7 @@ public class KakaoController {
     private final UserService userService;
 
 
+
     @GetMapping("/login/oauth2/code/kakao")
     public ResponseEntity<?> callbackKakao(@RequestParam("token") String token) {
         String accessToken = kakaoService.getAccessTokenFromKakao(token);
@@ -44,6 +46,18 @@ public class KakaoController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
+    // 카카오 로그인을 위해 회원가입 여부 확인, 이미 회원이면 Jwt 토큰 발급
+    @PostMapping("/login")
+    public HashMap<Long, String> authCheck(@RequestHeader String accessToken) {
+        Long userId = kakaoService.isSignedUp(accessToken); // 유저 고유번호 추출
+        HashMap<Long, String> map = new HashMap<>();
+        map.put(userId, jwtTokenProvider.createToken(userId.toString()));
+        return map;
+    }
+
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequestDto request) {
