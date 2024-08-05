@@ -10,11 +10,6 @@ import reactor.core.publisher.Flux;
 @Component
 public class KakaoUserInfo {
 
-    @Bean
-    public WebClient webClient() {
-        return WebClient.create();
-    }
-
     private final WebClient webClient;
     private static final String USER_INFO_URI = "https://kapi.kakao.com/v2/user/me";
 

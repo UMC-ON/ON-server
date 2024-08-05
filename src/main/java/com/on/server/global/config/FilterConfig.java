@@ -1,5 +1,6 @@
 package com.on.server.global.config;
 
+import com.on.server.global.filter.LogFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

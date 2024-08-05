@@ -1,5 +1,6 @@
 package com.on.server.global.config;
 
+import com.on.server.global.filter.JwtAuthenticationFilter;
 import com.on.server.global.login.application.CustomOAuth2UserService;
 import com.on.server.global.login.application.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +44,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/login/page",
                                 "/api/1/kakao/refresh",
-                                "/api/v1/kakao/login/oauth2/code/kakao"
+                                "/api/v1/kakao/login/oauth2/code/kakao",
+                                "/api/v1/kakao/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()

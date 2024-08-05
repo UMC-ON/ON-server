@@ -1,4 +1,4 @@
-package com.on.server.global.config;
+package com.on.server.global.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,7 @@
 package com.on.server.global.login.presentation;
 
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.common.ResponseDto;
 import com.on.server.global.login.application.JwtTokenProvider;
 import com.on.server.global.login.application.KakaoService;
 import com.on.server.global.login.application.RefreshTokenService;
@@ -55,6 +56,12 @@ public class KakaoController {
         HashMap<Long, String> map = new HashMap<>();
         map.put(userId, jwtTokenProvider.createToken(userId.toString()));
         return map;
+    }
+
+    @PostMapping("/signup")
+    public ResponseDto<?> signUp(@RequestBody KakaoUserInfoResponseDto kakaoUserInfoResponseDto) {
+        kakaoService.signUp(kakaoUserInfoResponseDto);
+        return ResponseDto.success();
     }
 
 

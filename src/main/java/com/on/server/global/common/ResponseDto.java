@@ -20,6 +20,10 @@ public class ResponseDto<T> {
         this.result = null;
     }
 
+    public static <T> ResponseDto<T> success() {
+        return response(ResponseCode.SUCCESS.getCode(), true, ResponseCode.SUCCESS.getMessage(), null);
+    }
+
     public static <T> ResponseDto<T> response(int code, boolean inSuccess, String message) {
         return response(code, inSuccess, message, null);
     }

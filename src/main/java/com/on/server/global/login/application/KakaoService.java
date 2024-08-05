@@ -95,4 +95,7 @@ public class KakaoService {
         return userInfo;
     }
 
+    public Void signUp(KakaoUserInfoResponseDto kakaoUserInfoResponseDto) {
+        return null;
+    }
 }

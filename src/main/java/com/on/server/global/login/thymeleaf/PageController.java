@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/login")
 public class PageController {
 
-    private final KakaoApi kakaoApi;
-
     @GetMapping("/page")
     public String loginPage(Model model) {
-        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="+kakaoApi.getKakaoApiKey()+"&redirect_uri="+kakaoApi.getKakaoRedirectUrl();
+        String api_key = KakaoApi.getKakaoApiKey();
+        String redirect_url = KakaoApi.getKakaoRedirectUrl();
+        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="+api_key+"&redirect_uri="+redirect_url;
         model.addAttribute("location", location);
 
         return "login";

@@ -1,5 +1,6 @@
-package com.on.server.global.config;
+package com.on.server.global.filter;
 
+import com.on.server.global.config.UserAuthenticationToken;
 import com.on.server.global.login.application.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
