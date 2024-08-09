@@ -15,14 +15,14 @@ import java.util.List;
 @Tag(name = "댓글 작성")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts/{postId}/comments")
+@RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;
 
     // 1. 특정 게시글(postId)의 모든 댓글을 조회
     @Operation(summary = "특정 게시글의 모든 댓글 조회")
-    @GetMapping
+    @GetMapping("/{postId}")
     public ResponseEntity<List<CommentResponseDTO>> getAllCommentsByPostId(@PathVariable Long postId) {
 
         List<CommentResponseDTO> comments = commentService.getAllCommentsByPostId(postId);
@@ -31,7 +31,7 @@ public class CommentController {
 
     // 2. 특정 게시글(postId)에 새로운 댓글을 작성
     @Operation(summary = "특정 게시글에 댓글 작성")
-    @PostMapping
+    @PostMapping("/{postId}")
     public ResponseEntity<CommentResponseDTO> createComment(@PathVariable Long postId, @RequestBody CommentRequestDTO commentRequestDTO) {
 
         commentRequestDTO.setPostId(postId);
