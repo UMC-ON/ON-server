@@ -1,5 +1,6 @@
 package com.on.server.domain.post.dto;
 
+import com.on.server.domain.board.domain.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,11 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 public class PostResponseDTO {
 
+    // 게시판 타입
+    private BoardType boardType;
+
     // 게시글 ID
     private Long postId;
-
-    // 게시판 ID
-    private Long boardId;
 
     // 작성자 ID
     private Long userId;

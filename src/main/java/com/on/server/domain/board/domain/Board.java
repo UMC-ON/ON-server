@@ -16,9 +16,12 @@ import java.util.List;
 @Table(name = "board")
 public class Board extends BaseEntity {
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, unique = true)
+    private BoardType type;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
+
 }
+
