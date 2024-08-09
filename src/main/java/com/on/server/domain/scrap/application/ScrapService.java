@@ -75,8 +75,8 @@ public class ScrapService {
     private ScrapResponseDTO mapToScrapResponseDTO(Scrap scrap) {
         return ScrapResponseDTO.builder()
                 .scrapId(scrap.getId())
-                .marketPost(mapToMarketPostResponseDTO(scrap.getMarketPost()))
                 .userId(scrap.getUser().getId())
+                .marketPost(mapToMarketPostResponseDTO(scrap.getMarketPost()))
                 .build();
     }
 
