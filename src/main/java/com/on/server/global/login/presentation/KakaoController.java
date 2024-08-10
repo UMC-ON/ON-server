@@ -4,7 +4,6 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.global.login.application.JwtTokenProvider;
 import com.on.server.global.login.application.KakaoService;
 import com.on.server.global.login.application.RefreshTokenService;
-import com.on.server.global.login.application.UserService;
 import com.on.server.global.login.dto.KakaoUserInfoResponseDto;
 import com.on.server.global.login.dto.TokenRefreshRequestDto;
 import com.on.server.global.login.dto.TokenRefreshResponseDto;
@@ -29,7 +28,7 @@ public class KakaoController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
-    private final UserService userService;
+    //private final UserService userService;
 
 
     @GetMapping("/login/oauth2/code/kakao")
@@ -45,6 +44,7 @@ public class KakaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /*
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequestDto request) {
         String refreshToken = request.getRefreshToken();
@@ -61,4 +61,6 @@ public class KakaoController {
         }
         return ResponseEntity.status(403).body("Invalid refresh token");
     }
+
+     */
 }

@@ -12,7 +12,6 @@ public class RefreshTokenService {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
     @Value("${jwt.refreshExpirationMs}")
     private long refreshExpirationMs;
 

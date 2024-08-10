@@ -13,8 +13,14 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+public class OAuth2AuthenticationSuccessHandler {
+
+}
+
+/*
 @Component
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
 
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
@@ -40,3 +46,5 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         writer.flush();
     }
 }
+
+ */

@@ -18,6 +18,7 @@ import java.util.Optional;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
+    /*
     private final UserService userService;
 
     public CustomOAuth2UserService(UserService userService) {
@@ -65,4 +66,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 "id"
         );
     }
+
+     */
 }
