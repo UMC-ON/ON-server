@@ -61,8 +61,12 @@ public class UserService {
         return null;
     }
 
-    public User test(UserDetails userDetails) {
+    public User getUserByUserDetails(UserDetails userDetails) {
         return userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("해당하는 회원을 찾을 수 없습니다."));
+    }
+
+    public User test(User user) {
+        return userRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("해당하는 회원을 찾을 수 없습니다."));
     }
 
 }

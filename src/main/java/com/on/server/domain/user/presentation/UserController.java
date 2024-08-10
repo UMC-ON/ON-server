@@ -52,7 +52,9 @@ public class UserController {
     public ResponseEntity<User> test(
             @AuthenticationPrincipal UserDetails userDetails
             ) {
-        return ResponseEntity.ok(userService.test(userDetails));
+        User user = userService.getUserByUserDetails(userDetails);
+
+        return ResponseEntity.ok(userService.test(user));
     }
 
 }
