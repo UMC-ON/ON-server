@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,10 +49,10 @@ public class UserController {
 
     @PostMapping("/test")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    public ResponseEntity<String> test(
-            @AuthenticationPrincipal User user
+    public ResponseEntity<User> test(
+            @AuthenticationPrincipal UserDetails userDetails
             ) {
-        return ResponseEntity.ok("login success");
+        return ResponseEntity.ok(userService.test(userDetails));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.on.server.domain.user.application;
 
+import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.domain.user.dto.SignUpDto;
 import com.on.server.global.config.JwtTokenProvider;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,10 @@ public class UserService {
         roles.add("AWAIT");  // USER 권한 부여
         userRepository.save(signUpDto.toEntity(encodedPassword, roles));
         return null;
+    }
+
+    public User test(UserDetails userDetails) {
+        return userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("해당하는 회원을 찾을 수 없습니다."));
     }
 
 }
