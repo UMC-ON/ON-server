@@ -52,7 +52,17 @@ public class DiaryService {
 
     // 2. 일기 등록하기
     public void createDiary(User user, DiaryRequestDto diaryRequestDto) {
+        Long dDay = ChronoUnit.DAYS.between(user.getStartDate(), diaryRequestDto.getDate());
 
+        // 일기 저장하기
+        Diary diary = Diary.builder()
+                .content(diaryRequestDto.getContent())
+                .writtenDate(diaryRequestDto.getDate())
+                .dDay(dDay)
+                .user(user)
+                .build();
+
+        diaryRepository.save(diary);
     }
 
 }
