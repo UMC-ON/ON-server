@@ -30,8 +30,8 @@ public class SwaggerConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("API Doc")
-                .description("api 문서화")
+                .title("UMC ON API Doc")
+                .description("UMC ON api 문서")
                 .version("1.0.0");
     }
 
