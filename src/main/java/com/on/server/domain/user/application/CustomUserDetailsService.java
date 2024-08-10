@@ -19,8 +19,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
                 .map(this::createUserDetails)
                 .orElseThrow(() -> new UsernameNotFoundException("해당하는 회원을 찾을 수 없습니다."));
     }
@@ -29,7 +29,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserDetails createUserDetails(com.on.server.domain.user.domain.User user) {
         return User.builder()
                 .username(user.getUsername())
-                .password(passwordEncoder.encode(user.getPassword()))
+                //.password(passwordEncoder.encode(user.getPassword()))
+                .password(user.getPassword())
                 .roles(user.getRoles().toArray(new String[0]))
                 .build();
     }

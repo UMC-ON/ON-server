@@ -19,6 +19,7 @@ import java.util.List;
 @Builder
 public class SignUpDto {
 
+    private String username;
     private String email;
     private String password;
     private String nickname;
@@ -35,6 +36,7 @@ public class SignUpDto {
     public User toEntity(String encodedPassword, List<String> roles) {
 
         return User.builder()
+                .username(username)
                 .email(email)
                 .password(encodedPassword)
                 .nickname(nickname)

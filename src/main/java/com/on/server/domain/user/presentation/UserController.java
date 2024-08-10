@@ -24,10 +24,11 @@ public class UserController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@RequestBody SignInDto signInDto) {
-        String email = signInDto.getEmail();
+        log.info("sign-in");
+        String username = signInDto.getUsername();
         String password = signInDto.getPassword();
-        JwtToken jwtToken = userService.signIn(email, password);
-        log.info("request email = {}, password = {}", email, password);
+        JwtToken jwtToken = userService.signIn(username, password);
+        log.info("request email = {}, password = {}", username, password);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
         return ResponseEntity.ok(jwtToken);
     }
