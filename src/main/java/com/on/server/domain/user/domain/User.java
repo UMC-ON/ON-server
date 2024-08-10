@@ -6,6 +6,8 @@ import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 
 @Getter
 @Builder
@@ -39,6 +41,9 @@ public class User extends BaseEntity {
 
     @Column(name = "dispatched_university")
     private String dispatchedUniversity;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "dispatched_type")
