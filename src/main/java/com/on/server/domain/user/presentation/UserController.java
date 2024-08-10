@@ -48,10 +48,10 @@ public class UserController {
 
     @PostMapping("/test")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    public String test(
+    public ResponseEntity<String> test(
             @AuthenticationPrincipal User user
             ) {
-        return "success";
+        return ResponseEntity.ok("login success");
     }
 
 }
