@@ -21,8 +21,18 @@ public class Diary extends BaseEntity {
     @Column(name = "written_date", nullable = false)
     private LocalDate writtenDate;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-//    private User user;
+    private Long dDay;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Builder
+    private Diary(String content, LocalDate writtenDate, Long dDay, User user) {
+        this.content = content;
+        this.writtenDate = writtenDate;
+        this.dDay = dDay;
+        this.user = user;
+    }
 
 }

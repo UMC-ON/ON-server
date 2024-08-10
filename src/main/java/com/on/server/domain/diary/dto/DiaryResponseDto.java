@@ -12,7 +12,7 @@ public class DiaryResponseDto {
 
     private String univ;
 
-    private int dDay;
+    private Long dDay; // 오늘 디데이
 
     private List<DiaryDto> diaryList;
 

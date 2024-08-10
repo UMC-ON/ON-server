@@ -13,5 +13,5 @@ public class DiaryDto {
 
     private String content;
 
-    private int writtenDday;
+    private Long writtenDday;
 }

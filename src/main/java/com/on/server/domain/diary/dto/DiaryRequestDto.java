@@ -13,5 +13,5 @@ public class DiaryRequestDto {
 
     private String content;
 
-    private int dDay;
+    //private Long dDay;
 }
