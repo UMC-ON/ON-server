@@ -1,17 +1,23 @@
 package com.on.server.domain.user.presentation;
 
 import com.on.server.domain.user.application.UserService;
+import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.dto.SignInDto;
 import com.on.server.domain.user.dto.SignUpDto;
 import com.on.server.domain.user.dto.JwtToken;
+import com.on.server.global.config.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 
 @Slf4j
 @RestController
@@ -21,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final SecurityService securityService;
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@RequestBody SignInDto signInDto) {
@@ -40,7 +47,10 @@ public class UserController {
     }
 
     @PostMapping("/test")
-    public String test() {
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public String test(
+            @AuthenticationPrincipal User user
+            ) {
         return "success";
     }
 
