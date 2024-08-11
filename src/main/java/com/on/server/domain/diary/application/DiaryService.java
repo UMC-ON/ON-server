@@ -30,7 +30,9 @@ public class DiaryService {
 
         // d-day 계산하기
         // 2일 남은 경우 = 2, 당일인 경우 = 0, 2일 지난 경우 = -2
-        Long dDayNow = ChronoUnit.DAYS.between(LocalDate.now(), user.getStartDate());
+        // startDate 임시 설정
+        LocalDate startDate = LocalDate.of(2024,8,15);
+        Long dDayNow = ChronoUnit.DAYS.between(LocalDate.now(), startDate);
 
         // diaryDto List 만들기
         List<DiaryDto> diaryDtoList = getDiaryDto(diaryList);
@@ -40,7 +42,7 @@ public class DiaryService {
                 .map(DiaryDto::getWrittenDate)
                 .collect(Collectors.toList());
 
-        return new DiaryResponseDto(user.getUniversity().getName(), dDayNow, diaryDtoList, dateList);
+        return new DiaryResponseDto(user.getUniversity(), dDayNow, diaryDtoList, dateList);
     }
 
     private static List<DiaryDto> getDiaryDto(List<Diary> diaryList) {
@@ -54,7 +56,9 @@ public class DiaryService {
     // 2. 일기 등록하기
     public void createDiary(User user, DiaryRequestDto diaryRequestDto) {
         // d-day 계산
-        Long dDay = ChronoUnit.DAYS.between(diaryRequestDto.getDate(), user.getStartDate());
+        // startDate 임시 설정
+        LocalDate startDate = LocalDate.of(2024,8,15);
+        Long dDay = ChronoUnit.DAYS.between(diaryRequestDto.getDate(), startDate);
 
         // 일기 저장하기
         Diary diary = Diary.builder()
