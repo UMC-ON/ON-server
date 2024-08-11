@@ -5,6 +5,14 @@ import com.on.server.domain.university.University;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import java.time.LocalDate;
 
@@ -15,13 +23,16 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "user")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
+
+    @Column(name = "username", nullable = false)
+    private String username;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "password", nullable = false)
+    private String password;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -49,16 +60,55 @@ public class User extends BaseEntity {
     @Column(name = "dispatched_type")
     private DispatchedType dispatchedType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private UserStatus userStatus;
+    @Column(name = "country")
+    private String country;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "country_id")
-    private Country country;
+    @Column(name = "university")
+    private String university;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "university_id")
-    private University university;
+    /**
+     * ACTIVE,
+     * AWAIT,
+     * TEMPORARY,
+     * DENIED
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<String> roles = new ArrayList<>();
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
