@@ -38,11 +38,11 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    // 2. 새로운 댓글 작성
-    public CommentResponseDTO createComment(CommentRequestDTO commentRequestDTO) {
+    //2. 새로운 댓글 작성
+    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO) {
         User user = userRepository.findById(commentRequestDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        Post post = postRepository.findById(commentRequestDTO.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
         Comment comment = Comment.builder()
