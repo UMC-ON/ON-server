@@ -9,11 +9,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DiaryRequestDto {
+public class StartDateRequestDto {
 
-    private LocalDate date;
+    private LocalDate startDate;
 
-    private String content;
-
-    //private Long dDay;
 }

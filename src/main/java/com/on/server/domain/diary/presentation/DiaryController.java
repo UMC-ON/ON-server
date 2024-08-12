@@ -2,6 +2,7 @@ package com.on.server.domain.diary.presentation;
 
 import com.on.server.domain.diary.application.DiaryService;
 import com.on.server.domain.diary.dto.DiaryRequestDto;
+import com.on.server.domain.diary.dto.StartDateRequestDto;
 import com.on.server.domain.user.application.UserService;
 import com.on.server.domain.user.domain.User;
 import com.on.server.global.common.CommonResponse;
@@ -17,12 +18,23 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "일기 작성")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/diary")
+@RequestMapping("/api/v1/diary")
 public class DiaryController {
 
     private final DiaryService diaryService;
 
     private final UserService userService;
+
+    // 0. 날짜 설정하기
+    @PostMapping("/startdate")
+    @Operation(summary = "시작 날짜 설정")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> setStartDate(@AuthenticationPrincipal UserDetails userDetails, @RequestBody StartDateRequestDto startDateRequestDto) {
+        User user = userService.getUserByUserDetails(userDetails);
+        diaryService.setStartDate(user, startDateRequestDto);
+
+        return new CommonResponse<>(ResponseCode.SUCCESS);
+    }
 
     // 1. 일기 리스트 보여주는 일기 홈
     @GetMapping("/list")

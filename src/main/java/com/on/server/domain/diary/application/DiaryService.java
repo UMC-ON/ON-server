@@ -5,7 +5,9 @@ import com.on.server.domain.diary.domain.repository.DiaryRepository;
 import com.on.server.domain.diary.dto.DiaryDto;
 import com.on.server.domain.diary.dto.DiaryRequestDto;
 import com.on.server.domain.diary.dto.DiaryResponseDto;
+import com.on.server.domain.diary.dto.StartDateRequestDto;
 import com.on.server.domain.user.domain.User;
+import com.on.server.domain.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,14 @@ public class DiaryService {
 
     private final DiaryRepository diaryRepository;
 
+    private final UserRepository userRepository;
+
+    // 0. 교환 시작 날짜 설정하기
+    public void setStartDate(User user, StartDateRequestDto startDateRequestDto) {
+        user.setStartDate(startDateRequestDto.getStartDate());
+        userRepository.save(user);
+    }
+
     // 1. 일기 홈 조회하기
     public DiaryResponseDto getDiary(User user) {
 
@@ -30,9 +40,15 @@ public class DiaryService {
 
         // d-day 계산하기
         // 2일 남은 경우 = 2, 당일인 경우 = 0, 2일 지난 경우 = -2
-        // startDate 임시 설정
-        LocalDate startDate = LocalDate.of(2024,8,15);
-        Long dDayNow = ChronoUnit.DAYS.between(LocalDate.now(), startDate);
+        LocalDate startDate = user.getStartDate();
+
+        Long dDayNow;
+        if(startDate == null) { //startDate 비어있는 경우
+            dDayNow = null;
+        }
+        else { //startDate 저장되어있는 경우
+            dDayNow = ChronoUnit.DAYS.between(LocalDate.now(), startDate);
+        }
 
         // diaryDto List 만들기
         List<DiaryDto> diaryDtoList = getDiaryDto(diaryList);
@@ -57,8 +73,16 @@ public class DiaryService {
     public void createDiary(User user, DiaryRequestDto diaryRequestDto) {
         // d-day 계산
         // startDate 임시 설정
-        LocalDate startDate = LocalDate.of(2024,8,15);
-        Long dDay = ChronoUnit.DAYS.between(diaryRequestDto.getDate(), startDate);
+        LocalDate startDate = user.getStartDate();
+
+        Long dDay;
+        if(startDate == null) { //startDate 비어있는 경우
+            dDay = null;
+        }
+        else { //startDate 저장되어있는 경우
+            dDay = ChronoUnit.DAYS.between(LocalDate.now(), startDate);
+        }
+
 
         // 일기 저장하기
         Diary diary = Diary.builder()
