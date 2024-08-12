@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 @Table(name = "user")
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "username", nullable = false)
-    private String username;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
@@ -98,7 +95,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
 
     @Override
