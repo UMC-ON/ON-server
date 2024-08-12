@@ -8,7 +8,7 @@ import com.on.server.domain.diary.dto.DiaryResponseDto;
 import com.on.server.domain.diary.dto.StartDateRequestDto;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
@@ -27,6 +27,7 @@ public class DiaryService {
     private final UserRepository userRepository;
 
     // 0. 교환 시작 날짜 설정하기
+    @Transactional
     public void setStartDate(User user, StartDateRequestDto startDateRequestDto) {
         user.setStartDate(startDateRequestDto.getStartDate());
         userRepository.save(user);
@@ -70,6 +71,7 @@ public class DiaryService {
     }
 
     // 2. 일기 등록하기
+    @Transactional
     public void createDiary(User user, DiaryRequestDto diaryRequestDto) {
         // d-day 계산
         // startDate 임시 설정
