@@ -69,6 +69,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "university")
     private String university;
 
+    @Column(name = "device_token")
+    private String deviceToken;
+
     /**
      * Spring Security 전용 속성
      * UserDetails interface 구현
@@ -123,5 +126,9 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
+    }
+
+    public void setDeviceToken(String deviceToken) {
+        this.deviceToken = deviceToken;
     }
 }
