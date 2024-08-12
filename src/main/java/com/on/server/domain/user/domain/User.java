@@ -23,11 +23,14 @@ import java.util.stream.Collectors;
 @Table(name = "user")
 public class User extends BaseEntity implements UserDetails {
 
+    @Column(name = "username", nullable = false)
+    private String username;
+
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "password", nullable = false)
+    private String password;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -52,28 +55,22 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "dispatched_type")
     private DispatchedType dispatchedType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private UserStatus userStatus;
+    @Column(name = "country")
+    private String country;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "country_id")
-    private Country country;
+    @Column(name = "university")
+    private String university;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "university_id")
-    private University university;
-
-
-    // Jwt 전용 설정 (UserDetails 인터페이스 구현)
-
-    @Column(length = 100, nullable = false, unique = true)
-    private String keyCode; // 로그인 식별키
-
-    @ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
+    /**
+     * ACTIVE,
+     * AWAIT,
+     * TEMPORARY,
+     * DENIED
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
     private List<String> roles = new ArrayList<>();
-
-    @Override   //사용자의 권한 목록 리턴
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
@@ -81,13 +78,13 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return keyCode;
+    public String getPassword() {
+        return this.password;
     }
 
     @Override
-    public String getPassword() {
-        return null;
+    public String getUsername() {
+        return this.username;
     }
 
     @Override
@@ -109,7 +106,4 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    // Jwt 전용 설정 종료
-
 }
