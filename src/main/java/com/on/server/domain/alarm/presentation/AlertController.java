@@ -39,5 +39,16 @@ public class AlertController {
         return new CommonResponse<>(ResponseCode.SUCCESS);
     }
 
+    // 알림 리스트 조회
+    @GetMapping("/list")
+    @Operation(summary = "사용자 알림 리스트 조회하기")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getAlertList(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.getUserByUserDetails(userDetails);
+
+        List<AlertListResponseDto> alertResponseDtoList = alertService.getAlertList(user);
+
+        return new CommonResponse<>(ResponseCode.SUCCESS, alertResponseDtoList);
+    }
 
 }

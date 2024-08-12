@@ -31,4 +31,25 @@ public class AlertService {
         userRepository.save(user);
     }
 
+    // 2. 알림 리스트 조회하기
+    public List<AlertListResponseDto> getAlertList(User user) {
+
+        List<Alert> alertList = alertRepository.findByUser(user);
+
+        List<AlertListResponseDto> alertDtoList = getAlertListDto(alertList);
+
+        return alertDtoList;
+    }
+
+    private static List<AlertListResponseDto> getAlertListDto(List<Alert> alertList) {
+        return alertList.stream()
+                .map(alert -> new AlertListResponseDto(
+                                alert.getTitle(),
+                                alert.getContents(),
+                                alert.getAlertType(),
+                                alert.getAlertConnectId()
+                        )
+                ).toList();
+    }
+
 }
