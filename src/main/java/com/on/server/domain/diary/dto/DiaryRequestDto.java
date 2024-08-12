@@ -1,19 +1,16 @@
 package com.on.server.domain.diary.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DiaryRequestDto {
 
     private LocalDate date;
 
     private String content;
 
-    //private Long dDay;
 }

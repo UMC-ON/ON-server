@@ -1,12 +1,12 @@
 package com.on.server.domain.diary.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class DiaryResponseDto {
 
@@ -16,5 +16,5 @@ public class DiaryResponseDto {
 
     private List<DiaryDto> diaryList;
 
-    private List<LocalDate> dateList; //일기 홈에 기록되어있는 날짜들 ()
+    private List<LocalDate> dateList; //일기 홈에 기록되어있는 날짜들
 }
