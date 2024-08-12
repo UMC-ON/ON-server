@@ -1,4 +1,4 @@
-package com.on.server.global.config;
+package com.on.server.global.jwt;
 
 import com.on.server.domain.user.dto.JwtToken;
 import io.jsonwebtoken.*;

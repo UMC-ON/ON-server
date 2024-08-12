@@ -5,7 +5,6 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.dto.SignInDto;
 import com.on.server.domain.user.dto.SignUpDto;
 import com.on.server.domain.user.dto.JwtToken;
-import com.on.server.global.config.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.security.access.expression.SecurityExpressionRoot;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +25,6 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 public class UserController {
 
     private final UserService userService;
-    private final SecurityService securityService;
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@RequestBody SignInDto signInDto) {
