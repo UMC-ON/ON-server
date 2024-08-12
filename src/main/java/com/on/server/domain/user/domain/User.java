@@ -1,7 +1,5 @@
 package com.on.server.domain.user.domain;
 
-import com.on.server.domain.country.Country;
-import com.on.server.domain.university.University;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,9 +23,6 @@ import java.time.LocalDate;
 @Table(name = "user")
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "username", nullable = false)
-    private String username;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
@@ -40,6 +35,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "age", nullable = false)
     private Integer age;
 
+    /**
+     * MALE,
+     * FEMALE
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
@@ -59,6 +58,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "device_token")
     private String deviceToken;
 
+    /**
+     * DISPATCHED,
+     * NOT_DISPATCHED
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "dispatched_type")
     private DispatchedType dispatchedType;
@@ -68,6 +71,12 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "university")
     private String university;
+
+    /**
+     * Spring Security 전용 속성
+     * UserDetails interface 구현
+     * (따로 분리하는 것도 나쁘지 않음)
+     */
 
     /**
      * ACTIVE,
@@ -92,7 +101,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
 
     @Override

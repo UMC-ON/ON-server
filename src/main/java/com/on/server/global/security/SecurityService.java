@@ -1,4 +1,4 @@
-package com.on.server.global.config;
+package com.on.server.global.security;
 
 import com.on.server.domain.user.domain.User;
 import org.springframework.security.core.Authentication;

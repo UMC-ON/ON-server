@@ -1,4 +1,4 @@
-package com.on.server.global.config;
+package com.on.server.global.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
