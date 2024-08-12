@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.time.LocalDate;
+
 
 @Getter
 @Builder
@@ -51,6 +53,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "dispatched_university")
     private String dispatchedUniversity;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     /**
      * DISPATCHED,
@@ -116,5 +121,9 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 }
