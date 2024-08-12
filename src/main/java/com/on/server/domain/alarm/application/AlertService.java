@@ -52,4 +52,17 @@ public class AlertService {
                 ).toList();
     }
 
+    // 3. 알림 저장하기
+    @Transactional
+    public void saveAlert(User user, FcmRequestDto fcmRequestDto) {
+        Alert alert = Alert.builder()
+                .title(fcmRequestDto.getTitle())
+                .contents(fcmRequestDto.getBody())
+                .alertConnectId(fcmRequestDto.getAlertConnectId())
+                .alertType(fcmRequestDto.getAlertType())
+                .user(user)
+                .build();
+    }
+
+
 }

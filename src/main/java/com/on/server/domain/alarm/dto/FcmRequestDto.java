@@ -6,9 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FcmRequestDto {
-    // 알림 받는 유저 디바이스 토큰
-    private String targetToken;
+public class FcmRequestDto { //알림 저장하기 위한 dto
 
     // 알림 제목
     private String title;
@@ -18,5 +16,8 @@ public class FcmRequestDto {
 
     // 알림 타입
     private AlertType alertType;
+
+    // 알림 사용 시 이동할 게시글 id (게시글 알림일 경우에만, 아닌 경우 null로)
+    private Long alertConnectId;
 
 }
