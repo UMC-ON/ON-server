@@ -1,7 +1,5 @@
 package com.on.server.domain.user.domain;
 
-import com.on.server.domain.country.Country;
-import com.on.server.domain.university.University;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

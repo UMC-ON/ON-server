@@ -76,13 +76,12 @@ public enum ResponseCode {
     private String message;
 
 
-    /*
+    /**
         해당되는 코드 매핑
         @param code
         @param inSuccess
         @param message
-
-     */
+     **/
     ResponseCode(int code, boolean inSuccess, String message) {
         this.inSuccess = inSuccess;
         this.code = code;

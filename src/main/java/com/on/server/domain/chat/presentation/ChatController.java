@@ -2,7 +2,7 @@ package com.on.server.domain.chat.presentation;
 
 import com.on.server.domain.chat.application.ChatService;
 import com.on.server.global.common.CommonResponse;
-import com.on.server.global.common.CustomException;
+import com.on.server.global.common.exceptions.BaseRuntimeException;
 import com.on.server.global.common.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +21,8 @@ public class ChatController {
     public CommonResponse<?> apiTest() {
         try {
             return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getApiTest());
-        } catch (CustomException e) {
-            return new CommonResponse<>(e.getStatus());
+        } catch (BaseRuntimeException e) {
+            return new CommonResponse<>(e.getResponseCode());
         }
     }
     // ******************

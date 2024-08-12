@@ -34,9 +34,12 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                // 해당 API에 대해서는 모든 요청을 허가
+                                // 로그인 API에 대해서는 모든 요청을 허가
                                 .requestMatchers("/api/v1/user/sign-in").permitAll()
+                                // 회원 가입 API에 대해서는 모든 요청을 허가
                                 .requestMatchers("/api/v1/user/sign-up").permitAll()
+                                // 중복 체크 api에 대해서는 모든 요청을 허가
+                                .requestMatchers("/api/v1/user/duplicate_check/**").permitAll()
                                 // USER 권한이 있어야 요청할 수 있음
                                 .requestMatchers("/api/v1/user/test").hasAnyRole("AWAIT", "ACTIVE", "TEMPORARY")
                                 // Swagger UI에 대해서는 모든 요청을 허가

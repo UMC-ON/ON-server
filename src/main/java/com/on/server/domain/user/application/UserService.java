@@ -2,7 +2,7 @@ package com.on.server.domain.user.application;
 
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
-import com.on.server.domain.user.dto.SignUpDto;
+import com.on.server.domain.user.dto.SignUpRequestDto;
 import com.on.server.global.jwt.JwtTokenProvider;
 import com.on.server.domain.user.dto.JwtToken;
 import lombok.RequiredArgsConstructor;
@@ -49,20 +49,28 @@ public class UserService {
     }
 
     @Transactional
-    public Void signUp(SignUpDto signUpDto) {
-        if (userRepository.existsByEmail(signUpDto.getEmail())) {
+    public Void signUp(SignUpRequestDto signUpRequestDto) {
+        if (userRepository.existsByEmail(signUpRequestDto.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
         // Password 암호화
-        String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
+        String encodedPassword = passwordEncoder.encode(signUpRequestDto.getPassword());
         List<String> roles = new ArrayList<>();
         roles.add("AWAIT");  // USER 권한 부여
-        userRepository.save(signUpDto.toEntity(encodedPassword, roles));
+        userRepository.save(signUpRequestDto.toEntity(encodedPassword, roles));
         return null;
     }
 
     public User getUserByUserDetails(UserDetails userDetails) {
         return userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("해당하는 회원을 찾을 수 없습니다."));
+    }
+
+    public Boolean isDuplicateEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public Boolean isDuplicateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 
     public User test(User user) {
