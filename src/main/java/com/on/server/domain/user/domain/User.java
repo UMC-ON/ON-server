@@ -55,9 +55,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "start_date")
     private LocalDate startDate;
 
-    @Column(name = "device_token")
-    private String deviceToken;
-
     /**
      * DISPATCHED,
      * NOT_DISPATCHED
@@ -126,9 +123,5 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
-    }
-
-    public void setDeviceToken(String deviceToken) {
-        this.deviceToken = deviceToken;
     }
 }
