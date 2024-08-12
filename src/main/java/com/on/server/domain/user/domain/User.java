@@ -38,6 +38,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "age", nullable = false)
     private Integer age;
 
+    /**
+     * MALE,
+     * FEMALE
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
@@ -51,6 +55,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "dispatched_university")
     private String dispatchedUniversity;
 
+    /**
+     * DISPATCHED,
+     * NOT_DISPATCHED
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "dispatched_type")
     private DispatchedType dispatchedType;
@@ -60,6 +68,12 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "university")
     private String university;
+
+    /**
+     * Spring Security 전용 속성
+     * UserDetails interface 구현
+     * (따로 분리하는 것도 나쁘지 않음)
+     */
 
     /**
      * ACTIVE,
