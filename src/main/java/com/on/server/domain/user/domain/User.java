@@ -1,5 +1,7 @@
 package com.on.server.domain.user.domain;
 
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,9 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import java.time.LocalDate;
@@ -46,28 +46,34 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "phone", nullable = false)
     private String phone;
 
+    // 교환/방문 여부
     @Column(name = "is_dispatch_confirmed", nullable = false)
     private Boolean isDispatchConfirmed;
 
-    @Column(name = "dispatched_university")
-    private String dispatchedUniversity;
-
-    @Column(name = "start_date")
-    private LocalDate startDate;
-
     /**
+     * 교환/방문 타입
      * DISPATCHED,
-     * NOT_DISPATCHED
+     * EXCHANGED
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "dispatched_type")
     private DispatchedType dispatchedType;
 
+    // 교환/방문교 이름
+    @Column(name = "dispatched_university")
+    private String dispatchedUniversity;
+
+    // 교환/방문교 홈페이지 링크
+    @Column(name = "university_url")
+    private String universityUrl;
+
+    // 교환/방문교의 소재 국가
     @Column(name = "country")
     private String country;
 
-    @Column(name = "university")
-    private String university;
+    // 나의 교환(일기) 시작 일자)
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     /**
      * Spring Security 전용 속성
@@ -76,18 +82,19 @@ public class User extends BaseEntity implements UserDetails {
      */
 
     /**
-     * ACTIVE,
-     * AWAIT,
-     * TEMPORARY,
-     * DENIED
+     * ACTIVE - 파견교 인증까지 완료한 사용자
+     * AWAIT - 파견교 인증을 기다리는 사용자
+     * DENIED - 파견교 인증 거부된 사용자
+     * TEMPORARY - 임시 사용자(파견 X)
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    private Set<UserStatus> roles = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
     }
 
@@ -124,4 +131,25 @@ public class User extends BaseEntity implements UserDetails {
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
+
+    public void addRole(UserStatus role) {
+        this.roles.add(role);
+    }
+
+    public void updateRole(UserStatus oldRole, UserStatus newRole) {
+        if (!this.getRoles().contains(oldRole))
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "유저에게 해당 기존 권한이 존재하지 않습니다.");
+        this.removeRole(oldRole);
+        this.addRole(newRole);
+    }
+
+    public void clearAndAddRole(UserStatus role) {
+        this.roles.clear();
+        this.roles.add(role);
+    }
+
+    public void removeRole(UserStatus role) {
+        this.roles.remove(role);
+    }
+
 }

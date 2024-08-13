@@ -1,6 +1,7 @@
 package com.on.server.domain.user.application;
 
 import com.on.server.domain.user.domain.User;
+import com.on.server.domain.user.domain.UserStatus;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.domain.user.dto.SignUpRequestDto;
 import com.on.server.global.jwt.JwtTokenProvider;
@@ -13,9 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,13 +49,24 @@ public class UserService {
     @Transactional
     public Void signUp(SignUpRequestDto signUpRequestDto) {
         if (userRepository.existsByEmail(signUpRequestDto.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
+            throw new IllegalArgumentException("이미 사용 중인 사용자 이메일입니다.");
         }
         // Password 암호화
         String encodedPassword = passwordEncoder.encode(signUpRequestDto.getPassword());
-        List<String> roles = new ArrayList<>();
-        roles.add("AWAIT");  // USER 권한 부여
-        userRepository.save(signUpRequestDto.toEntity(encodedPassword, roles));
+        UserStatus role = UserStatus.TEMPORARY;
+        if (signUpRequestDto.getIsDispatchConfirmed()) {
+            if (signUpRequestDto.getDispatchedType() == null
+                    || signUpRequestDto.getDispatchedUniversity() == null
+                    || signUpRequestDto.getUniversityUrl() == null
+                    || signUpRequestDto.getCountry() == null
+            ) {
+                throw new IllegalArgumentException("교환/방문교가 미정이 아닐 시 교환/방문교 이름, 교환/방문교 URL, 교환/방문교 국가는 필수 입력 값입니다.");
+            }
+            role = UserStatus.AWAIT;  // AWAIT 권한 부여
+            // TODO: 교환/방문교 인증 로직 추가
+        }
+
+        userRepository.save(signUpRequestDto.toEntity(encodedPassword, role));
         return null;
     }
 

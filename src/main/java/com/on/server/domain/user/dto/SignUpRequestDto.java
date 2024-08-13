@@ -3,6 +3,7 @@ package com.on.server.domain.user.dto;
 import com.on.server.domain.user.domain.DispatchedType;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
+import com.on.server.domain.user.domain.UserStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,8 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor
@@ -43,21 +44,16 @@ public class SignUpRequestDto {
     @NotNull(message = "학교 인증 여부는 필수 입력 값입니다.")
     private Boolean isDispatchConfirmed;
 
-    @NotBlank(message = "학교 이름은 필수 입력 값입니다.")
-    private String dispatchedUniversity;
-
-    @NotNull(message = "학교 분류는 필수 입력 값입니다.")
     private DispatchedType dispatchedType;
 
-    @NotBlank(message = "국가는 필수 입력 값입니다.")
+    private String dispatchedUniversity;
+
+    private String universityUrl;
+
     private String country;
 
-    @NotBlank(message = "대학교는 필수 입력 값입니다.")
-    private String university;
-
-    public User toEntity(String encodedPassword, List<String> roles) {
-
-        return User.builder()
+    public User toEntity(String encodedPassword, UserStatus role) {
+        User user = User.builder()
                 .email(email)
                 .password(encodedPassword)
                 .nickname(nickname)
@@ -65,11 +61,12 @@ public class SignUpRequestDto {
                 .gender(gender)
                 .phone(phone)
                 .isDispatchConfirmed(isDispatchConfirmed)
-                .dispatchedUniversity(dispatchedUniversity)
                 .dispatchedType(dispatchedType)
+                .dispatchedUniversity(dispatchedUniversity)
+                .universityUrl(universityUrl)
                 .country(country)
-                .university(university)
-                .roles(roles)
                 .build();
+        user.addRole(role);
+        return user;
     }
 }

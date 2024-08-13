@@ -1,6 +1,6 @@
 package com.on.server.domain.chat.application;
 
-import com.on.server.global.common.exceptions.BaseRuntimeException;
+import com.on.server.global.common.BaseRuntimeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
