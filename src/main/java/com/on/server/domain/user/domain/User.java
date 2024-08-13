@@ -150,4 +150,8 @@ public class User extends BaseEntity implements UserDetails {
         this.nickname = nickname;
     }
 
+    public void setUniversityUrl(String universityUrl) {
+        this.universityUrl = universityUrl;
+    }
+
 }

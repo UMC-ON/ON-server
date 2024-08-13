@@ -10,8 +10,10 @@ import com.on.server.domain.user.dto.response.UserInfoResponseDto;
 import com.on.server.global.common.CommonResponse;
 import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
-@Tag(name = "User", description = "User API")
+@Tag(name = "사용자", description = "User API, 사용자 관련 API")
 public class UserController {
 
     private final SecurityService securityService;
@@ -91,6 +93,16 @@ public class UserController {
             @RequestBody String nickname
     ) {
         userService.updateUserNickName(securityService.getUserByUserDetails(userDetails), nickname);
+        return CommonResponse.success();
+    }
+
+    @PutMapping("/current/update/univ_url")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser()")
+    public CommonResponse<Void> updateCurrentUserUniversityUrl(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody @URL(message = "올바른 URL 형식이 아닙니다.") String universityUrl
+    ) {
+        userService.updateUserUniversityUrl(securityService.getUserByUserDetails(userDetails), universityUrl);
         return CommonResponse.success();
     }
 
