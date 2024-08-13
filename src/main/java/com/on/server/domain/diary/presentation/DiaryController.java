@@ -7,6 +7,7 @@ import com.on.server.domain.user.application.UserService;
 import com.on.server.domain.user.domain.User;
 import com.on.server.global.common.CommonResponse;
 import com.on.server.global.common.ResponseCode;
+import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,14 @@ public class DiaryController {
 
     private final UserService userService;
 
+    private final SecurityService securityService;
+
     // 0. 날짜 설정하기
     @PostMapping("/startdate")
     @Operation(summary = "시작 날짜 설정")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> setStartDate(@AuthenticationPrincipal UserDetails userDetails, @RequestBody StartDateRequestDto startDateRequestDto) {
-        User user = userService.getUserByUserDetails(userDetails);
+        User user = securityService.getUserByUserDetails(userDetails);
         diaryService.setStartDate(user, startDateRequestDto);
 
         return new CommonResponse<>(ResponseCode.SUCCESS);
@@ -42,7 +45,7 @@ public class DiaryController {
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> getDiaryHome(@AuthenticationPrincipal UserDetails userDetails) {
 
-        User user = userService.getUserByUserDetails(userDetails);
+        User user = securityService.getUserByUserDetails(userDetails);
         return new CommonResponse<>(ResponseCode.SUCCESS, diaryService.getDiary(user));
     }
 
@@ -52,7 +55,7 @@ public class DiaryController {
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> createDiary(@AuthenticationPrincipal UserDetails userDetails, @RequestBody DiaryRequestDto diaryRequestDto) {
 
-        User user = userService.getUserByUserDetails(userDetails);
+        User user = securityService.getUserByUserDetails(userDetails);
         diaryService.createDiary(user, diaryRequestDto);
 
         return new CommonResponse<>(ResponseCode.SUCCESS);

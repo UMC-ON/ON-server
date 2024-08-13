@@ -3,17 +3,22 @@ package com.on.server.domain.user.application;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
 import com.on.server.domain.user.domain.repository.UserRepository;
-import com.on.server.domain.user.dto.SignUpRequestDto;
+import com.on.server.domain.user.dto.request.SignUpRequestDto;
+import com.on.server.domain.user.dto.response.UserInfoResponseDto;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.jwt.JwtTokenProvider;
-import com.on.server.domain.user.dto.JwtToken;
+import com.on.server.domain.user.dto.request.JwtToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -47,31 +52,38 @@ public class UserService {
     }
 
     @Transactional
-    public Void signUp(SignUpRequestDto signUpRequestDto) {
+    public void signUp(SignUpRequestDto signUpRequestDto) {
         if (userRepository.existsByEmail(signUpRequestDto.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 사용자 이메일입니다.");
-        }
-        // Password 암호화
-        String encodedPassword = passwordEncoder.encode(signUpRequestDto.getPassword());
-        UserStatus role = UserStatus.TEMPORARY;
-        if (signUpRequestDto.getIsDispatchConfirmed()) {
-            if (signUpRequestDto.getDispatchedType() == null
-                    || signUpRequestDto.getDispatchedUniversity() == null
-                    || signUpRequestDto.getUniversityUrl() == null
-                    || signUpRequestDto.getCountry() == null
-            ) {
-                throw new IllegalArgumentException("교환/방문교가 미정이 아닐 시 교환/방문교 이름, 교환/방문교 URL, 교환/방문교 국가는 필수 입력 값입니다.");
-            }
-            role = UserStatus.AWAIT;  // AWAIT 권한 부여
-            // TODO: 교환/방문교 인증 로직 추가
+            throw new BadRequestException(ResponseCode.ROW_ALREADY_EXIST, "이미 사용 중인 사용자 이메일입니다.");
         }
 
-        userRepository.save(signUpRequestDto.toEntity(encodedPassword, role));
-        return null;
+        userRepository.save(signUpRequestDto.toEntity(
+                passwordEncoder.encode(signUpRequestDto.getPassword()),
+                UserStatus.TEMPORARY
+        ));
     }
 
-    public User getUserByUserDetails(UserDetails userDetails) {
-        return userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("해당하는 회원을 찾을 수 없습니다."));
+    public UserStatus getUserStatusByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
+        Set<UserStatus> userStatusSet = user.getRoles();
+        if (userStatusSet.size() != 1)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "User 권한은 하나여야 합니다. 관리자에게 문의 바랍니다. 현재 권한 수: " + userStatusSet.size());
+        return userStatusSet.stream().findFirst().get();
+    }
+
+    public UserInfoResponseDto getUserInfoByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
+        return UserInfoResponseDto.from(user);
+    }
+
+    public void updateUserNickName(User user, String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "이미 사용 중인 사용자 닉네임입니다.");
+        }
+        user.setNickname(nickname);
+        userRepository.save(user);
     }
 
     public Boolean isDuplicateEmail(String email) {

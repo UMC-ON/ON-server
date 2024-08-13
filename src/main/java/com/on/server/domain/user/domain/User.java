@@ -78,15 +78,9 @@ public class User extends BaseEntity implements UserDetails {
     /**
      * Spring Security 전용 속성
      * UserDetails interface 구현
-     * (따로 분리하는 것도 나쁘지 않음)
+     * TODO: 따로 분리하는 것도 나쁘지 않을 듯
      */
 
-    /**
-     * ACTIVE - 파견교 인증까지 완료한 사용자
-     * AWAIT - 파견교 인증을 기다리는 사용자
-     * DENIED - 파견교 인증 거부된 사용자
-     * TEMPORARY - 임시 사용자(파견 X)
-     */
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private Set<UserStatus> roles = new HashSet<>();
@@ -132,10 +126,6 @@ public class User extends BaseEntity implements UserDetails {
         this.startDate = startDate;
     }
 
-    public void addRole(UserStatus role) {
-        this.roles.add(role);
-    }
-
     public void updateRole(UserStatus oldRole, UserStatus newRole) {
         if (!this.getRoles().contains(oldRole))
             throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "유저에게 해당 기존 권한이 존재하지 않습니다.");
@@ -148,8 +138,16 @@ public class User extends BaseEntity implements UserDetails {
         this.roles.add(role);
     }
 
-    public void removeRole(UserStatus role) {
+    private void addRole(UserStatus role) {
+        this.roles.add(role);
+    }
+
+    private void removeRole(UserStatus role) {
         this.roles.remove(role);
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
 }
