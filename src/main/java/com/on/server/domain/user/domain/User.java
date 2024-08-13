@@ -57,7 +57,7 @@ public class User extends BaseEntity implements UserDetails {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "dispatched_type")
-    private DispatchedType dispatchedType;
+    private DispatchType dispatchType;
 
     // 교환/방문교 이름
     @Column(name = "dispatched_university")

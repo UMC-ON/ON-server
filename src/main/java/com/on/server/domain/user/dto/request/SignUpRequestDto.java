@@ -6,16 +6,10 @@ import com.on.server.domain.user.domain.UserStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class SignUpRequestDto {
 
     @Email(message = "이메일 형식이 아닙니다.")

@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DispatchCertifyRepository extends JpaRepository<Long, DispatchCertify> {
+public interface DispatchCertifyRepository extends JpaRepository<DispatchCertify, Long> {
 }
