@@ -1,6 +1,6 @@
 package com.on.server.global.jwt;
 
-import com.on.server.domain.user.dto.JwtToken;
+import com.on.server.domain.user.dto.request.JwtToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
