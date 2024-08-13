@@ -2,7 +2,7 @@ package com.on.server.domain.chat.presentation;
 
 import com.on.server.domain.chat.application.ChatService;
 import com.on.server.global.common.CommonResponse;
-import com.on.server.global.common.exceptions.BaseRuntimeException;
+import com.on.server.global.common.BaseRuntimeException;
 import com.on.server.global.common.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

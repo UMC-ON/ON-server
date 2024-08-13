@@ -59,7 +59,7 @@ public class DiaryService {
                 .map(DiaryDto::getWrittenDate)
                 .collect(Collectors.toList());
 
-        return new DiaryResponseDto(user.getUniversity(), dDayNow, diaryDtoList, dateList);
+        return new DiaryResponseDto(user.getDispatchedUniversity(), dDayNow, diaryDtoList, dateList);
     }
 
     private static List<DiaryDto> getDiaryDto(List<Diary> diaryList) {

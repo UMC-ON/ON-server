@@ -1,6 +1,5 @@
 package com.on.server.global.common;
 
-import com.on.server.global.common.exceptions.BaseRuntimeException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

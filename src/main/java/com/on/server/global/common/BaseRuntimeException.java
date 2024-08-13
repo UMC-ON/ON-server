@@ -1,6 +1,5 @@
-package com.on.server.global.common.exceptions;
+package com.on.server.global.common;
 
-import com.on.server.global.common.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

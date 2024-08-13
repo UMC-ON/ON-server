@@ -1,4 +1,4 @@
-package com.on.server.global.security;
+package com.on.server.global.security.config;
 
 import com.on.server.global.jwt.JwtAuthenticationFilter;
 import com.on.server.global.jwt.JwtTokenProvider;
@@ -42,6 +42,8 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/user/duplicate_check/**").permitAll()
                                 // USER 권한이 있어야 요청할 수 있음
                                 .requestMatchers("/api/v1/user/test").hasAnyRole("AWAIT", "ACTIVE", "TEMPORARY")
+                                // S3 upload 테스트 API
+                                .requestMatchers("api/v1/uuid-file/**").permitAll()
                                 // Swagger UI에 대해서는 모든 요청을 허가
                                 .requestMatchers(
                                         "/auth/**",
