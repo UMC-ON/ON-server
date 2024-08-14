@@ -99,15 +99,9 @@ public class DispatchCertifyService {
         if (permitStatus.equals(PermitStatus.CLOSED)) return;
 
         User user = dispatchCertify.getUser();
-        if (permitStatus.equals(PermitStatus.AWAIT)) {
-            user.changeRole(UserStatus.AWAIT);
-        } else if (permitStatus.equals(PermitStatus.ACTIVE)) {
-            user.changeRole(UserStatus.ACTIVE);
-        } else if (permitStatus.equals(PermitStatus.DENIED)) {
-            user.changeRole(UserStatus.DENIED);
-        }
+        user.changeRoleByDispatchCertify(dispatchCertify);
 
-        closeAllUserCertify(user);
+        closeAllUserCertifyExceptCurrentCertify(user, dispatchCertify);
         userRepository.save(user);
     }
 
@@ -130,6 +124,15 @@ public class DispatchCertifyService {
         List<DispatchCertify> dispatchCertifyList = dispatchCertifyRepository.findAllByUser(user);
         for (DispatchCertify dispatchCertify : dispatchCertifyList) {
             dispatchCertify.setPermitStatus(PermitStatus.CLOSED);
+        }
+        dispatchCertifyRepository.saveAll(dispatchCertifyList);
+    }
+
+    private void closeAllUserCertifyExceptCurrentCertify(User user, DispatchCertify dispatchCertify) {
+        List<DispatchCertify> dispatchCertifyList = dispatchCertifyRepository.findAllByUser(user);
+        for (DispatchCertify certify : dispatchCertifyList) {
+            if (certify.equals(dispatchCertify)) continue;
+            certify.setPermitStatus(PermitStatus.CLOSED);
         }
         dispatchCertifyRepository.saveAll(dispatchCertifyList);
     }

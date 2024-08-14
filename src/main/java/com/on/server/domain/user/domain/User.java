@@ -1,5 +1,7 @@
 package com.on.server.domain.user.domain;
 
+import com.on.server.domain.dispatchCertify.domain.DispatchCertify;
+import com.on.server.domain.dispatchCertify.domain.PermitStatus;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.InternalServerException;
@@ -146,6 +148,19 @@ public class User extends BaseEntity implements UserDetails {
         this.roles.clear();
         this.roles.add(role);
         this.setIsDispatchConfirmed(!role.equals(UserStatus.TEMPORARY));
+    }
+
+    public void changeRoleByDispatchCertify(DispatchCertify dispatchCertify) {
+        if (dispatchCertify.getPermitStatus().equals(PermitStatus.AWAIT)) {
+            this.changeRole(UserStatus.AWAIT);
+        } else if (dispatchCertify.getPermitStatus().equals(PermitStatus.ACTIVE)) {
+            this.changeRole(UserStatus.ACTIVE);
+        } else if (dispatchCertify.getPermitStatus().equals(PermitStatus.DENIED)) {
+            this.changeRole(UserStatus.DENIED);
+        }
+        this.dispatchType = dispatchCertify.getDispatchType();
+        this.dispatchedUniversity = dispatchCertify.getDispatchedUniversity();
+        this.country = dispatchCertify.getCountry();
     }
 
     private void setIsDispatchConfirmed(Boolean isDispatchConfirmed) {
