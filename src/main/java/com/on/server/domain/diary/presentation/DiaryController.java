@@ -31,7 +31,7 @@ public class DiaryController {
     // 0. 날짜 설정하기
     @PostMapping("/startdate")
     @Operation(summary = "시작 날짜 설정")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> setStartDate(@AuthenticationPrincipal UserDetails userDetails, @RequestBody StartDateRequestDto startDateRequestDto) {
         User user = securityService.getUserByUserDetails(userDetails);
         diaryService.setStartDate(user, startDateRequestDto);
@@ -42,7 +42,7 @@ public class DiaryController {
     // 1. 일기 리스트 보여주는 일기 홈
     @GetMapping("/list")
     @Operation(summary = "일기 홈 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> getDiaryHome(@AuthenticationPrincipal UserDetails userDetails) {
 
         User user = securityService.getUserByUserDetails(userDetails);
@@ -52,7 +52,7 @@ public class DiaryController {
     // 2, 일기 작성하기
     @PostMapping()
     @Operation(summary = "일기 작성하기")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> createDiary(@AuthenticationPrincipal UserDetails userDetails, @RequestBody DiaryRequestDto diaryRequestDto) {
 
         User user = securityService.getUserByUserDetails(userDetails);
