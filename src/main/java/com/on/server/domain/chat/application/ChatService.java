@@ -7,9 +7,7 @@ import com.on.server.domain.chat.domain.SpecialChat;
 import com.on.server.domain.chat.domain.repository.ChatRepository;
 import com.on.server.domain.chat.domain.repository.ChattingRoomRepository;
 import com.on.server.domain.chat.domain.repository.SpecialChatRepository;
-import com.on.server.domain.chat.dto.ChatListResponseDto;
-import com.on.server.domain.chat.dto.ChatRequestDto;
-import com.on.server.domain.chat.dto.ChatResponseDto;
+import com.on.server.domain.chat.dto.*;
 import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.companyPost.domain.repository.CompanyPostRepository;
 import com.on.server.domain.marketPost.domain.MarketPost;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -47,9 +46,39 @@ public class ChatService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final SpecialChatRepository specialChatRepository;
 
-//    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) throws BaseRuntimeException {
-//
-//    }
+    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) throws BaseRuntimeException {
+        // 채팅방 목록
+        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
+
+        List<CompanyChatRoomListResponseDto.roomListDto> roomListDto = chattingRoomList.stream()
+                .map(chattingRoom -> {
+
+                    Chat chat = chatRepository.findFirstByChattingRoomOrderByCreatedAtDesc(chattingRoom);
+
+                    SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
+                    CompanyPost companyPost = companyPostRepository.findById(specialChat.getCompanyPost().getId()).orElse(null);
+
+                    User chatUserOne = chattingRoom.getChatUserOne();
+                    User chatUserTwo = chattingRoom.getChatUserTwo();
+
+                    String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
+
+                    return new CompanyChatRoomListResponseDto.roomListDto(
+                            chattingRoom.getId(),
+                            senderName,
+                            companyPost.getArrivePlace(),
+                            chat.getContents(),
+                            chat.getCreatedAt().toString()
+                    );
+                }).toList();
+
+        CompanyChatRoomListResponseDto companyChatRoomListResponseDto = CompanyChatRoomListResponseDto.builder()
+                .roomCount(chattingRoomList.size())
+                .roomList(roomListDto)
+                .build();
+
+        return companyChatRoomListResponseDto;
+    }
 
 //    public MarketChatRoomListResponseDto getMarketChatRoomList(User user) throws BaseRuntimeException {
 //
@@ -152,3 +181,4 @@ public class ChatService {
 
 
 }
+

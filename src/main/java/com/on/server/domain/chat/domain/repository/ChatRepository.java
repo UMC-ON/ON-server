@@ -10,4 +10,6 @@ import java.util.List;
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     List<Chat> findAllByChattingRoom(ChattingRoom currentChattingRoom);
+
+    Chat findFirstByChattingRoomOrderByCreatedAtDesc(ChattingRoom chattingRoom);
 }

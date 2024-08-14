@@ -39,18 +39,18 @@ public class ChatController {
     // ******************
 
     // [GET] 동행 - 채팅방 목록 조회
-//    @GetMapping("/company/list")
-//    @Operation(summary = "[동행] 채팅방 목록 조회 API", description = "특정 유저의 '동행' 채팅방 리스트를 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getCompanyChatRoomList(@AuthenticationPrincipal UserDetails userDetails) {
-//        try {
-//            User user = securityService.getUserByUserDetails(userDetails);
-//
-//            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getCompanyChatRoomList(user));
-//        } catch (BaseRuntimeException e) {
-//            return new CommonResponse<>(e.getResponseCode());
-//        }
-//    }
+    @GetMapping("/company/list")
+    @Operation(summary = "[동행] 채팅방 목록 조회 API", description = "특정 유저의 '동행' 채팅방 리스트를 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getCompanyChatRoomList(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User user = securityService.getUserByUserDetails(userDetails);
+
+            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getCompanyChatRoomList(user));
+        } catch (BaseRuntimeException e) {
+            return new CommonResponse<>(e.getResponseCode());
+        }
+    }
 
     // [GET] 거래 - 채팅방 목록 조회
 //    @GetMapping("/market/list")
