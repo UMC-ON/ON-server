@@ -3,8 +3,8 @@ package com.on.server.domain.alarm.presentation;
 import com.on.server.domain.alarm.application.AlertService;
 import com.on.server.domain.alarm.application.FcmService;
 import com.on.server.domain.alarm.dto.FcmRequestDto;
-import com.on.server.domain.user.application.UserService;
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class FcmTestController {
 
     private final AlertService alertService;
 
-    private final UserService userService;
+    private final SecurityService securityService;
 
     private final FcmService fcmService;
 
@@ -32,7 +32,7 @@ public class FcmTestController {
     @Operation(summary = "알림 생성 테스트")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity pushMessage(@AuthenticationPrincipal UserDetails userDetails) throws IOException {
-        User user = userService.getUserByUserDetails(userDetails);
+        User user = securityService.getUserByUserDetails(userDetails);
 
         fcmService.sendMessage(user.getDeviceToken(), "test title", "test body");
 
@@ -44,7 +44,7 @@ public class FcmTestController {
     @Operation(summary = "알림 저장 테스트")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity makeAlert(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.getUserByUserDetails(userDetails);
+        User user = securityService.getUserByUserDetails(userDetails);
 
         FcmRequestDto fcmRequestDto = new FcmRequestDto();
 
