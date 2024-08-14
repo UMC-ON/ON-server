@@ -78,6 +78,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "start_date")
     private LocalDate startDate;
 
+    // 사용자 디바이스 토큰
+    @Column(name = "device_token")
+    private String deviceToken;
+
     /**
      * Spring Security 전용 속성
      * UserDetails interface 구현
@@ -189,6 +193,10 @@ public class User extends BaseEntity implements UserDetails {
         if (universityUrl == null || universityUrl.isEmpty())
             throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 교환/방문교 홈페이지 링크 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
         this.universityUrl = universityUrl;
+    }
+
+    public void setDeviceToken(String deviceToken) {
+        this.deviceToken = deviceToken;
     }
 
 }
