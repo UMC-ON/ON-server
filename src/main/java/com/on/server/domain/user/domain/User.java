@@ -1,7 +1,10 @@
 package com.on.server.domain.user.domain;
 
-import com.on.server.domain.country.Country;
-import com.on.server.domain.university.University;
+import com.on.server.domain.dispatchCertify.domain.DispatchCertify;
+import com.on.server.domain.dispatchCertify.domain.PermitStatus;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,10 +12,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import java.time.LocalDate;
 
 
 @Getter
@@ -22,9 +25,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "user")
 public class User extends BaseEntity implements UserDetails {
-
-    @Column(name = "username", nullable = false)
-    private String username;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -38,6 +38,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "age", nullable = false)
     private Integer age;
 
+    /**
+     * MALE,
+     * FEMALE
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
@@ -45,35 +49,53 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "phone", nullable = false)
     private String phone;
 
+    // 교환/방문 여부
     @Column(name = "is_dispatch_confirmed", nullable = false)
     private Boolean isDispatchConfirmed;
 
+    /**
+     * 교환/방문 타입
+     * DISPATCHED,
+     * EXCHANGED
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dispatched_type")
+    private DispatchType dispatchType;
+
+    // 교환/방문교 이름
     @Column(name = "dispatched_university")
     private String dispatchedUniversity;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "dispatched_type")
-    private DispatchedType dispatchedType;
+    // 교환/방문교 홈페이지 링크
+    @Column(name = "university_url")
+    private String universityUrl;
 
+    // 교환/방문교의 소재 국가
     @Column(name = "country")
     private String country;
 
-    @Column(name = "university")
-    private String university;
+    // 나의 교환(일기) 시작 일자)
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    // 사용자 디바이스 토큰
+    @Column(name = "device_token")
+    private String deviceToken;
 
     /**
-     * ACTIVE,
-     * AWAIT,
-     * TEMPORARY,
-     * DENIED
+     * Spring Security 전용 속성
+     * UserDetails interface 구현
+     * TODO: 따로 분리하는 것도 나쁘지 않을 듯
      */
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    private Set<UserStatus> roles = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
     }
 
@@ -84,7 +106,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
 
     @Override
@@ -106,4 +128,75 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    /**
+     * User 엔티티의 속성을 업데이트하는 메소드
+     */
+
+    public void setStartDate(LocalDate startDate) {
+        if (startDate == null)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 시작 일자 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        this.startDate = startDate;
+    }
+
+    public void updateRole(UserStatus oldRole, UserStatus newRole) {
+        if (!this.getRoles().contains(oldRole))
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "유저에게 해당 기존 권한이 존재하지 않습니다.");
+        this.removeRole(oldRole);
+        this.addRole(newRole);
+    }
+
+    public void changeRole(UserStatus role) {
+        if (role == null)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 권한 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        this.roles.clear();
+        this.roles.add(role);
+        this.setIsDispatchConfirmed(!role.equals(UserStatus.TEMPORARY));
+    }
+
+    public void changeRoleByDispatchCertify(DispatchCertify dispatchCertify) {
+        if (dispatchCertify.getPermitStatus().equals(PermitStatus.AWAIT)) {
+            this.changeRole(UserStatus.AWAIT);
+        } else if (dispatchCertify.getPermitStatus().equals(PermitStatus.ACTIVE)) {
+            this.changeRole(UserStatus.ACTIVE);
+        } else if (dispatchCertify.getPermitStatus().equals(PermitStatus.DENIED)) {
+            this.changeRole(UserStatus.DENIED);
+        }
+        this.dispatchType = dispatchCertify.getDispatchType();
+        this.dispatchedUniversity = dispatchCertify.getDispatchedUniversity();
+        this.country = dispatchCertify.getCountry();
+    }
+
+    private void setIsDispatchConfirmed(Boolean isDispatchConfirmed) {
+        if (isDispatchConfirmed == null)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 교환/방문 여부 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        if (isDispatchConfirmed && this.getRoles().contains(UserStatus.TEMPORARY))
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "임시 회원은 교환/방문 여부 참으로 설정 불가합니다. 관리자에게 문의 바랍니다.");
+        this.isDispatchConfirmed = isDispatchConfirmed;
+    }
+
+    private void addRole(UserStatus role) {
+        this.roles.add(role);
+    }
+
+    private void removeRole(UserStatus role) {
+        this.roles.remove(role);
+    }
+
+    public void setNickname(String nickname) {
+        if (nickname == null || nickname.isEmpty())
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 닉네임 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        this.nickname = nickname;
+    }
+
+    public void setUniversityUrl(String universityUrl) {
+        if (universityUrl == null || universityUrl.isEmpty())
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 교환/방문교 홈페이지 링크 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        this.universityUrl = universityUrl;
+    }
+
+    public void setDeviceToken(String deviceToken) {
+        this.deviceToken = deviceToken;
+    }
+
 }
