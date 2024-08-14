@@ -22,7 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Slf4j
@@ -68,7 +72,7 @@ public class ChatService {
                             senderName,
                             companyPost.getArrivePlace(),
                             chat.getContents(),
-                            chat.getCreatedAt().toString()
+                            formatLastChatTime(chat.getCreatedAt())
                     );
                 }).toList();
 
@@ -80,6 +84,18 @@ public class ChatService {
         return companyChatRoomListResponseDto;
     }
 
+    private String formatLastChatTime(LocalDateTime createdAt) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(createdAt, now);
+
+        if (duration.toDays() == 0) {
+            return createdAt.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH));
+        } else if (duration.toDays() == 1) {
+            return "1일 전";
+        } else {
+            return createdAt.format(DateTimeFormatter.ofPattern("M/d", Locale.ENGLISH));
+        }
+    }
 //    public MarketChatRoomListResponseDto getMarketChatRoomList(User user) throws BaseRuntimeException {
 //
 //    }

@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
 
     private final ChatService chatService;
-    private final UserService userService;
     private final SecurityService securityService;
 
     // ** 추후 삭제 예정 **
@@ -137,4 +136,6 @@ public class ChatController {
             return new CommonResponse<>(e.getResponseCode());
         }
     }
+
+
 }
