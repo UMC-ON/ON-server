@@ -74,9 +74,8 @@ public class ChatController {
     public CommonResponse<?> postChatRoom(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ChatRequestDto chatRequestDto) {
         try {
             User user = securityService.getUserByUserDetails(userDetails);
-            chatService.createChatRoom(user, chatRequestDto);
 
-            return new CommonResponse<>(ResponseCode.SUCCESS);
+            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.createChatRoom(user, chatRequestDto));
         } catch (BaseRuntimeException e) {
             return new CommonResponse<>(e.getResponseCode());
         }

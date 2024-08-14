@@ -1,14 +1,19 @@
 package com.on.server.domain.chat.application;
 
 import com.on.server.domain.chat.domain.Chat;
+import com.on.server.domain.chat.domain.ChatType;
 import com.on.server.domain.chat.domain.ChattingRoom;
+import com.on.server.domain.chat.domain.SpecialChat;
 import com.on.server.domain.chat.domain.repository.ChatRepository;
 import com.on.server.domain.chat.domain.repository.ChattingRoomRepository;
 import com.on.server.domain.chat.domain.repository.SpecialChatRepository;
 import com.on.server.domain.chat.dto.ChatListResponseDto;
 import com.on.server.domain.chat.dto.ChatRequestDto;
-import com.on.server.domain.chat.dto.CompanyChatRoomListResponseDto;
-import com.on.server.domain.chat.dto.MarketChatRoomListResponseDto;
+import com.on.server.domain.chat.dto.ChatResponseDto;
+import com.on.server.domain.companyPost.domain.CompanyPost;
+import com.on.server.domain.companyPost.domain.repository.CompanyPostRepository;
+import com.on.server.domain.marketPost.domain.MarketPost;
+import com.on.server.domain.marketPost.domain.repository.MarketPostRepository;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.common.BaseRuntimeException;
@@ -35,48 +40,64 @@ public class ChatService {
 
 
     private final UserRepository userRepository;
+    private final CompanyPostRepository companyPostRepository;
+    private final MarketPostRepository marketPostRepository;
 
     private final ChatRepository chatRepository;
     private final ChattingRoomRepository chattingRoomRepository;
     private final SpecialChatRepository specialChatRepository;
 
-    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) throws BaseRuntimeException {
-        // 채팅방 목록
-        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
-
-        List<CompanyChatRoomListResponseDto.roomListDto> roomListDto = chattingRoomList.stream()
-                .map(chattingRoom -> new CompanyChatRoomListResponseDto.roomListDto(
-                        chattingRoom.getId(),
-                        user.getNickname(),
-                        "hh",
-                        "aa",
-                        "aa"
-                )).toList();
-
-        CompanyChatRoomListResponseDto companyChatRoomListResponseDto = CompanyChatRoomListResponseDto.builder()
-                .roomCount(chattingRoomList.size())
-                .roomList(roomListDto)
-                .build();
-
-        return companyChatRoomListResponseDto;
-    }
+//    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) throws BaseRuntimeException {
+//
+//    }
 
 //    public MarketChatRoomListResponseDto getMarketChatRoomList(User user) throws BaseRuntimeException {
 //
 //    }
 
     @Transactional
-    public void createChatRoom(User user, ChatRequestDto chatRequestDto) throws BaseRuntimeException {
+    public ChatResponseDto createChatRoom(User user, ChatRequestDto chatRequestDto) throws BaseRuntimeException {
         User chatUserTwo = userRepository.findById(chatRequestDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
         ChattingRoom chattingRoom = ChattingRoom.builder()
                 .chattingRoomType(chatRequestDto.getChatType())
-                .chatUserOne(user)
-                .chatUserTwo(chatUserTwo)
+                .chatUserOne(user) // 글 보고 채팅 신청하는 사람
+                .chatUserTwo(chatUserTwo) // 글 주인
                 .build();
 
-        chattingRoomRepository.save(chattingRoom);
+
+        ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
+
+        if (chatRequestDto.getChatType() == ChatType.COMPANY) {
+            CompanyPost companyPost = companyPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
+
+            SpecialChat specialChat = SpecialChat.builder()
+                    .chattingRoom(savedChattingRoom)
+                    .user(chatUserTwo)
+                    .companyPost(companyPost)
+                    .specialChatType(chatRequestDto.getChatType())
+                    .build();
+
+            specialChatRepository.save(specialChat);
+
+        } else {
+            MarketPost marketPost = marketPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
+
+            SpecialChat specialChat = SpecialChat.builder()
+                    .chattingRoom(savedChattingRoom)
+                    .user(chatUserTwo)
+                    .marketPost(marketPost)
+                    .specialChatType(chatRequestDto.getChatType())
+                    .build();
+
+            specialChatRepository.save(specialChat);
+
+        }
+
+        return ChatResponseDto.builder()
+                .roomId(savedChattingRoom.getId())
+                .build();
     }
 
 
