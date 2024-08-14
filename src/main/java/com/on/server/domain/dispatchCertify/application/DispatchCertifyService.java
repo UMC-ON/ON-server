@@ -13,6 +13,7 @@ import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -88,7 +89,42 @@ public class DispatchCertifyService {
         return dispatchCertifyRepository.findByPermitStatus(permitStatus, pageable).map(DispatchCertifyInfoResponseDto::of);
     }
 
+    @Transactional
+    public void changePermitStatus(Long dispatchCertifyId, PermitStatus permitStatus) {
+        DispatchCertify dispatchCertify = dispatchCertifyRepository.findById(dispatchCertifyId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당 인증 신청 정보를 찾을 수 없습니다."));
+        dispatchCertify.setPermitStatus(permitStatus);
+        dispatchCertifyRepository.save(dispatchCertify);
 
+        if (permitStatus.equals(PermitStatus.CLOSED)) return;
+
+        User user = dispatchCertify.getUser();
+        if (permitStatus.equals(PermitStatus.AWAIT)) {
+            user.changeRole(UserStatus.AWAIT);
+        } else if (permitStatus.equals(PermitStatus.ACTIVE)) {
+            user.changeRole(UserStatus.ACTIVE);
+        } else if (permitStatus.equals(PermitStatus.DENIED)) {
+            user.changeRole(UserStatus.DENIED);
+        }
+
+        closeAllUserCertify(user);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteDispatchCertify(Long dispatchCertifyId) {
+        DispatchCertify dispatchCertify = dispatchCertifyRepository.findById(dispatchCertifyId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당 인증 신청 정보를 찾을 수 없습니다."));
+        dispatchCertifyRepository.delete(dispatchCertify);
+    }
+
+    @Transactional
+    public void deleteDispatchCertify(User user, Long dispatchCertifyId) {
+        DispatchCertify dispatchCertify = dispatchCertifyRepository.findById(dispatchCertifyId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당 인증 신청 정보를 찾을 수 없습니다."));
+        if (!dispatchCertify.getUser().equals(user)) throw new UnauthorizedException(ResponseCode.GRANT_ROLE_NOT_ALLOWED, "해당 인증 신청 삭제에 대한 권한이 없습니다.");
+        dispatchCertifyRepository.delete(dispatchCertify);
+    }
 
     private void closeAllUserCertify(User user) {
         List<DispatchCertify> dispatchCertifyList = dispatchCertifyRepository.findAllByUser(user);

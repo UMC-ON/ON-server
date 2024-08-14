@@ -76,6 +76,7 @@ public class DispatchCertifyController {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByUser(targetUserId, pageable));
     }
 
+    @Operation(summary = "특정 상태의 교환/파견교 인증 정보 페이지 조회(관리자만 사용 가능)")
     @PostMapping("/info/{permitStatus}")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByPermitStatus(
@@ -83,6 +84,36 @@ public class DispatchCertifyController {
             @RequestBody Pageable pageable
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByPermitStatus(permitStatus, pageable));
+    }
+
+    @Operation(summary = "교환/파견교 인증 상태 변경(관리자만 사용 가능)")
+    @PutMapping("/change-status/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CommonResponse<Void> changePermitStatus(
+            @PathVariable Long id,
+            @RequestBody PermitStatus permitStatus
+    ) {
+        dispatchCertifyService.changePermitStatus(id, permitStatus);
+        return CommonResponse.success();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CommonResponse<Void> deleteDispatchCertify(
+            @PathVariable Long id
+    ) {
+        dispatchCertifyService.deleteDispatchCertify(id);
+        return CommonResponse.success();
+    }
+
+    @Operation(summary = "본인의 교환/파견교 인증 정보 삭제")
+    @DeleteMapping("/delete/self/{id}")
+    public CommonResponse<Void> deleteSelfDispatchCertify(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id
+    ) {
+        dispatchCertifyService.deleteDispatchCertify(securityService.getUserByUserDetails(userDetails), id);
+        return CommonResponse.success();
     }
 
 }
