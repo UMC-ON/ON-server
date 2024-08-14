@@ -9,6 +9,7 @@ import com.on.server.domain.user.dto.request.JwtToken;
 import com.on.server.domain.user.dto.response.UserInfoResponseDto;
 import com.on.server.global.common.CommonResponse;
 import com.on.server.global.security.SecurityService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class UserController {
     private final UserService userService;
 
     // 로그인
+    @Operation(summary = "로그인")
     @PostMapping("/sign-in")
     public CommonResponse<JwtToken> signIn(
             @RequestBody SignInRequestDto signInRequestDto
@@ -45,6 +47,7 @@ public class UserController {
     }
 
     // 회원가입
+    @Operation(summary = "회원가입")
     @PostMapping("/sign-up")
     public CommonResponse<Void> signUp(
             @RequestBody SignUpRequestDto signUpRequestDto
@@ -54,6 +57,7 @@ public class UserController {
     }
 
     // 이메일 중복 체크
+    @Operation(summary = "이메일 중복 체크")
     @PostMapping("/duplicate_check/email")
     public CommonResponse<Boolean> isDuplicateEmail(
             @RequestBody String email
@@ -62,6 +66,7 @@ public class UserController {
     }
 
     // 닉네임 중복 체크
+    @Operation(summary = "닉네임 중복 체크")
     @PostMapping("/duplicate_check/nickname")
     public CommonResponse<Boolean> isDuplicateNickname(
             @RequestBody String nickname
@@ -70,6 +75,7 @@ public class UserController {
     }
 
     // 현재 사용자 UserStatus 조회
+    @Operation(summary = "현재 사용자 UserStatus 조회")
     @GetMapping("/current/status")
     public CommonResponse<UserStatus> getCurrentUserStatus(
             @AuthenticationPrincipal UserDetails userDetails
@@ -78,6 +84,7 @@ public class UserController {
     }
 
     // 현재 사용자 정보 조회
+    @Operation(summary = "현재 사용자 정보 조회")
     @GetMapping("/current/info")
     public CommonResponse<UserInfoResponseDto> getCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails
@@ -86,6 +93,7 @@ public class UserController {
     }
 
     // 현재 사용자 닉네임 수정
+    @Operation(summary = "현재 사용자 닉네임 수정")
     @PutMapping("/current/update/nickname")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser()")
     public CommonResponse<Void> updateCurrentUserNickname(
@@ -96,6 +104,7 @@ public class UserController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "현재 사용자 교환/방문교 URL 수정")
     @PutMapping("/current/update/univ_url")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser()")
     public CommonResponse<Void> updateCurrentUserUniversityUrl(
@@ -108,6 +117,7 @@ public class UserController {
 
 
     // 로그인 테스트 API
+    @Operation(summary = "로그인 테스트 API, test 용도")
     @PostMapping("/test")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED', 'TEMPORARY')")
     public CommonResponse<User> test(
