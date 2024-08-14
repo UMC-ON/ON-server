@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,10 +30,10 @@ public class DispatchCertifyController {
     private final SecurityService securityService;
 
     @Operation(summary = "교환/파견교 인증 신청")
-    @PostMapping("/apply")
+    @PostMapping(value = "/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Void> applyDispatchCertify(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody DispatchCertifyApplyRequestDto dispatchCertifyApplyRequestDto,
+            @RequestPart(value = "dispatchCertifyApplyRequestDto") DispatchCertifyApplyRequestDto dispatchCertifyApplyRequestDto,
             @RequestPart(value = "fileList") List<MultipartFile> fileList
     ) {
         dispatchCertifyService.applyDispatchCertify(securityService.getUserByUserDetails(userDetails), dispatchCertifyApplyRequestDto, fileList);
