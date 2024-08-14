@@ -18,7 +18,7 @@ import java.util.List;
 @Tag(name = "동행구하기글 작성")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/company-posts")
+@RequestMapping("/api/v1/company-posts")
 public class CompanyPostController {
 
     private final CompanyPostService companyPostService;
