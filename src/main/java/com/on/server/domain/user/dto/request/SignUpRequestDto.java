@@ -40,7 +40,7 @@ public class SignUpRequestDto {
                 .phone(phone)
                 .isDispatchConfirmed(false)
                 .build();
-        user.clearAndAddRole(role);
+        user.changeRole(role);
         return user;
     }
 }

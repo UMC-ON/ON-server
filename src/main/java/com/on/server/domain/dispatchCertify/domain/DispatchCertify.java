@@ -42,4 +42,8 @@ public class DispatchCertify extends BaseEntity {
     @Column(name = "permit_status")
     private PermitStatus permitStatus;
 
+    public void setPermitStatus(PermitStatus permitStatus) {
+        this.permitStatus = permitStatus;
+    }
+
 }
