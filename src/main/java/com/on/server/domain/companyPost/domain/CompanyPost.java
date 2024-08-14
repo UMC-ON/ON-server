@@ -34,16 +34,19 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "departure_place", nullable = false)
-    private String departurePlace;
+    // 여행 지역 리스트
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "company_post_travel_area", joinColumns = @JoinColumn(name = "company_post_id"))
+    @Column(name = "travel_area")
+    private List<String> travelArea = new ArrayList<>();
 
-    @Column(name = "arrive_place", nullable = false)
-    private String arrivePlace;
+    @Column(name = "current_recruit_number", nullable = false)
+    private Long currentRecruitNumber;
 
-    @Column(name = "recruit_number", nullable = false)
-    private Long recruitNumber;
+    @Column(name = "total_recruit_number", nullable = false)
+    private Long totalRecruitNumber;
 
-    @Column(name = "schedule_pariod_day", nullable = false)
+    @Column(name = "schedule_period_day", nullable = false)
     private Long schedulePeriodDay;
 
     @Column(name = "start_date", nullable = false)
