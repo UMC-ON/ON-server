@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -23,18 +24,33 @@ public class PostResponseDTO {
     // 작성자 ID
     private Long userId;
 
+    // 작성자 닉네임
+    private String userNickname;
+
+    // 익명 여부
+    private boolean isAnonymous;
+
+    // 파견국가
+    private String country;
+
+    // 파견교
+    private String dispatchedUniversity;
+
+    // 파견교 공개 여부
+    private boolean isAnonymousUniv;
+
     // 게시글 제목
     private String title;
 
     // 게시글 내용
     private String content;
 
-    // 익명 여부
-    private boolean isAnonymous;
-
-    // 파견교 공개 여부
-    private boolean isAnonymousUniv;
-
     // 이미지 ID 리스트
     private List<Long> imageIdList;
+
+    // 생성 시간
+    private LocalDateTime createdAt;
+
+    // 댓글 개수 (선택적)
+    private Integer commentCount;
 }

@@ -31,7 +31,7 @@ public class PostService {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
         return board.getPosts().stream()
-                .map(this::mapToPostResponseDTO)
+                .map(post -> mapToPostResponseDTO(post, true)) // 댓글 수 포함
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +53,7 @@ public class PostService {
 
         postRepository.save(post);
 
-        return mapToPostResponseDTO(post);
+        return mapToPostResponseDTO(post, false); // 댓글 수 미포함
     }
 
     // 3. 특정 게시글 조회
@@ -64,7 +64,7 @@ public class PostService {
         if (!post.getBoard().getType().equals(boardType)) {
             throw new RuntimeException("해당 게시판에 게시글이 존재하지 않습니다.");
         }
-        return mapToPostResponseDTO(post);
+        return mapToPostResponseDTO(post, true); // 댓글 수 포함
     }
 
     // 4. 특정 사용자가 특정 게시판에 작성한 모든 게시글 조회
@@ -77,7 +77,7 @@ public class PostService {
 
         List<Post> posts = postRepository.findByUserAndBoard(user, board);
         return posts.stream()
-                .map(this::mapToPostResponseDTO)
+                .map(post -> mapToPostResponseDTO(post, true)) // 댓글 수 포함
                 .collect(Collectors.toList());
     }
 
@@ -95,16 +95,24 @@ public class PostService {
         postRepository.delete(post);
     }
 
+
     // Post 엔티티를 PostResponseDTO로 매핑하는 메서드
-    private PostResponseDTO mapToPostResponseDTO(Post post) {
+    private PostResponseDTO mapToPostResponseDTO(Post post, boolean includeCommentCount) {
+        User user = post.getUser();
+
         return PostResponseDTO.builder()
                 .postId(post.getId())
                 .boardType(post.getBoard().getType())
-                .userId(post.getUser().getId())
+                .userId(user.getId())
+                .userNickname(user.getNickname())
+                .dispatchedUniversity(user.getDispatchedUniversity())
+                .country(user.getCountry())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .isAnonymous(post.getIsAnonymous())
                 .isAnonymousUniv(post.getIsAnonymousUniv())
+                .createdAt(post.getCreatedAt())
+                .commentCount(includeCommentCount ? post.getComments().size() : 0)
                 .build();
     }
 }

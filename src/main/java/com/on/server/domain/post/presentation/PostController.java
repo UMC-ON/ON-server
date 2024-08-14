@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "게시글 작성")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts")
+@RequestMapping("/api/v1/post")
 public class PostController {
 
     private final PostService postService;
@@ -28,11 +28,9 @@ public class PostController {
     @Operation(summary = "특정 게시판의 모든 게시글 조회")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     @GetMapping("/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getAllPostsByBoardType(@PathVariable BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
-        // PostService를 호출하여 특정 boardType에 해당하는 게시글 목록을 가져옴
+    public ResponseEntity<List<PostResponseDTO>> getAllPostsByBoardType(@PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
         List<PostResponseDTO> posts = postService.getAllPostsByBoardType(boardType);
 
-        // 조회된 게시글 목록을 응답 본문에 담아 HTTP 200 OK 상태와 함께 반환
         return ResponseEntity.ok(posts);
     }
 
@@ -40,11 +38,9 @@ public class PostController {
     @Operation(summary = "특정 게시판에 새로운 게시글 작성")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
     @PostMapping("/{boardType}")
-    public ResponseEntity<PostResponseDTO> createPost(@PathVariable BoardType boardType, @RequestBody PostRequestDTO postRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
-        // PostService를 호출하여 새로운 게시글을 생성
+    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @RequestBody PostRequestDTO postRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
         PostResponseDTO createdPost = postService.createPost(boardType, postRequestDTO);
 
-        // 생성된 게시글을 응답 본문에 담아 HTTP 201 Created 상태와 함께 반환
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
@@ -52,11 +48,9 @@ public class PostController {
     @Operation(summary = "특정 게시판 내의 특정 게시글 조회")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     @GetMapping("/{boardType}/{postId}")
-    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable BoardType boardType, @PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
-        // PostService를 호출하여 특정 boardType과 postId에 해당하는 게시글을 가져옴
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable("boardType") BoardType boardType, @PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetails userDetails) {
         PostResponseDTO post = postService.getPostById(boardType, postId);
 
-        // 조회된 게시글을 응답 본문에 담아 HTTP 200 OK 상태와 함께 반환
         return ResponseEntity.ok(post);
     }
 
@@ -64,8 +58,9 @@ public class PostController {
     @Operation(summary = "사용자가 특정 게시판에 작성한 모든 게시글 조회")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     @GetMapping("/user/{userId}/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getPostsByUserIdAndBoardType(@PathVariable Long userId, @PathVariable BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<PostResponseDTO>> getPostsByUserIdAndBoardType(@PathVariable("userId") Long userId, @PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
         List<PostResponseDTO> posts = postService.getPostsByUserIdAndBoardType(userId, boardType);
+
         return ResponseEntity.ok(posts);
     }
 
@@ -73,11 +68,9 @@ public class PostController {
     @Operation(summary = "사용자가 특정 게시판에 작성한 특정 게시글 삭제")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
     @DeleteMapping("/user/{userId}/{boardType}/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long userId, @PathVariable BoardType boardType, @PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
-        // PostService를 호출하여 특정 boardType, postId 및 userId에 해당하는 게시글을 삭제
+    public ResponseEntity<Void> deletePost(@PathVariable("userId") Long userId, @PathVariable("boardType") BoardType boardType,@PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetails userDetails) {
         postService.deletePost(userId, boardType, postId);
 
-        // HTTP 204 No Content 상태를 반환하여 성공적으로 삭제되었음을 알림
         return ResponseEntity.noContent().build();
     }
 }
