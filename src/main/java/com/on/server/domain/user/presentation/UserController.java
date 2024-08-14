@@ -95,7 +95,7 @@ public class UserController {
     // 현재 사용자 닉네임 수정
     @Operation(summary = "현재 사용자 닉네임 수정")
     @PutMapping("/current/update/nickname")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser()")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     public CommonResponse<Void> updateCurrentUserNickname(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody String nickname
@@ -106,7 +106,7 @@ public class UserController {
 
     @Operation(summary = "현재 사용자 교환/방문교 URL 수정")
     @PutMapping("/current/update/univ_url")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser()")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     public CommonResponse<Void> updateCurrentUserUniversityUrl(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody @URL(message = "올바른 URL 형식이 아닙니다.") String universityUrl
@@ -116,10 +116,15 @@ public class UserController {
     }
 
 
-    // 로그인 테스트 API
+    /** 로그인 테스트 API
+     * PreAuthorize: 해당 메소드에 대한 접근 권한을 설정
+     * @securityService.isNotTemporaryUser(): 임시 사용자가 아닌 경우 필터링
+     * hasAnyRole('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED'): ADMIN, ACTIVE, AWAIT, DENIED, NON_CERTIFIED 권한 중 하나라도 가지고 있는 경우 필터링
+     */
     @Operation(summary = "로그인 테스트 API, test 용도")
     @PostMapping("/test")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED', 'TEMPORARY')")
+    //
+    @PreAuthorize("@securityService.isNotTemporaryUser() or hasAnyRole('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED')")
     public CommonResponse<User> test(
             @AuthenticationPrincipal UserDetails userDetails
             ) {

@@ -6,10 +6,14 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.InternalServerException;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.Set;
 
+@Getter
+@AllArgsConstructor
 @Builder
 public class UserInfoResponseDto {
     private Long id;

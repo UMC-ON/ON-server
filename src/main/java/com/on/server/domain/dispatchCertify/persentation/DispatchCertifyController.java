@@ -9,6 +9,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -62,7 +63,7 @@ public class DispatchCertifyController {
     @PostMapping("/info/current")
     public CommonResponse<Page<DispatchCertifyInfoResponseDto>> getCurrentDispatchCertifyInfoPageByCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByUser(securityService.getUserByUserDetails(userDetails), pageable));
     }
@@ -72,7 +73,7 @@ public class DispatchCertifyController {
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByUser(
             @PathVariable Long targetUserId,
-            @RequestBody Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByUser(targetUserId, pageable));
     }
@@ -82,7 +83,7 @@ public class DispatchCertifyController {
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByPermitStatus(
             @PathVariable PermitStatus permitStatus,
-            @RequestBody Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByPermitStatus(permitStatus, pageable));
     }
