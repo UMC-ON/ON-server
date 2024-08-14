@@ -3,7 +3,7 @@ package com.on.server.domain.user.domain;
 import lombok.Getter;
 
 @Getter
-public enum DispatchedType {
+public enum DispatchType {
     DISPATCHED,
     NOT_DISPATCHED
 }

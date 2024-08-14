@@ -1,7 +1,10 @@
 package com.on.server.domain.user.domain;
 
+import com.on.server.domain.dispatchCertify.domain.DispatchCertify;
+import com.on.server.domain.dispatchCertify.domain.PermitStatus;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,7 +60,7 @@ public class User extends BaseEntity implements UserDetails {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "dispatched_type")
-    private DispatchedType dispatchedType;
+    private DispatchType dispatchType;
 
     // 교환/방문교 이름
     @Column(name = "dispatched_university")
@@ -126,7 +129,13 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 
+    /**
+     * User 엔티티의 속성을 업데이트하는 메소드
+     */
+
     public void setStartDate(LocalDate startDate) {
+        if (startDate == null)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 시작 일자 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
         this.startDate = startDate;
     }
 
@@ -137,9 +146,33 @@ public class User extends BaseEntity implements UserDetails {
         this.addRole(newRole);
     }
 
-    public void clearAndAddRole(UserStatus role) {
+    public void changeRole(UserStatus role) {
+        if (role == null)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 권한 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
         this.roles.clear();
         this.roles.add(role);
+        this.setIsDispatchConfirmed(!role.equals(UserStatus.TEMPORARY));
+    }
+
+    public void changeRoleByDispatchCertify(DispatchCertify dispatchCertify) {
+        if (dispatchCertify.getPermitStatus().equals(PermitStatus.AWAIT)) {
+            this.changeRole(UserStatus.AWAIT);
+        } else if (dispatchCertify.getPermitStatus().equals(PermitStatus.ACTIVE)) {
+            this.changeRole(UserStatus.ACTIVE);
+        } else if (dispatchCertify.getPermitStatus().equals(PermitStatus.DENIED)) {
+            this.changeRole(UserStatus.DENIED);
+        }
+        this.dispatchType = dispatchCertify.getDispatchType();
+        this.dispatchedUniversity = dispatchCertify.getDispatchedUniversity();
+        this.country = dispatchCertify.getCountry();
+    }
+
+    private void setIsDispatchConfirmed(Boolean isDispatchConfirmed) {
+        if (isDispatchConfirmed == null)
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 교환/방문 여부 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        if (isDispatchConfirmed && this.getRoles().contains(UserStatus.TEMPORARY))
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "임시 회원은 교환/방문 여부 참으로 설정 불가합니다. 관리자에게 문의 바랍니다.");
+        this.isDispatchConfirmed = isDispatchConfirmed;
     }
 
     private void addRole(UserStatus role) {
@@ -151,7 +184,15 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     public void setNickname(String nickname) {
+        if (nickname == null || nickname.isEmpty())
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 닉네임 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
         this.nickname = nickname;
+    }
+
+    public void setUniversityUrl(String universityUrl) {
+        if (universityUrl == null || universityUrl.isEmpty())
+            throw new InternalServerException(ResponseCode.INTERNAL_SERVER, "필수 입력 값인 교환/방문교 홈페이지 링크 값 검사를 하지 않았습니다. 관리자에게 문의 바랍니다.");
+        this.universityUrl = universityUrl;
     }
 
     public void setDeviceToken(String deviceToken) {

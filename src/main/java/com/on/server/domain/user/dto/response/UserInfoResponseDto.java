@@ -1,6 +1,6 @@
 package com.on.server.domain.user.dto.response;
 
-import com.on.server.domain.user.domain.DispatchedType;
+import com.on.server.domain.user.domain.DispatchType;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
@@ -19,7 +19,7 @@ public class UserInfoResponseDto {
     private Gender gender;
     private String phone;
     private Boolean isDispatchConfirmed;
-    private DispatchedType dispatchedType;
+    private DispatchType dispatchType;
     private String dispatchedUniversity;
     private String universityUrl;
     private String country;
@@ -40,7 +40,7 @@ public class UserInfoResponseDto {
                     .gender(user.getGender())
                     .phone(user.getPhone())
                     .isDispatchConfirmed(user.getIsDispatchConfirmed())
-                    .dispatchedType(user.getDispatchedType())
+                    .dispatchType(user.getDispatchType())
                     .dispatchedUniversity(user.getDispatchedUniversity())
                     .universityUrl(user.getUniversityUrl())
                     .country(user.getCountry())
