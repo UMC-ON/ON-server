@@ -93,6 +93,10 @@ dependencies {
 	// AWS S3 SDK
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
 	implementation 'com.amazonaws:aws-java-sdk-s3'
+
+	// Google Firebase Admin
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
 }
 
 tasks.named('test') {

@@ -42,6 +42,7 @@ public enum ResponseCode {
     INVALID_REQUEST_USER_STATE(4014, false, "유효하지 않은 사용자 상태입니다."),
     INVALID_FILE_EXTENSION(4015, false, "유효하지 않은 파일 확장자입니다."),
     INVALID_EXPIRE_DATE(4016, false, "유효하지 않은 만료 날짜입니다."),
+    FILE_NEEDED(4017, false, "파일이 필요합니다."),
 
     /**
      * 401 Unauthorized
