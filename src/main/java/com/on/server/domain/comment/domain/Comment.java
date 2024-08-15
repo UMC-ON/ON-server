@@ -36,7 +36,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parentComment;
 
-    // Comment 엔티티 클래스에서
+    // 자식 답글
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> childrenComment = new ArrayList<>();
 }

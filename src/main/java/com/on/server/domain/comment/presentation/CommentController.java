@@ -52,7 +52,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
 
-    // 4. 특정 댓글(parentCommentId)에 답글 작성
+    // 4. 특정 댓글(CommentId)에 답글 작성
     @Operation(summary = "특정 댓글에 답글 작성")
     @PostMapping("/{commentId}/reply")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")

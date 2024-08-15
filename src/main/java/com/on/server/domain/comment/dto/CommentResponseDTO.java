@@ -25,12 +25,15 @@ public class CommentResponseDTO {
     // 게시글 ID
     private Long postId;
 
+    // 작성자 닉네임
+    private String userNickname;
+
     // 익명 여부
     private boolean isAnonymous;
 
     // 댓글 내용
     private String contents;
 
-    // 댓글에 달린 답글의 수
+    // 답글 개수
     private Integer replyCount;
 }
