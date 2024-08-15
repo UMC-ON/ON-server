@@ -4,6 +4,7 @@ import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.companyPost.domain.repository.CompanyPostRepository;
 import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
+import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +25,15 @@ public class CompanyPostService {
     private final CompanyPostRepository companyPostRepository;
     private final UserRepository userRepository;
     //private final ImageRepository imageRepository;
+
+    // 필터링 기능 추가
+    @Transactional(readOnly = true)
+    public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
+        List<CompanyPost> filteredPosts = companyPostRepository.findFilteredCompanyPosts(startDate, endDate, gender, country);
+        return filteredPosts.stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
+    }
 
     // 1. 모든 게시글 조회
     @Transactional(readOnly = true)

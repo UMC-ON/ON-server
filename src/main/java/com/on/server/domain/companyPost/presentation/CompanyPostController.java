@@ -3,6 +3,7 @@ package com.on.server.domain.companyPost.presentation;
 import com.on.server.domain.companyPost.application.CompanyPostService;
 import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
+import com.on.server.domain.user.domain.Gender;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "동행구하기글 작성")
@@ -22,6 +24,21 @@ import java.util.List;
 public class CompanyPostController {
 
     private final CompanyPostService companyPostService;
+
+    // 필터링 기능 추가
+    @Operation(summary = "필터링된 동행구하기 게시글 조회")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/filter")
+    public ResponseEntity<List<CompanyPostResponseDTO>> getFilteredCompanyPosts(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Gender gender,
+            @RequestParam(required = false) String country,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        List<CompanyPostResponseDTO> filteredPosts = companyPostService.getFilteredCompanyPosts(startDate, endDate, gender, country);
+        return ResponseEntity.ok(filteredPosts);
+    }
 
     // 1. 모든 게시글 조회
     @Operation(summary = "모든 동행구하기 게시글 조회")
