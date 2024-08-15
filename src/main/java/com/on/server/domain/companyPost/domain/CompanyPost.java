@@ -5,7 +5,6 @@ import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +56,5 @@ public class CompanyPost extends BaseEntity {
 
 //    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
 //    private List<Image> images = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
-//    private List<CompanyParticipant> participants = new ArrayList<>();
 
 }
