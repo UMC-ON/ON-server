@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -13,6 +15,9 @@ public class CommentResponseDTO {
 
     // 댓글 ID
     private Long commentId;
+
+    // 답글 ID
+    private Long replyId;
 
     // 작성자 ID
     private Long userId;
@@ -25,4 +30,7 @@ public class CommentResponseDTO {
 
     // 댓글 내용
     private String contents;
+
+    // 댓글에 달린 답글의 수
+    private Integer replyCount;
 }
