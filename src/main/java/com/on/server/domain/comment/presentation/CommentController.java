@@ -56,10 +56,10 @@ public class CommentController {
     @Operation(summary = "특정 댓글에 답글 작성")
     @PostMapping("/{commentId}/reply")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
-    public ResponseEntity<CommentResponseDTO> createReply(@PathVariable("parentCommentId") Long parentCommentId,
+    public ResponseEntity<CommentResponseDTO> createReply(@PathVariable("commentId") Long commentId,
                                                           @RequestBody CommentRequestDTO commentRequestDTO,
                                                           @AuthenticationPrincipal UserDetails userDetails) {
-        CommentResponseDTO createdReply = commentService.createReply(parentCommentId, commentRequestDTO);
+        CommentResponseDTO createdReply = commentService.createReply(commentId, commentRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReply);
     }
 }

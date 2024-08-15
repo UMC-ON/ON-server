@@ -103,6 +103,7 @@ public class CommentService {
                 .userId(comment.getUser().getId())
                 .postId(comment.getPost().getId())
                 .isAnonymous(comment.getIsAnonymous())
+                .userNickname(comment.getUser().getNickname())
                 .contents(comment.getContents())
                 .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0) // 답글 수 계산
                 .build();
