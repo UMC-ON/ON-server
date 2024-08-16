@@ -16,7 +16,7 @@ import java.util.List;
 @Tag(name = "물품거래글 스크랩")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/scraps")
+@RequestMapping("/api/v1/scrap")
 public class ScrapController {
 
     private final ScrapService scrapService;
