@@ -1,6 +1,5 @@
 package com.on.server.domain.marketPost.application;
 
-import com.on.server.domain.country.Country;
 import com.on.server.domain.marketPost.domain.MarketPost;
 import com.on.server.domain.marketPost.domain.repository.MarketPostRepository;
 import com.on.server.domain.marketPost.dto.MarketPostRequestDTO;
@@ -11,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,9 +20,6 @@ public class MarketPostService {
 
     private final MarketPostRepository marketPostRepository;
     private final UserRepository userRepository;
-//    private final ImageRepository imageRepository;
-//    private final CountryRepository countryRepository;
-//    private final LocationRepository locationRepository;
 
     // 1. 모든 물품글 조회
     @Transactional(readOnly = true)
@@ -47,10 +41,6 @@ public class MarketPostService {
     public MarketPostResponseDTO createMarketPost(MarketPostRequestDTO requestDTO) {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
-        //Country country = countryRepository.findById(requestDTO.getCountryId())
-                //.orElseThrow(() -> new RuntimeException("국가를 찾을 수 없습니다. ID: " + requestDTO.getCountryId()));
-        //Location location = locationRepository.findById(requestDTO.getLocationId())
-                //.orElseThrow(() -> new RuntimeException("위치를 찾을 수 없습니다. ID: " + requestDTO.getLocationId()));
 
         MarketPost marketPost = MarketPost.builder()
                 .user(user)
@@ -60,9 +50,8 @@ public class MarketPostService {
                 .dealType(requestDTO.getDealType())
                 .dealStatus(requestDTO.getDealStatus())
                 .content(requestDTO.getContent())
-//                .images(images)
-//                .country(country)
-//                .location(location)
+                .currentCountry(requestDTO.getCurrentCountry())
+                .currentLocation(requestDTO.getCurrentLocation())
                 .build();
 
         marketPostRepository.save(marketPost);
@@ -86,8 +75,9 @@ public class MarketPostService {
         return MarketPostResponseDTO.builder()
                 .marketPostId(marketPost.getId())
                 .userId(marketPost.getUser().getId())
-                .countryId(marketPost.getCountry().getId())
-                //.locationId(marketPost.getLocation().getLocationId())
+                .nickname(marketPost.getUser().getNickname())
+                .currentCountry(marketPost.getCurrentCountry())
+                .currentLocation(marketPost.getCurrentLocation())
                 .title(marketPost.getTitle())
                 .cost(marketPost.getCost())
                 .isShare(marketPost.isShare())

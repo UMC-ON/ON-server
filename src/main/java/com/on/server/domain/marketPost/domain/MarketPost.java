@@ -1,6 +1,5 @@
 package com.on.server.domain.marketPost.domain;
 
-import com.on.server.domain.country.Country;
 import com.on.server.domain.scrap.domain.Scrap;
 import com.on.server.domain.user.domain.User;
 import com.on.server.global.domain.BaseEntity;
@@ -45,24 +44,14 @@ public class MarketPost extends BaseEntity {
 //    @OneToMany(mappedBy = "market_post", cascade = CascadeType.ALL)
 //    private List<Image> images = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "country_id", nullable = false)
-    private Country country;
+    @Column(name = "current_country", nullable = false)
+    private String currentCountry;
 
-//    @OneToOne
-//    @JoinColumn(name = "location_id", nullable = false)
-//    private Location location;
-//
-    @OneToMany(mappedBy = "market_post", cascade = CascadeType.ALL)
+    @Column(name = "current_location", nullable = false)
+    private String currentLocation;
+
+    @OneToMany(mappedBy = "marketPost", cascade = CascadeType.ALL)  // 수정된 부분
     private List<Scrap> scraps = new ArrayList<>();
-
-    public enum DealType {
-        DIRECT, DELIVERY
-    }
-
-    public enum DealStatus {
-        COMPLETE, AWAIT
-    }
 }
 
 
