@@ -3,6 +3,7 @@ package com.on.server.domain.marketPost.presentation;
 import com.on.server.domain.marketPost.application.MarketPostService;
 import com.on.server.domain.marketPost.dto.MarketPostRequestDTO;
 import com.on.server.domain.marketPost.dto.MarketPostResponseDTO;
+import com.on.server.domain.scrap.application.ScrapService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +16,11 @@ import java.util.List;
 @Tag(name = "물품거래글 작성")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/market-posts")
+@RequestMapping("/api/v1/market-post")
 public class MarketPostController {
 
     private final MarketPostService marketPostService;
-    //private final ScrapService scrapService;
+    private final ScrapService scrapService;
 
     // 1. 모든 물품글 조회
     @Operation(summary = "모든 물품거래글 조회")

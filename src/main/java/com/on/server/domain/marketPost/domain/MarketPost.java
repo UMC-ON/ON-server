@@ -1,6 +1,7 @@
 package com.on.server.domain.marketPost.domain;
 
 import com.on.server.domain.country.Country;
+import com.on.server.domain.scrap.domain.Scrap;
 import com.on.server.domain.user.domain.User;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -52,8 +53,8 @@ public class MarketPost extends BaseEntity {
 //    @JoinColumn(name = "location_id", nullable = false)
 //    private Location location;
 //
-//    @OneToMany(mappedBy = "market_post", cascade = CascadeType.ALL)
-//    private List<Scrap> scraps = new ArrayList<>();
+    @OneToMany(mappedBy = "market_post", cascade = CascadeType.ALL)
+    private List<Scrap> scraps = new ArrayList<>();
 
     public enum DealType {
         DIRECT, DELIVERY
