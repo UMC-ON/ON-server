@@ -137,5 +137,15 @@ public class ChatController {
         }
     }
 
-
+    // [POST] 모집 완료
+//    @PostMapping("/{roomId}/recruit")
+//    @Operation(summary = "모집 완료 시 버튼 눌렀을 때")
+//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+//    public CommonResponse<?> recruit(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("roomId") Long roomId) {
+//
+//        User user = securityService.getUserByUserDetails(userDetails);
+//        chatService.completeRecruit(user, roomId);
+//
+//        return new CommonResponse<>(ResponseCode.SUCCESS);
+//    }
 }

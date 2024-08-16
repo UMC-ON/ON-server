@@ -45,6 +45,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final CompanyPostRepository companyPostRepository;
     private final MarketPostRepository marketPostRepository;
+//    private final CompanyParticipantRepository companyParticipantRepository;
 
     private final ChatRepository chatRepository;
     private final ChattingRoomRepository chattingRoomRepository;
@@ -70,7 +71,8 @@ public class ChatService {
                     return new CompanyChatRoomListResponseDto.roomListDto(
                             chattingRoom.getId(),
                             senderName,
-                            companyPost.getArrivePlace(),
+//                            companyPost.getArrivePlace(),
+                            "런던", // ** CompanyPost 엔티티 변경된 것 같아 이후 수정 예정 **
                             chat.getContents(),
                             formatLastChatTime(chat.getCreatedAt())
                     );
@@ -195,6 +197,39 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
+
+//    @Transactional
+//    public void completeRecruit(User user, Long roomId) {
+//
+//        // 1. companyPost currentRecruitNumber +1 하기
+//        //roomId로 chattingRoom 찾기
+//        ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
+//                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+//
+//        //chattingRoom으로 specialChat 찾기
+//        SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
+//
+//        //specialChat으로 companyPost 찾기
+//        CompanyPost companyPost = companyPostRepository.findBySpecialChat(specialChat);
+//
+//        //찾은 companyPost currentRecruitNumber +1 하기
+//        Long updateCurrentNumber = companyPost.getCurrentRecruitNumber() + 1 ;
+//        companyPost.updateCurrentNumber(updateCurrentNumber);
+//
+//        companyPostRepository.save(companyPost);
+//
+//
+//        // 2. companyParticipant status -> participant로 바꾸기
+//        User userParticipant = chattingRoom.getChatUserOne();
+//
+//        CompanyParticipant companyParticipant = companyParticipantRepository.findByUser(userParticipant);
+//
+//        //상태 업데이트
+//        companyParticipant.setCompanyParticipantstatus(PARTICIPANT);
+//
+//        companyParticipantRepository.save(companyParticipant);
+//
+//    }
 
 }
 
