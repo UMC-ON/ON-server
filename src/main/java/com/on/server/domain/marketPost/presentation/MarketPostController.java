@@ -104,7 +104,7 @@ public class MarketPostController {
         return ResponseEntity.ok(availablePosts);
     }
 
-    // 8. 거래 상태 업데이트 (예: 거래완료로 변경)
+    // 8. 거래 상태 업데이트
     @Operation(summary = "거래 상태 업데이트")
     @PutMapping("/{marketPostId}/status")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
@@ -115,5 +115,14 @@ public class MarketPostController {
 
         MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId, status);
         return ResponseEntity.ok(updatedPost);
+    }
+
+    // 9. 검색 기능
+    @Operation(summary = "검색")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/search")
+    public ResponseEntity<List<MarketPostResponseDTO>> searchMarketPosts(@RequestParam String keyword, @AuthenticationPrincipal UserDetails userDetails) {
+        List<MarketPostResponseDTO> searchResults = marketPostService.searchMarketPosts(keyword);
+        return ResponseEntity.ok(searchResults);
     }
 }

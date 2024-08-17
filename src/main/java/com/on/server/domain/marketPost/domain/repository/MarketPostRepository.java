@@ -24,4 +24,11 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
             @Param("dealType") DealType dealType,
             @Param("currentCountry") String currentCountry,
             @Param("dealStatus") DealStatus dealStatus);
+
+    // 검색: 국가와 물품에 대한 제목 또는 내용을 검색하는 메서드
+    @Query("SELECT mp FROM MarketPost mp WHERE " +
+            "mp.currentCountry LIKE %:keyword% OR " +
+            "mp.title LIKE %:keyword% OR " +
+            "mp.content LIKE %:keyword%")
+    List<MarketPost> searchMarketPosts(@Param("keyword") String keyword);
 }

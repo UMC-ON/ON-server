@@ -136,6 +136,15 @@ public class MarketPostService {
                 .collect(Collectors.toList());
     }
 
+    // 검색 기능
+    @Transactional(readOnly = true)
+    public List<MarketPostResponseDTO> searchMarketPosts(String keyword) {
+        List<MarketPost> marketPosts = marketPostRepository.searchMarketPosts(keyword);
+        return marketPosts.stream()
+                .map(marketPost -> mapToMarketPostResponseDTO(marketPost))
+                .collect(Collectors.toList());
+    }
+
     // MarketPost 엔티티를 MarketPostResponseDto로 매핑하는 메서드
     private MarketPostResponseDTO mapToMarketPostResponseDTO(MarketPost marketPost) {
         return MarketPostResponseDTO.builder()
