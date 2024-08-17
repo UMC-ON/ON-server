@@ -4,10 +4,12 @@ import com.on.server.domain.companyPost.application.CompanyPostService;
 import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
 import com.on.server.domain.user.domain.Gender;
+import com.on.server.domain.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -63,8 +65,14 @@ public class CompanyPostController {
     // 3. 새로운 게시글 작성
     @Operation(summary = "새로운 동행구하기 게시글 작성")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
-    @PostMapping
-    public ResponseEntity<CompanyPostResponseDTO> createCompanyPost(@RequestBody CompanyPostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CompanyPostResponseDTO> createCompanyPost(@ModelAttribute CompanyPostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        // 현재 인증된 사용자의 ID를 DTO에 설정
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            requestDTO.setUserId(user.getId());
+        }
+
         CompanyPostResponseDTO createdPost = companyPostService.createCompanyPost(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }

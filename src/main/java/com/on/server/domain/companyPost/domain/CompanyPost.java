@@ -1,6 +1,7 @@
 package com.on.server.domain.companyPost.domain;
 
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,7 +41,7 @@ public class CompanyPost extends BaseEntity {
     private List<String> travelArea = new ArrayList<>();
 
     @Column(name = "current_recruit_number", nullable = false)
-    private Long currentRecruitNumber;
+    private Long currentRecruitNumber = 0L;
 
     @Column(name = "total_recruit_number", nullable = false)
     private Long totalRecruitNumber;
@@ -54,7 +55,9 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-//    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
-//    private List<Image> images = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "company_post_id")
+    private List<UuidFile> images = new ArrayList<>();
+
 
 }

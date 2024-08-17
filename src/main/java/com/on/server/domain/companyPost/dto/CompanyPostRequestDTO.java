@@ -2,11 +2,14 @@ package com.on.server.domain.companyPost.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class CompanyPostRequestDTO {
 
@@ -28,9 +31,6 @@ public class CompanyPostRequestDTO {
     // 여행 지역
     private List<String> travelArea;
 
-    // 현재 모집 인원 수
-    private Long currentRecruitNumber;
-
     // 전체 모집 인원 수
     private Long totalRecruitNumber;
 
@@ -43,7 +43,7 @@ public class CompanyPostRequestDTO {
     // 희망 시기 끝
     private LocalDate endDate;
 
-    // 이미지 ID 리스트
-    private List<Long> imageIdList;
+    // 이미지 파일 리스트
+    private List<MultipartFile> imageFiles;
 
 }

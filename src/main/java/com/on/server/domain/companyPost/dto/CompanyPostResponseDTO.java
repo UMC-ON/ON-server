@@ -67,8 +67,8 @@ public class CompanyPostResponseDTO {
     // 희망 시기 끝
     private LocalDate endDate;
 
-    // 이미지 리스트
-    private List<Long> imageIdList;
+    // 이미지 URL 리스트
+    private List<String> imageUrls;
 
     // 작성 시간
     private LocalDateTime createdAt;

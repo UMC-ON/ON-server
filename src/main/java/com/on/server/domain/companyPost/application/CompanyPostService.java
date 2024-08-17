@@ -7,13 +7,15 @@ import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
+import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
+import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,7 @@ public class CompanyPostService {
 
     private final CompanyPostRepository companyPostRepository;
     private final UserRepository userRepository;
-    //private final ImageRepository imageRepository;
+    private final UuidFileService uuidFileService;
 
     // 필터링 기능 추가
     @Transactional(readOnly = true)
@@ -63,15 +65,29 @@ public class CompanyPostService {
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
                 .travelArea(requestDTO.getTravelArea())
-                .currentRecruitNumber(requestDTO.getCurrentRecruitNumber())
                 .totalRecruitNumber(requestDTO.getTotalRecruitNumber())
                 .schedulePeriodDay(requestDTO.getSchedulePeriodDay())
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
-                //.images(images)
+                .currentRecruitNumber(0L) // 모집 인원을 초기화
+                .images(new ArrayList<>()) // images 필드를 빈 리스트로 초기화
                 .build();
 
-        companyPostRepository.save(companyPost);
+        companyPost = companyPostRepository.saveAndFlush(companyPost);
+
+        List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
+                .map(file -> {
+                    UuidFile savedFile = uuidFileService.saveFile(file, FilePath.POST);
+                    if (savedFile.getId() == null) {
+                        throw new RuntimeException("UuidFile 저장 중 ID가 생성되지 않았습니다.");
+                    }
+                    return savedFile;
+                })
+                .collect(Collectors.toList());
+
+        companyPost.getImages().addAll(uploadedImages);
+
+        companyPost = companyPostRepository.saveAndFlush(companyPost);
 
         return mapToCompanyPostResponseDTO(companyPost);
     }
@@ -98,6 +114,9 @@ public class CompanyPostService {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
+        // 연관된 이미지 삭제
+        companyPost.getImages().forEach(uuidFileService::deleteFile);
+
         companyPostRepository.delete(companyPost);
     }
 
@@ -122,7 +141,9 @@ public class CompanyPostService {
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
                 .createdAt(companyPost.getCreatedAt())
-                //.imageIdList(companyPost.getImages().stream().map(Image::getImageId).collect(Collectors.toList()))
+                .imageUrls(companyPost.getImages().stream()
+                        .map(UuidFile::getFileUrl)
+                        .collect(Collectors.toList()))  // 이미지 URL 리스트
                 .build();
     }
 }
