@@ -1,6 +1,8 @@
 package com.on.server.domain.post.presentation;
 
+import com.on.server.domain.board.domain.Board;
 import com.on.server.domain.post.application.PostService;
+import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.dto.PostRequestDTO;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.board.domain.BoardType;
@@ -14,10 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "게시글 작성")
 @RestController
@@ -83,4 +87,36 @@ public class PostController {
 
         return ResponseEntity.noContent().build();
     }
+
+
+    // 6. 국가 필터링 API
+    @Operation(summary = "국가 필터링된 게시글 조회")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/filter")
+    public ResponseEntity<List<PostResponseDTO>> searchPostsByCountry(
+            @RequestParam(name = "country") String country) {
+
+        List<PostResponseDTO> filteredPosts = postService.getPostsByCountryInTitleOrContent(country);
+        return ResponseEntity.ok(filteredPosts);
+    }
+
+
+    // 7. 게시글 검색 API
+    @Operation(summary = "게시글 검색")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/search")
+    public ResponseEntity<List<PostResponseDTO>> searchPosts(@RequestParam("keyword") String keyword, @AuthenticationPrincipal UserDetails userDetails) {
+        List<PostResponseDTO> posts = postService.searchPosts(keyword);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 8. 특정 게시판의 최신 게시글 4개 조회
+    @Operation(summary = "특정 게시판의 최신 게시글 4개 조회")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/recent/{boardType}")
+    public ResponseEntity<List<PostResponseDTO>> getLatestPosts(@PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
+        List<PostResponseDTO> latestPosts = postService.getLatestPostsByBoardType(boardType);
+        return ResponseEntity.ok(latestPosts);
+    }
+
 }

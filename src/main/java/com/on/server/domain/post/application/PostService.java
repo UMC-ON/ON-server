@@ -67,18 +67,18 @@ public class PostService {
         post = postRepository.saveAndFlush(post);
 
         // 이미지 파일 처리
-        List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
-                .map(file -> {
-                    UuidFile uuidFile = uuidFileService.saveFile(file, FilePath.POST);
-                    uuidFileRepository.flush();
-                    return uuidFile;
-                })
-                .collect(Collectors.toList());
+        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
+            List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
+                    .map(file -> {
+                        UuidFile uuidFile = uuidFileService.saveFile(file, FilePath.POST);
+                        uuidFileRepository.flush();
+                        return uuidFile;
+                    })
+                    .collect(Collectors.toList());
 
-
-        post.getImages().addAll(uploadedImages);
-
-        post = postRepository.saveAndFlush(post);
+            post.getImages().addAll(uploadedImages);
+            post = postRepository.saveAndFlush(post);
+        }
 
         return mapToPostResponseDTO(post, true);
     }
@@ -130,6 +130,35 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    // 게시글 검색 기능
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> searchPosts(String keyword) {
+        List<Post> posts = postRepository.searchPosts(keyword);
+        return posts.stream()
+                .map(post -> mapToPostResponseDTO(post, true))
+                .collect(Collectors.toList());
+    }
+
+    // 국가 필터링 메서드
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getPostsByCountryInTitleOrContent(String country) {
+        List<Post> posts = postRepository.findByCountryInTitleOrContent(country);
+        return posts.stream()
+                .map(post -> mapToPostResponseDTO(post, true))
+                .collect(Collectors.toList());
+    }
+
+    // 특정 게시판의 최신 게시글 4개 조회
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getLatestPostsByBoardType(BoardType boardType) {
+        Board board = boardRepository.findByType(boardType)
+                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
+
+        List<Post> posts = postRepository.findTop4ByBoardOrderByCreatedAtDesc(board);
+        return posts.stream()
+                .map(post -> mapToPostResponseDTO(post, true))
+                .collect(Collectors.toList());
+    }
 
     // Post 엔티티를 PostResponseDTO로 매핑하는 메서드
     private PostResponseDTO mapToPostResponseDTO(Post post, boolean includeCommentCount) {

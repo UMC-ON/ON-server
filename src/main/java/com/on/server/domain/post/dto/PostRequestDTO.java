@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -28,5 +29,5 @@ public class PostRequestDTO {
     private boolean isAnonymousUniv;
 
     // 이미지 파일 리스트
-    private List<MultipartFile> imageFiles;
+    private List<MultipartFile> imageFiles = new ArrayList<>();
 }
