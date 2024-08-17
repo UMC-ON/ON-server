@@ -46,11 +46,11 @@ public class PostResponseDTO {
     private String content;
 
     // 이미지 ID 리스트
-    private List<Long> imageIdList;
+    private List<String> imageUrls;
 
-    // 생성 시간
+    // 작성 시간
     private LocalDateTime createdAt;
 
-    // 댓글 개수 (선택적)
+    // 댓글 개수
     private Integer commentCount;
 }

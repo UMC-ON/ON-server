@@ -3,6 +3,7 @@ package com.on.server.domain.post.domain;
 import com.on.server.domain.board.domain.Board;
 import com.on.server.domain.comment.domain.Comment;
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,10 +42,11 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-//    private List<Image> images = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "post_id")
+    private List<UuidFile> images = new ArrayList<>();
 }

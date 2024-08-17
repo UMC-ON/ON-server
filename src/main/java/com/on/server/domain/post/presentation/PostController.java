@@ -4,15 +4,18 @@ import com.on.server.domain.post.application.PostService;
 import com.on.server.domain.post.dto.PostRequestDTO;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.board.domain.BoardType;
+import com.on.server.domain.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,9 +40,16 @@ public class PostController {
     // 2. 특정 게시판(boardType)에 새로운 게시글을 작성
     @Operation(summary = "특정 게시판에 새로운 게시글 작성")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
-    @PostMapping("/{boardType}")
-    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @RequestBody PostRequestDTO postRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
-        PostResponseDTO createdPost = postService.createPost(boardType, postRequestDTO);
+    @PostMapping(value = "/{boardType}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @ModelAttribute PostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        // 현재 인증된 사용자의 ID를 DTO에 설정
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            requestDTO.setUserId(user.getId());
+        }
+
+        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
