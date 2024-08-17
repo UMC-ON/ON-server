@@ -2,6 +2,7 @@ package com.on.server.domain.marketPost.domain;
 
 import com.on.server.domain.scrap.domain.Scrap;
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,17 +42,18 @@ public class MarketPost extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-//    @OneToMany(mappedBy = "market_post", cascade = CascadeType.ALL)
-//    private List<Image> images = new ArrayList<>();
-
     @Column(name = "current_country", nullable = false)
     private String currentCountry;
 
     @Column(name = "current_location", nullable = false)
     private String currentLocation;
 
-    @OneToMany(mappedBy = "marketPost", cascade = CascadeType.ALL)  // 수정된 부분
+    @OneToMany(mappedBy = "marketPost", cascade = CascadeType.ALL)
     private List<Scrap> scraps = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "market_post_id")
+    private List<UuidFile> images = new ArrayList<>(); // 이미지 리스트 필드 추가
 }
 
 

@@ -5,10 +5,13 @@ import com.on.server.domain.marketPost.domain.DealType;
 import com.on.server.domain.marketPost.domain.MarketPost;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class MarketPostRequestDTO {
 
@@ -33,8 +36,8 @@ public class MarketPostRequestDTO {
     // 상품 설명
     private String content;
 
-    // 이미지 ID 리스트
-    private List<Long> imageIdList;
+    // 이미지 파일 리스트
+    private List<MultipartFile> imageFiles;
 
     // 현재 위치 국가
     private String currentCountry;

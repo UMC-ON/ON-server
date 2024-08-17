@@ -9,6 +9,7 @@ import com.on.server.domain.scrap.dto.ScrapRequestDTO;
 import com.on.server.domain.scrap.dto.ScrapResponseDTO;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +94,9 @@ public class ScrapService {
                 .dealType(marketPost.getDealType())
                 .dealStatus(marketPost.getDealStatus())
                 .content(marketPost.getContent())
-                //.imageIdList(marketPost.getImages().stream().map(Image::getImageId).collect(Collectors.toList()));
+                .imageUrls(marketPost.getImages().stream()
+                        .map(UuidFile::getFileUrl) // 이미지 URL 리스트를 가져오는 로직
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

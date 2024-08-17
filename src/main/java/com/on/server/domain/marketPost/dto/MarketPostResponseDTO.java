@@ -49,7 +49,7 @@ public class MarketPostResponseDTO {
     // 상품 설명
     private String content;
 
-    // 이미지 ID 리스트
-    private List<Long> imageIdList;
+    // 이미지 URL 리스트
+    private List<String> imageUrls;
 
 }
