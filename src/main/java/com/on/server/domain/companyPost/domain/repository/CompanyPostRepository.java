@@ -3,6 +3,9 @@ package com.on.server.domain.companyPost.domain.repository;
 import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +29,10 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
             @Param("endDate") LocalDate endDate,
             @Param("gender") Gender gender,
             @Param("country") String country);
+
+    // 최신 4개의 글을 최신순으로 가져오기
+    default List<CompanyPost> findTop4ByOrderByCreatedAtDesc() {
+        Pageable pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return findAll(pageable).getContent();
+    }
 }

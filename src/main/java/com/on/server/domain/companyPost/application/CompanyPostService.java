@@ -120,6 +120,14 @@ public class CompanyPostService {
         companyPostRepository.delete(companyPost);
     }
 
+    // 6. 최신 4개의 동행 구하기 게시글 조회
+    @Transactional(readOnly = true)
+    public List<CompanyPostResponseDTO> getRecentCompanyPosts() {
+        return companyPostRepository.findTop4ByOrderByCreatedAtDesc().stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     // CompanyPost 엔티티를 CompanyPostResponseDto로 매핑하는 메서드
     private CompanyPostResponseDTO mapToCompanyPostResponseDTO(CompanyPost companyPost) {
         return CompanyPostResponseDTO.builder()

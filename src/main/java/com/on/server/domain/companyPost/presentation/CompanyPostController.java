@@ -94,5 +94,14 @@ public class CompanyPostController {
         companyPostService.deleteCompanyPost(userId, companyPostId);
         return ResponseEntity.noContent().build();
     }
+
+    // 6. 최신 4개의 동행 구하기 게시글 조회
+    @Operation(summary = "최신 4개의 동행구하기글 조회")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/recent")
+    public ResponseEntity<List<CompanyPostResponseDTO>> getRecentCompanyPosts(@AuthenticationPrincipal UserDetails userDetails) {
+        List<CompanyPostResponseDTO> recentPosts = companyPostService.getRecentCompanyPosts();
+        return ResponseEntity.ok(recentPosts);
+    }
 }
 
