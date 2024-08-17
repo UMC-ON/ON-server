@@ -1,6 +1,8 @@
 package com.on.server.domain.marketPost.presentation;
 
 import com.on.server.domain.marketPost.application.MarketPostService;
+import com.on.server.domain.marketPost.domain.DealStatus;
+import com.on.server.domain.marketPost.domain.DealType;
 import com.on.server.domain.marketPost.dto.MarketPostRequestDTO;
 import com.on.server.domain.marketPost.dto.MarketPostResponseDTO;
 import com.on.server.domain.scrap.application.ScrapService;
@@ -76,5 +78,42 @@ public class MarketPostController {
     public ResponseEntity<Void> deleteMarketPost(@PathVariable Long userId, @PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
         marketPostService.deleteMarketPost(userId, marketPostId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 6. 필터링된 물품글 조회 (국가와 거래 유형에 따라 필터링)
+    @Operation(summary = "필터링된 물품거래글 조회")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/filter")
+    public ResponseEntity<List<MarketPostResponseDTO>> getFilteredMarketPosts(
+            @RequestParam(required = false) DealType dealType,
+            @RequestParam(required = false) String currentCountry,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        List<MarketPostResponseDTO> filteredPosts = marketPostService.getFilteredMarketPosts(dealType, currentCountry);
+        return ResponseEntity.ok(filteredPosts);
+    }
+
+    // 7. 거래가능 물품만 보기 (DealStatus가 AWAIT인 것만 조회)
+    @Operation(summary = "거래 가능 물품만 보기")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @GetMapping("/available")
+    public ResponseEntity<List<MarketPostResponseDTO>> getAvailableMarketPosts(@AuthenticationPrincipal UserDetails userDetails) {
+
+        // DealStatus를 AWAIT으로 고정하여 필터링
+        List<MarketPostResponseDTO> availablePosts = marketPostService.getAvailableMarketPosts();
+        return ResponseEntity.ok(availablePosts);
+    }
+
+    // 8. 거래 상태 업데이트 (예: 거래완료로 변경)
+    @Operation(summary = "거래 상태 업데이트")
+    @PutMapping("/{marketPostId}/status")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
+    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(
+            @PathVariable Long marketPostId,
+            @RequestParam DealStatus status,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId, status);
+        return ResponseEntity.ok(updatedPost);
     }
 }

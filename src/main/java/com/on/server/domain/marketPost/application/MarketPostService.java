@@ -1,5 +1,7 @@
 package com.on.server.domain.marketPost.application;
 
+import com.on.server.domain.marketPost.domain.DealStatus;
+import com.on.server.domain.marketPost.domain.DealType;
 import com.on.server.domain.marketPost.domain.MarketPost;
 import com.on.server.domain.marketPost.domain.repository.MarketPostRepository;
 import com.on.server.domain.marketPost.dto.MarketPostRequestDTO;
@@ -105,6 +107,33 @@ public class MarketPostService {
         marketPost.getImages().forEach(uuidFileService::deleteFile);
 
         marketPostRepository.delete(marketPost);
+    }
+
+    // 6. 거래 상태 업데이트
+    public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId, DealStatus status) {
+        MarketPost marketPost = marketPostRepository.findById(marketPostId)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
+
+        marketPost.setDealStatus(status); // 상태 업데이트
+        MarketPost updatedMarketPost = marketPostRepository.save(marketPost); // 저장
+
+        return mapToMarketPostResponseDTO(updatedMarketPost);
+    }
+
+    // 필터링: 거래형식, 국가 필터링
+    @Transactional(readOnly = true)
+    public List<MarketPostResponseDTO> getFilteredMarketPosts(DealType dealType, String currentCountry) {
+        return marketPostRepository.findFilteredMarketPosts(dealType, currentCountry, null).stream()
+                .map(this::mapToMarketPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 필터링: 거래 가능 물품만 보기
+    @Transactional(readOnly = true)
+    public List<MarketPostResponseDTO> getAvailableMarketPosts() {
+        return marketPostRepository.findFilteredMarketPosts(null, null, DealStatus.AWAIT).stream()
+                .map(this::mapToMarketPostResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // MarketPost 엔티티를 MarketPostResponseDto로 매핑하는 메서드
