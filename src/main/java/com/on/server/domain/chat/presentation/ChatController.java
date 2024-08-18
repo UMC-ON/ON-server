@@ -2,7 +2,6 @@ package com.on.server.domain.chat.presentation;
 
 import com.on.server.domain.chat.application.ChatService;
 import com.on.server.domain.chat.dto.ChatRequestDto;
-import com.on.server.domain.user.application.UserService;
 import com.on.server.domain.user.domain.User;
 import com.on.server.global.common.BaseRuntimeException;
 import com.on.server.global.common.CommonResponse;
@@ -25,18 +24,6 @@ public class ChatController {
     private final ChatService chatService;
     private final SecurityService securityService;
 
-    // ** 추후 삭제 예정 **
-    @GetMapping("/test")
-    @Operation(summary = "[백엔드] API 응답 통일 참고용", description = "백엔드 API 응답 통일 참고용 API 입니다. 추후 삭제 예정입니다.")
-    public CommonResponse<?> apiTest() {
-        try {
-            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getApiTest());
-        } catch (BaseRuntimeException e) {
-            return new CommonResponse<>(e.getResponseCode());
-        }
-    }
-    // ******************
-
     // [GET] 동행 - 채팅방 목록 조회
     @GetMapping("/company/list")
     @Operation(summary = "[동행] 채팅방 목록 조회 API", description = "특정 유저의 '동행' 채팅방 리스트를 조회하는 API 입니다.")
@@ -52,18 +39,18 @@ public class ChatController {
     }
 
     // [GET] 거래 - 채팅방 목록 조회
-//    @GetMapping("/market/list")
-//    @Operation(summary = "[거래] 채팅방 목록 조회 API", description = "특정 유저의 '거래' 채팅방 리스트를 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getMarketChatRoomList(@AuthenticationPrincipal UserDetails userDetails) {
-//        try {
-//            User user = securityService.getUserByUserDetails(userDetails);
-//
-//            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getMarketChatRoomList(user));
-//        } catch (BaseRuntimeException e) {
-//            return new CommonResponse<>(e.getResponseCode());
-//        }
-//    }
+    @GetMapping("/market/list")
+    @Operation(summary = "[거래] 채팅방 목록 조회 API", description = "특정 유저의 '거래' 채팅방 리스트를 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getMarketChatRoomList(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User user = securityService.getUserByUserDetails(userDetails);
+
+            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getMarketChatRoomList(user));
+        } catch (BaseRuntimeException e) {
+            return new CommonResponse<>(e.getResponseCode());
+        }
+    }
 
 
     // [POST] 채팅 요청 (채팅방 생성)
