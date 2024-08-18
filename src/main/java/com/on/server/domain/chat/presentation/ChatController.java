@@ -68,32 +68,32 @@ public class ChatController {
     }
 
     // [GET] 동행 - 채팅 상단 정보 조회
-//    @GetMapping("/company/{roomId}")
-//    @Operation(summary = "[동행] 채팅 상단 정보 조회 API", description = "동행 채팅에서 상단의 희망시기, 장소, 모집 인원을 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getCompanyChatInfo(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("roomId") Long roomId) {
-//        try {
-//            User user = securityService.getUserByUserDetails(userDetails);
-//
-//            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getCompanyInfo(user, roomId));
-//        } catch (BaseRuntimeException e) {
-//            return new CommonResponse<>(e.getResponseCode());
-//        }
-//    }
+    @GetMapping("/company/{roomId}")
+    @Operation(summary = "[동행] 채팅 상단 정보 조회 API", description = "동행 채팅에서 상단의 희망시기, 장소, 모집 인원을 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getCompanyChatInfo(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("roomId") Long roomId) {
+        try {
+            User user = securityService.getUserByUserDetails(userDetails);
+
+            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getCompanyInfo(user, roomId));
+        } catch (BaseRuntimeException e) {
+            return new CommonResponse<>(e.getResponseCode());
+        }
+    }
 
     // [GET] 거래 - 채팅 상단 정보 조회
-//    @GetMapping("/market/{roomId}")
-//    @Operation(summary = "[거래] 채팅 상단 정보 조회 API", description = "거래 채팅에서 상단의 상품 정보를 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getMarketChatInfo(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("roomId") Long roomId) {
-//        try {
-//            User user = securityService.getUserByUserDetails(userDetails);
-//
-//            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getMarketInfo(user, roomId));
-//        } catch (BaseRuntimeException e) {
-//            return new CommonResponse<>(e.getResponseCode());
-//        }
-//    }
+    @GetMapping("/market/{roomId}")
+    @Operation(summary = "[거래] 채팅 상단 정보 조회 API", description = "거래 채팅에서 상단의 상품 정보를 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getMarketChatInfo(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("roomId") Long roomId) {
+        try {
+            User user = securityService.getUserByUserDetails(userDetails);
+
+            return new CommonResponse<>(ResponseCode.SUCCESS, chatService.getMarketInfo(user, roomId));
+        } catch (BaseRuntimeException e) {
+            return new CommonResponse<>(e.getResponseCode());
+        }
+    }
 
     // [GET] 채팅 내용 조회
     @GetMapping("/{roomId}/message")

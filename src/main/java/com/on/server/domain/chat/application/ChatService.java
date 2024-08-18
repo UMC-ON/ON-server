@@ -176,13 +176,65 @@ public class ChatService {
     }
 
 
-//    public CompanyChatResponseDto getCompanyInfo(User user, Long roomId) throws BaseRuntimeException {
-//
-//    }
+    public CompanyChatResponseDto getCompanyInfo(User user, Long roomId) throws BaseRuntimeException {
+        ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
+                .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-//    public MarketChatResponseDto getMarketInfo(User user, Long roomId) throws BaseRuntimeException {
-//
-//    }
+        // 현재 채팅방 유저인지 체크
+        if (!Objects.equals(user.getId(), chattingRoom.getChatUserOne().getId())
+                && !Objects.equals(user.getId(), chattingRoom.getChatUserTwo().getId())) {
+            throw new UnauthorizedException(ResponseCode.API_NOT_ACCESSIBLE);
+        }
+
+        if (chattingRoom.getChattingRoomType() == ChatType.MARKET) {
+            throw new BadRequestException(ResponseCode.INVALID_CHATTING_ROOM);
+        }
+
+        SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
+        CompanyPost companyPost = companyPostRepository.findById(specialChat.getCompanyPost().getId())
+                .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
+
+        CompanyChatResponseDto companyChatResponseDto = CompanyChatResponseDto.builder()
+                .isFullyRecruited(companyPost.getCurrentRecruitNumber() >= companyPost.getTotalRecruitNumber())
+                .periodDay(companyPost.getSchedulePeriodDay())
+                .startDate(companyPost.getStartDate())
+                .endDate(companyPost.getEndDate())
+                .location(companyPost.getTravelArea().get(0))
+                .recruitNumber(companyPost.getTotalRecruitNumber())
+                .participantNumber(companyPost.getCurrentRecruitNumber())
+                .build();
+
+        return companyChatResponseDto;
+    }
+
+    public MarketChatResponseDto getMarketInfo(User user, Long roomId) throws BaseRuntimeException {
+        ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
+                .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
+
+        // 현재 채팅방 유저인지 체크
+        if (!Objects.equals(user.getId(), chattingRoom.getChatUserOne().getId())
+                && !Objects.equals(user.getId(), chattingRoom.getChatUserTwo().getId())) {
+            throw new UnauthorizedException(ResponseCode.API_NOT_ACCESSIBLE);
+        }
+
+        if (chattingRoom.getChattingRoomType() == ChatType.COMPANY) {
+            throw new BadRequestException(ResponseCode.INVALID_CHATTING_ROOM);
+        }
+
+        SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
+        MarketPost marketPost = marketPostRepository.findById(specialChat.getMarketPost().getId())
+                .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
+
+
+        MarketChatResponseDto marketChatResponseDto = MarketChatResponseDto.builder()
+                .productName(marketPost.getTitle())
+                .productPrice(marketPost.getCost())
+                .tradeMethod(marketPost.getDealType())
+                .imageUrl(marketPost.getImages().get(0).getFileUrl())
+                .build();
+
+        return marketChatResponseDto;
+    }
 
     public ChatListResponseDto getMessageList(User user, Long roomId) throws BaseRuntimeException {
         // 채팅 목록 조회
@@ -254,4 +306,5 @@ public class ChatService {
 //    }
 
 }
+
 
