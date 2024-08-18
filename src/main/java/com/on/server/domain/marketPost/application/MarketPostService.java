@@ -11,6 +11,7 @@ import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
+import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class MarketPostService {
     private final MarketPostRepository marketPostRepository;
     private final UserRepository userRepository;
     private final UuidFileService uuidFileService;
+    private final UuidFileRepository uuidFileRepository;
 
     // 1. 모든 물품글 조회
     @Transactional(readOnly = true)
@@ -64,17 +66,18 @@ public class MarketPostService {
 
         marketPost = marketPostRepository.saveAndFlush(marketPost);
 
-        List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
-                .map(file -> {
-                    UuidFile savedFile = uuidFileService.saveFile(file, FilePath.POST);
-                    if (savedFile.getId() == null) {
-                        throw new RuntimeException("UuidFile 저장 중 ID가 생성되지 않았습니다.");
-                    }
-                    return savedFile;
-                })
-                .collect(Collectors.toList());
+        // 이미지 파일 처리
+        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
+            List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
+                    .map(file -> {
+                        UuidFile savedFile = uuidFileService.saveFile(file, FilePath.POST);
+                        uuidFileRepository.flush();
+                        return savedFile;
+                    })
+                    .collect(Collectors.toList());
 
-        marketPost.getImages().addAll(uploadedImages);
+            marketPost.getImages().addAll(uploadedImages);
+        }
 
         marketPost = marketPostRepository.saveAndFlush(marketPost);
 
