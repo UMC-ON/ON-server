@@ -56,11 +56,17 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
+        Integer anonymousIndex = null;
+        if (commentRequestDTO.isAnonymous()) {
+            anonymousIndex = generateAnonymousIndex(user, post);
+        }
+
         Comment comment = Comment.builder()
                 .contents(commentRequestDTO.getContents())
                 .isAnonymous(commentRequestDTO.isAnonymous())
                 .post(post)
                 .user(user)
+                .anonymousIndex(anonymousIndex)
                 .build();
 
         commentRepository.save(comment);
@@ -74,16 +80,34 @@ public class CommentService {
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
 
+        Integer anonymousIndex = null;
+        if (commentRequestDTO.isAnonymous()) {
+            anonymousIndex = generateAnonymousIndex(user, parentComment.getPost());
+        }
+
         Comment reply = Comment.builder()
                 .contents(commentRequestDTO.getContents())
                 .isAnonymous(commentRequestDTO.isAnonymous())
                 .post(parentComment.getPost())
                 .user(user)
                 .parentComment(parentComment)
+                .anonymousIndex(anonymousIndex)
                 .build();
 
         commentRepository.save(reply);
         return mapToCommentResponseDTO(reply);
+    }
+
+    // 익명 인덱스 생성 로직
+    private Integer generateAnonymousIndex(User user, Post post) {
+        List<Comment> userComments = commentRepository.findByUserAndPostAndIsAnonymousTrue(user, post);
+        if (!userComments.isEmpty()) {
+            return userComments.get(0).getAnonymousIndex();
+        }
+
+        List<Integer> existingIndices = commentRepository.findAnonymousIndicesByPost(post);
+        int newIndex = existingIndices.isEmpty() ? 1 : existingIndices.stream().max(Integer::compare).orElse(0) + 1;
+        return newIndex;
     }
 
     // Comment 엔티티를 CommentResponseDTO로 매핑하는 메서드
@@ -91,11 +115,14 @@ public class CommentService {
         boolean isReply = comment.getParentComment() != null;
 
         Long replyId = null;
+
         if (isReply) {
             // 부모 댓글의 자식 댓글들 중 현재 댓글의 인덱스를 찾아서 replyId로 설정
             List<Comment> siblings = comment.getParentComment().getChildrenComment();
             replyId = (long) (siblings.indexOf(comment) + 1);
         }
+
+        String nickname = comment.getIsAnonymous() ? "익명" + comment.getAnonymousIndex() : comment.getUser().getNickname();
 
         return CommentResponseDTO.builder()
                 .commentId(isReply ? comment.getParentComment().getId() : comment.getId()) // 최상위 댓글 또는 부모 댓글 ID
@@ -103,7 +130,7 @@ public class CommentService {
                 .userId(comment.getUser().getId())
                 .postId(comment.getPost().getId())
                 .isAnonymous(comment.getIsAnonymous())
-                .userNickname(comment.getUser().getNickname())
+                .userNickname(nickname)
                 .contents(comment.getContents())
                 .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0) // 답글 수 계산
                 .build();

@@ -1,5 +1,6 @@
 package com.on.server.domain.comment.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ public class CommentRequestDTO {
     private Long userId;
 
     // 익명 여부
+    @JsonProperty("anonymous")
     private boolean isAnonymous;
 
     // 댓글 내용
