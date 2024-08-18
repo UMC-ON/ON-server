@@ -5,9 +5,11 @@ import com.on.server.domain.dispatchCertify.domain.PermitStatus;
 import com.on.server.domain.user.domain.DispatchType;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 @Builder
 public class DispatchCertifyInfoResponseDto {
 

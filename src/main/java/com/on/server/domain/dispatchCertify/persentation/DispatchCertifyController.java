@@ -54,7 +54,7 @@ public class DispatchCertifyController {
     @GetMapping("/info/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<DispatchCertifyInfoResponseDto> getDispatchCertifyInfo(
-            @PathVariable Long id
+            @PathVariable(value = "id") Long id
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfo(id));
     }
@@ -72,7 +72,7 @@ public class DispatchCertifyController {
     @PostMapping("/info/target-user/{targetUserId}")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByUser(
-            @PathVariable Long targetUserId,
+            @PathVariable(value = "targetUserId") Long targetUserId,
             @ParameterObject Pageable pageable
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByUser(targetUserId, pageable));
@@ -82,7 +82,7 @@ public class DispatchCertifyController {
     @PostMapping("/info/{permitStatus}")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByPermitStatus(
-            @PathVariable PermitStatus permitStatus,
+            @PathVariable(value = "permitStatus") PermitStatus permitStatus,
             @ParameterObject Pageable pageable
     ) {
         return CommonResponse.ok(dispatchCertifyService.getDispatchCertifyInfoPageByPermitStatus(permitStatus, pageable));
@@ -92,7 +92,7 @@ public class DispatchCertifyController {
     @PutMapping("/change-status/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Void> changePermitStatus(
-            @PathVariable Long id,
+            @PathVariable(value = "id") Long id,
             @RequestBody PermitStatus permitStatus
     ) {
         dispatchCertifyService.changePermitStatus(id, permitStatus);
@@ -102,7 +102,7 @@ public class DispatchCertifyController {
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResponse<Void> deleteDispatchCertify(
-            @PathVariable Long id
+            @PathVariable(value = "id") Long id
     ) {
         dispatchCertifyService.deleteDispatchCertify(id);
         return CommonResponse.success();
@@ -112,7 +112,7 @@ public class DispatchCertifyController {
     @DeleteMapping("/delete/self/{id}")
     public CommonResponse<Void> deleteSelfDispatchCertify(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long id
+            @PathVariable(value = "id") Long id
     ) {
         dispatchCertifyService.deleteDispatchCertify(securityService.getUserByUserDetails(userDetails), id);
         return CommonResponse.success();
