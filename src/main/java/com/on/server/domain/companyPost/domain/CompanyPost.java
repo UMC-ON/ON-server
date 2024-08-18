@@ -1,11 +1,11 @@
 package com.on.server.domain.companyPost.domain;
 
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +34,19 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "departure_place", nullable = false)
-    private String departurePlace;
+    // 여행 지역 리스트
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "company_post_travel_area", joinColumns = @JoinColumn(name = "company_post_id"))
+    @Column(name = "travel_area")
+    private List<String> travelArea = new ArrayList<>();
 
-    @Column(name = "arrive_place", nullable = false)
-    private String arrivePlace;
+    @Column(name = "current_recruit_number", nullable = false)
+    private Long currentRecruitNumber = 0L;
 
-    @Column(name = "recruit_number", nullable = false)
-    private Long recruitNumber;
+    @Column(name = "total_recruit_number", nullable = false)
+    private Long totalRecruitNumber;
 
-    @Column(name = "schedule_pariod_day", nullable = false)
+    @Column(name = "schedule_period_day", nullable = false)
     private Long schedulePeriodDay;
 
     @Column(name = "start_date", nullable = false)
@@ -52,10 +55,9 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-//    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
-//    private List<Image> images = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
-//    private List<CompanyParticipant> participants = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "company_post_id")
+    private List<UuidFile> images = new ArrayList<>();
+
 
 }
