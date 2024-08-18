@@ -29,5 +29,5 @@ public class PostRequestDTO {
     private boolean isAnonymousUniv;
 
     // 이미지 파일 리스트
-    private List<MultipartFile> imageFiles = new ArrayList<>();
+    private List<MultipartFile> imageFiles;
 }

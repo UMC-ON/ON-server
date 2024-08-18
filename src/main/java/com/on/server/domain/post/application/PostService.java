@@ -77,9 +77,8 @@ public class PostService {
                     .collect(Collectors.toList());
 
             post.getImages().addAll(uploadedImages);
-            post = postRepository.saveAndFlush(post);
         }
-
+        post = postRepository.saveAndFlush(post);
         return mapToPostResponseDTO(post, true);
     }
 
