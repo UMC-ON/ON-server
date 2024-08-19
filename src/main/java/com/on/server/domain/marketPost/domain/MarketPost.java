@@ -38,7 +38,7 @@ public class MarketPost extends BaseEntity {
 
     @Column(name = "deal_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private DealStatus dealStatus;
+    private DealStatus dealStatus = DealStatus.AWAIT;
 
     @Column(name = "content", nullable = false)
     private String content;

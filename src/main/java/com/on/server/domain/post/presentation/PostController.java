@@ -50,7 +50,7 @@ public class PostController {
         // 현재 인증된 사용자의 ID를 DTO에 설정
         if (userDetails instanceof User) {
             User user = (User) userDetails;
-            requestDTO.setUserId(user.getId());
+            requestDTO.setId(user.getId());
         }
 
         PostResponseDTO createdPost = postService.createPost(boardType, requestDTO);
@@ -92,11 +92,12 @@ public class PostController {
     // 6. 국가 필터링 API
     @Operation(summary = "국가 필터링된 게시글 조회")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    @GetMapping("/filter")
+    @GetMapping("/filter/{boardType}")
     public ResponseEntity<List<PostResponseDTO>> searchPostsByCountry(
+            @PathVariable("boardType") BoardType boardType,
             @RequestParam(name = "country") String country) {
 
-        List<PostResponseDTO> filteredPosts = postService.getPostsByCountryInTitleOrContent(country);
+        List<PostResponseDTO> filteredPosts = postService.getPostsByCountryAndBoardType(boardType, country);
         return ResponseEntity.ok(filteredPosts);
     }
 

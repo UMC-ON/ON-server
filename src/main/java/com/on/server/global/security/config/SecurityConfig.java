@@ -59,6 +59,8 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                // CORS 테스트 API에 대해서는 모든 요청을 허가
+                                .requestMatchers("/cors/**").permitAll()
                                 // 로그인 API에 대해서는 모든 요청을 허가
                                 .requestMatchers("/api/v1/user/sign-in").permitAll()
                                 // 회원 가입 API에 대해서는 모든 요청을 허가

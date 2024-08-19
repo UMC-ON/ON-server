@@ -35,4 +35,8 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
         Pageable pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "createdAt"));
         return findAll(pageable).getContent();
     }
+
+    @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT('%', :country, '%') AND c.currentRecruitNumber < c.totalRecruitNumber ORDER BY c.createdAt DESC")
+    List<CompanyPost> findTop5ByTravelArea(@Param("country") String country);
+
 }
