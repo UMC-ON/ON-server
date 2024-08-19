@@ -96,6 +96,7 @@ public class CompanyPostService {
     }
 
     // 5. 특정 게시글 삭제
+    @Transactional
     public void deleteCompanyPost(Long userId, Long companyPostId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
