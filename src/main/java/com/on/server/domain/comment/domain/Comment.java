@@ -39,6 +39,9 @@ public class Comment extends BaseEntity {
     // 자식 답글
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> childrenComment = new ArrayList<>();
+
+    @Column(name = "anonymous_index")
+    private Integer anonymousIndex;
 }
 
 
