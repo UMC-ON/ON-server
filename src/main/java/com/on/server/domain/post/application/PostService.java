@@ -123,7 +123,6 @@ public class PostService {
     }
 
     // 게시글 검색 기능
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> searchPosts(String keyword) {
         List<Post> posts = postRepository.searchPosts(keyword);
         return posts.stream()
@@ -132,7 +131,6 @@ public class PostService {
     }
 
     // 국가 필터링 메서드
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> getPostsByCountryAndBoardType(BoardType boardType, String country) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
@@ -146,7 +144,6 @@ public class PostService {
     }
 
     // 특정 게시판의 최신 게시글 4개 조회
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> getLatestPostsByBoardType(BoardType boardType) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
