@@ -47,14 +47,14 @@ public class HomeController {
     }
 
     // [GET] 내 주변 동행글 조회
-//    @GetMapping("/company/list")
-//    @Operation(summary = "내 주변 동행글 조회 API", description = "홈 화면에서 내 주변 동행글 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getCompanyBoardList(@AuthenticationPrincipal UserDetails userDetails) {
-//
-//        User user = securityService.getUserByUserDetails(userDetails);
-//
-//        return new CommonResponse<>(ResponseCode.SUCCESS, homeService.getCompanyBoardList(user));
-//    }
+    @GetMapping("/company/list")
+    @Operation(summary = "내 주변 동행글 조회 API", description = "홈 화면에서 내 주변 동행글 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getCompanyBoardList(@AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        return new CommonResponse<>(ResponseCode.SUCCESS, homeService.getCompanyBoardList(user));
+    }
 
 }
