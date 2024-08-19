@@ -30,9 +30,6 @@ public class MarketPostRequestDTO {
     // 거래 유형
     private DealType dealType;
 
-    // 거래 상태
-    private DealStatus dealStatus;
-
     // 상품 설명
     private String content;
 
