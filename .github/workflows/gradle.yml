@@ -47,8 +47,8 @@ jobs:
 
           OCCUPY_FIREBASE_DIR_FILE_NAME: ${{ secrets.FIREBASE_JSON_NAME }}
         run: |
-          touch OCCUPY_FIREBASE_DIR/OCCUPY_FIREBASE_DIR_FILE_NAME
-          echo "OCCUPY_FIREBASE" > OCCUPY_FIREBASE_DIR/OCCUPY_FIREBASE_DIR_FILE_NAME
+          touch $OCCUPY_FIREBASE_DIR/$OCCUPY_FIREBASE_DIR_FILE_NAME
+          echo "$OCCUPY_FIREBASE" > $OCCUPY_FIREBASE_DIR/$OCCUPY_FIREBASE_DIR_FILE_NAME
 
       # gradlew 실행 권한 부여
       - name: Run chmod to make gradlew executable
