@@ -25,26 +25,26 @@ public class HomeController {
     private final SecurityService securityService;
 
     // [GET] 최신 정보글 조회
-//    @GetMapping("/info/list")
-//    @Operation(summary = "최신 정보글 조회 API", description = "홈 화면에서 최신 정보글을 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getInfoBoardList(@AuthenticationPrincipal UserDetails userDetails) {
-//
-//        User user = securityService.getUserByUserDetails(userDetails);
-//
-//        return new CommonResponse<>(ResponseCode.SUCCESS, homeService.getInfoBoardList(user));
-//    }
+    @GetMapping("/info/list")
+    @Operation(summary = "최신 정보글 조회 API", description = "홈 화면에서 최신 정보글을 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getInfoBoardList(@AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        return new CommonResponse<>(ResponseCode.SUCCESS, homeService.getInfoBoardList(user));
+    }
 
     // [GET] 최신 자유글 조회
-//    @GetMapping("/free/list")
-//    @Operation(summary = "최신 자유글 조회 API", description = "홈 화면에서 최신 자유글을 조회하는 API 입니다.")
-//    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-//    public CommonResponse<?> getFreeBoardList(@AuthenticationPrincipal UserDetails userDetails) {
-//
-//        User user = securityService.getUserByUserDetails(userDetails);
-//
-//        return new CommonResponse<>(ResponseCode.SUCCESS, homeService.getFreeBoardList(user));
-//    }
+    @GetMapping("/free/list")
+    @Operation(summary = "최신 자유글 조회 API", description = "홈 화면에서 최신 자유글을 조회하는 API 입니다.")
+    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public CommonResponse<?> getFreeBoardList(@AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        return new CommonResponse<>(ResponseCode.SUCCESS, homeService.getFreeBoardList(user));
+    }
 
     // [GET] 내 주변 동행글 조회
 //    @GetMapping("/company/list")
