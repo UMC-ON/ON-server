@@ -59,5 +59,8 @@ public class CompanyPost extends BaseEntity {
     @JoinColumn(name = "company_post_id")
     private List<UuidFile> images = new ArrayList<>();
 
+    public void updateCurrentNumber(Long currentRecruitNumber) {
+        this.currentRecruitNumber = currentRecruitNumber;
+    }
 
 }
