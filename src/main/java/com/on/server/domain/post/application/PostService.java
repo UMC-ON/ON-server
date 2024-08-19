@@ -8,6 +8,7 @@ import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.post.dto.PostRequestDTO;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.user.domain.User;
+import com.on.server.domain.user.domain.UserStatus;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +47,7 @@ public class PostService {
 
     // 2. 특정 게시판에 새로운 게시글 작성
     public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO) {
-        User user = userRepository.findById(requestDTO.getUserId())
+        User user = userRepository.findById(requestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
@@ -140,8 +142,13 @@ public class PostService {
 
     // 국가 필터링 메서드
     @Transactional(readOnly = true)
-    public List<PostResponseDTO> getPostsByCountryInTitleOrContent(String country) {
-        List<Post> posts = postRepository.findByCountryInTitleOrContent(country);
+    public List<PostResponseDTO> getPostsByCountryAndBoardType(BoardType boardType, String country) {
+        Board board = boardRepository.findByType(boardType)
+                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
+
+        // Board 객체와 국가를 기준으로 게시글을 조회합니다.
+        List<Post> posts = postRepository.findByBoardAndCountryInTitleOrContent(board, country);
+
         return posts.stream()
                 .map(post -> mapToPostResponseDTO(post, true))
                 .collect(Collectors.toList());
@@ -162,16 +169,23 @@ public class PostService {
     // Post 엔티티를 PostResponseDTO로 매핑하는 메서드
     private PostResponseDTO mapToPostResponseDTO(Post post, boolean includeCommentCount) {
         User user = post.getUser();
+        Set<UserStatus> roles = user.getRoles();
+        UserStatus userStatus = roles.iterator().next();
 
         int commentCount = (post.getComments() != null) ? post.getComments().size() : 0;
+
+        PostResponseDTO.WriterInfo writerInfo = PostResponseDTO.WriterInfo.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .country(user.getCountry())
+                .dispatchedUniversity(user.getDispatchedUniversity())
+                .userStatus(userStatus)
+                .build();
 
         return PostResponseDTO.builder()
                 .postId(post.getId())
                 .boardType(post.getBoard().getType())
-                .userId(user.getId())
-                .userNickname(user.getNickname())
-                .dispatchedUniversity(user.getDispatchedUniversity())
-                .country(user.getCountry())
+                .writerInfo(writerInfo)
                 .title(post.getTitle())
                 .content(post.getContent())
                 .isAnonymous(post.getIsAnonymous())
