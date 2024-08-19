@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+import static com.on.server.domain.alarm.domain.AlertType.*;
+
 @Tag(name = "FCM 알림 테스트")
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class FcmTestController {
     public ResponseEntity pushMessage(@AuthenticationPrincipal UserDetails userDetails) throws IOException {
         User user = securityService.getUserByUserDetails(userDetails);
 
-        fcmService.sendMessage(user.getDeviceToken(), "test title", "test body");
+        fcmService.sendMessage(user.getDeviceToken(), 동행,"test title", "test body");
 
         return ResponseEntity.ok().build();
     }
