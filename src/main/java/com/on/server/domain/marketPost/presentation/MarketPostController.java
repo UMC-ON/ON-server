@@ -108,12 +108,9 @@ public class MarketPostController {
     @Operation(summary = "거래 상태 업데이트")
     @PutMapping("/{marketPostId}/status")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
-    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(
-            @PathVariable Long marketPostId,
-            @RequestParam DealStatus status,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
 
-        MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId, status);
+        MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId, DealStatus.COMPLETE);
         return ResponseEntity.ok(updatedPost);
     }
 
