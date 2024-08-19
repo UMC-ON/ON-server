@@ -24,6 +24,9 @@ public class SignUpRequestDto {
     @Positive(message = "나이는 양수여야 합니다.")
     private Integer age;
 
+    @NotBlank(message = "이름은 필수 입력 값입니다.")
+    private String name;
+
     @NotBlank(message = "성별은 필수 입력 값입니다.")
     private Gender gender;
 
@@ -36,6 +39,7 @@ public class SignUpRequestDto {
                 .password(encodedPassword)
                 .nickname(nickname)
                 .age(age)
+                .name(name)
                 .gender(gender)
                 .phone(phone)
                 .isDispatchConfirmed(false)
