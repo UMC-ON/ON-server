@@ -4,14 +4,19 @@ import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.companyPost.domain.repository.CompanyPostRepository;
 import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
+import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
+import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
+import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
+import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
-import java.util.Collections;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +27,17 @@ public class CompanyPostService {
 
     private final CompanyPostRepository companyPostRepository;
     private final UserRepository userRepository;
-    //private final ImageRepository imageRepository;
+    private final UuidFileService uuidFileService;
+    private final UuidFileRepository uuidFileRepository;
+
+    // 필터링 기능 추가
+    @Transactional(readOnly = true)
+    public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
+        List<CompanyPost> filteredPosts = companyPostRepository.findFilteredCompanyPosts(startDate, endDate, gender, country);
+        return filteredPosts.stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
+    }
 
     // 1. 모든 게시글 조회
     @Transactional(readOnly = true)
@@ -51,16 +66,30 @@ public class CompanyPostService {
                 .universityAnonymous(requestDTO.isUniversityAnonymous())
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .departurePlace(requestDTO.getDeparturePlace())
-                .arrivePlace(requestDTO.getArrivePlace())
-                .recruitNumber(requestDTO.getRecruitNumber())
+                .travelArea(requestDTO.getTravelArea())
+                .totalRecruitNumber(requestDTO.getTotalRecruitNumber())
                 .schedulePeriodDay(requestDTO.getSchedulePeriodDay())
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
-                //.images(images)
+                .currentRecruitNumber(0L) // 모집 인원을 초기화
+                .images(new ArrayList<>()) // images 필드를 빈 리스트로 초기화
                 .build();
 
-        companyPostRepository.save(companyPost);
+        companyPost = companyPostRepository.saveAndFlush(companyPost);
+
+        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
+            List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
+                    .map(file -> {
+                        UuidFile savedFile = uuidFileService.saveFile(file, FilePath.POST);
+                        uuidFileRepository.flush();
+                        return savedFile;
+                    })
+                    .collect(Collectors.toList());
+
+            companyPost.getImages().addAll(uploadedImages);
+        }
+
+        companyPost = companyPostRepository.saveAndFlush(companyPost);
 
         return mapToCompanyPostResponseDTO(companyPost);
     }
@@ -87,7 +116,18 @@ public class CompanyPostService {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
+        // 연관된 이미지 삭제
+        companyPost.getImages().forEach(uuidFileService::deleteFile);
+
         companyPostRepository.delete(companyPost);
+    }
+
+    // 6. 최신 4개의 동행 구하기 게시글 조회
+    @Transactional(readOnly = true)
+    public List<CompanyPostResponseDTO> getRecentCompanyPosts() {
+        return companyPostRepository.findTop4ByOrderByCreatedAtDesc().stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // CompanyPost 엔티티를 CompanyPostResponseDto로 매핑하는 메서드
@@ -95,17 +135,25 @@ public class CompanyPostService {
         return CompanyPostResponseDTO.builder()
                 .companyPostId(companyPost.getId())
                 .userId(companyPost.getUser().getId())
+                .age(companyPost.getUser().getAge())
                 .ageAnonymous(companyPost.isAgeAnonymous())
+                .dispatchedUniversity(companyPost.getUser().getDispatchedUniversity())
+                .nickname(companyPost.getUser().getNickname())
+                .gender(companyPost.getUser().getGender())
                 .universityAnonymous(companyPost.isUniversityAnonymous())
+                .country(companyPost.getUser().getCountry())
                 .title(companyPost.getTitle())
                 .content(companyPost.getContent())
-                .departurePlace(companyPost.getDeparturePlace())
-                .arrivePlace(companyPost.getArrivePlace())
-                .recruitNumber(companyPost.getRecruitNumber())
+                .travelArea(companyPost.getTravelArea())
+                .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
+                .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
                 .schedulePeriodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
-                //.imageIdList(companyPost.getImages().stream().map(Image::getImageId).collect(Collectors.toList()))
+                .createdAt(companyPost.getCreatedAt())
+                .imageUrls(companyPost.getImages().stream()
+                        .map(UuidFile::getFileUrl)
+                        .collect(Collectors.toList()))  // 이미지 URL 리스트
                 .build();
     }
 }
