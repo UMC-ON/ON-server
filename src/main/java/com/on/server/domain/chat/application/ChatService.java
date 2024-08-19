@@ -15,7 +15,6 @@ import com.on.server.domain.marketPost.domain.MarketPost;
 import com.on.server.domain.marketPost.domain.repository.MarketPostRepository;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
-import com.on.server.global.common.BaseRuntimeException;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.InternalServerException;
@@ -47,7 +46,7 @@ public class ChatService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final SpecialChatRepository specialChatRepository;
 
-    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) throws BaseRuntimeException {
+    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) {
         // '동행 구하기' 채팅방 목록
         List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwoAndChattingRoomType(user, user, ChatType.COMPANY);
 
@@ -95,7 +94,7 @@ public class ChatService {
         }
     }
 
-    public MarketChatRoomListResponseDto getMarketChatRoomList(User user) throws BaseRuntimeException {
+    public MarketChatRoomListResponseDto getMarketChatRoomList(User user) {
         // '중고 거래' 채팅방 목록
         List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwoAndChattingRoomType(user, user, ChatType.MARKET);
 
@@ -131,7 +130,7 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResponseDto createChatRoom(User user, ChatRequestDto chatRequestDto) throws BaseRuntimeException {
+    public ChatResponseDto createChatRoom(User user, ChatRequestDto chatRequestDto) {
         User chatUserTwo = userRepository.findById(chatRequestDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
@@ -176,7 +175,7 @@ public class ChatService {
     }
 
 
-    public CompanyChatResponseDto getCompanyInfo(User user, Long roomId) throws BaseRuntimeException {
+    public CompanyChatResponseDto getCompanyInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
@@ -207,7 +206,7 @@ public class ChatService {
         return companyChatResponseDto;
     }
 
-    public MarketChatResponseDto getMarketInfo(User user, Long roomId) throws BaseRuntimeException {
+    public MarketChatResponseDto getMarketInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
@@ -236,7 +235,7 @@ public class ChatService {
         return marketChatResponseDto;
     }
 
-    public ChatListResponseDto getMessageList(User user, Long roomId) throws BaseRuntimeException {
+    public ChatListResponseDto getMessageList(User user, Long roomId) {
         // 채팅 목록 조회
         ChattingRoom currentChattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
@@ -258,7 +257,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void postMessage(User user, Long roomId, String message) throws BaseRuntimeException {
+    public void postMessage(User user, Long roomId, String message) {
         ChattingRoom currentChattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
