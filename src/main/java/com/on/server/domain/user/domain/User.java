@@ -38,6 +38,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "age", nullable = false)
     private Integer age;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
     /**
      * MALE,
      * FEMALE
