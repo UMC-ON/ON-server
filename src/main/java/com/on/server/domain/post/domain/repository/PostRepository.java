@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
@@ -24,4 +25,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 특정 게시판에서 최신 게시글 4개 조회
     List<Post> findTop4ByBoardOrderByCreatedAtDesc(Board board);
+
+    List<Post> findTop2ByBoardOrderByCreatedAtDesc(Optional<Board> byType);
 }
