@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class MarketPostService {
 
     private final MarketPostRepository marketPostRepository;
@@ -31,7 +31,6 @@ public class MarketPostService {
     private final UuidFileRepository uuidFileRepository;
 
     // 1. 모든 물품글 조회
-    @Transactional(readOnly = true)
     public List<MarketPostResponseDTO> getAllMarketPosts() {
         return marketPostRepository.findAll().stream()
                 .map(this::mapToMarketPostResponseDTO)
@@ -39,7 +38,6 @@ public class MarketPostService {
     }
 
     // 2. 특정 물품글 조회
-    @Transactional(readOnly = true)
     public MarketPostResponseDTO getMarketPostById(Long marketPostId) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
@@ -47,9 +45,18 @@ public class MarketPostService {
     }
 
     // 3. 새로운 물품글 작성
+    @Transactional
     public MarketPostResponseDTO createMarketPost(MarketPostRequestDTO requestDTO) {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
+
+        // 이미지 파일 처리
+        List<UuidFile> uploadedImages = new ArrayList<>();
+        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
+            uploadedImages = requestDTO.getImageFiles().stream()
+                    .map(file -> uuidFileService.saveFile(file, FilePath.POST))
+                    .collect(Collectors.toList());
+        }
 
         MarketPost marketPost = MarketPost.builder()
                 .user(user)
@@ -61,31 +68,15 @@ public class MarketPostService {
                 .content(requestDTO.getContent())
                 .currentCountry(requestDTO.getCurrentCountry())
                 .currentLocation(requestDTO.getCurrentLocation())
-                .images(new ArrayList<>()) // 이미지 리스트 초기화
+                .images(uploadedImages)
                 .build();
 
-        marketPost = marketPostRepository.saveAndFlush(marketPost);
-
-        // 이미지 파일 처리
-        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
-            List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
-                    .map(file -> {
-                        UuidFile savedFile = uuidFileService.saveFile(file, FilePath.POST);
-                        uuidFileRepository.flush();
-                        return savedFile;
-                    })
-                    .collect(Collectors.toList());
-
-            marketPost.getImages().addAll(uploadedImages);
-        }
-
-        marketPost = marketPostRepository.saveAndFlush(marketPost);
+        marketPost = marketPostRepository.save(marketPost);
 
         return mapToMarketPostResponseDTO(marketPost);
     }
 
     // 4. 특정 사용자가 작성한 모든 물품글 조회
-    @Transactional(readOnly = true)
     public List<MarketPostResponseDTO> getMarketPostsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
@@ -96,6 +87,7 @@ public class MarketPostService {
     }
 
     // 5. 특정 게시글 삭제
+    @Transactional
     public void deleteMarketPost(Long userId, Long marketPostId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
@@ -113,6 +105,7 @@ public class MarketPostService {
     }
 
     // 6. 거래 상태 업데이트
+    @Transactional
     public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId, DealStatus status) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
@@ -128,7 +121,6 @@ public class MarketPostService {
     }
 
     // 필터링: 거래형식, 국가 필터링
-    @Transactional(readOnly = true)
     public List<MarketPostResponseDTO> getFilteredMarketPosts(DealType dealType, String currentCountry) {
         return marketPostRepository.findFilteredMarketPosts(dealType, currentCountry, null).stream()
                 .map(this::mapToMarketPostResponseDTO)
@@ -136,7 +128,6 @@ public class MarketPostService {
     }
 
     // 필터링: 거래 가능 물품만 보기
-    @Transactional(readOnly = true)
     public List<MarketPostResponseDTO> getAvailableMarketPosts() {
         return marketPostRepository.findFilteredMarketPosts(null, null, DealStatus.AWAIT).stream()
                 .map(this::mapToMarketPostResponseDTO)
@@ -144,7 +135,6 @@ public class MarketPostService {
     }
 
     // 검색 기능
-    @Transactional(readOnly = true)
     public List<MarketPostResponseDTO> searchMarketPosts(String keyword) {
         List<MarketPost> marketPosts = marketPostRepository.searchMarketPosts(keyword);
         return marketPosts.stream()
@@ -166,6 +156,7 @@ public class MarketPostService {
                 .dealType(marketPost.getDealType())
                 .dealStatus(marketPost.getDealStatus())
                 .content(marketPost.getContent())
+                .createdAt(marketPost.getCreatedAt())
                 .imageUrls(marketPost.getImages().stream().map(UuidFile::getFileUrl).collect(Collectors.toList())) // 이미지 URL 리스트
                 .build();
     }

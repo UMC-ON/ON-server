@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -51,5 +52,8 @@ public class MarketPostResponseDTO {
 
     // 이미지 URL 리스트
     private List<String> imageUrls;
+
+    // 작성 시간
+    private LocalDateTime createdAt;
 
 }
