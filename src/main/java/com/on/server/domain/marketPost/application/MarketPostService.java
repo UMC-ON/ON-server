@@ -116,7 +116,11 @@ public class MarketPostService {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
 
-        marketPost.setDealStatus(status); // 상태 업데이트
+        if (marketPost.getDealStatus() != DealStatus.AWAIT) {
+            throw new RuntimeException("거래 상태가 AWAIT인 경우에만 COMPLETE로 업데이트할 수 있습니다.");
+        }
+
+        marketPost.setDealStatus(DealStatus.COMPLETE); // 상태 업데이트
         MarketPost updatedMarketPost = marketPostRepository.save(marketPost); // 저장
 
         return mapToMarketPostResponseDTO(updatedMarketPost);
