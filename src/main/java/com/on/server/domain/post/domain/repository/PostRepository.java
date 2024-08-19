@@ -19,8 +19,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> searchPosts(@Param("keyword") String keyword);
 
     // 제목 또는 내용에 국가 이름이 포함된 게시글 검색
-    @Query("SELECT p FROM Post p WHERE p.title LIKE %:country% OR p.content LIKE %:country%")
-    List<Post> findByCountryInTitleOrContent(@Param("country") String country);
+    @Query("SELECT p FROM Post p WHERE p.board = :board AND (p.title LIKE %:country% OR p.content LIKE %:country%)")
+    List<Post> findByBoardAndCountryInTitleOrContent(@Param("board") Board board, @Param("country") String country);
 
     // 특정 게시판에서 최신 게시글 4개 조회
     List<Post> findTop4ByBoardOrderByCreatedAtDesc(Board board);
