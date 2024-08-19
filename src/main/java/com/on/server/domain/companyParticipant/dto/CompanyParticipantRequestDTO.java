@@ -13,7 +13,4 @@ public class CompanyParticipantRequestDTO {
 
     // 작성자 ID
     private Long userId;
-
-    // 상태
-    private CompanyParticipantStatus companyParticipantStatus;
 }
