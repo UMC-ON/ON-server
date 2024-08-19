@@ -10,4 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class InfoBoardListResponseDto {
+    private String title;
+    private String content;
+
+    private String postTime;
+    private String postImg;
+
+    private String Writer; // 익명이면 익명, 익명 아니면 nickname
+    private Integer commentCount;
 }
