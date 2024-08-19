@@ -57,7 +57,6 @@ public class MarketPostService {
                 .isShare(requestDTO.isShare())
                 .cost(requestDTO.getCost())
                 .dealType(requestDTO.getDealType())
-                .dealStatus(requestDTO.getDealStatus())
                 .content(requestDTO.getContent())
                 .currentCountry(requestDTO.getCurrentCountry())
                 .currentLocation(requestDTO.getCurrentLocation())
