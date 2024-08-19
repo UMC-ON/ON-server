@@ -17,6 +17,7 @@ public class DispatchCertifyInfoResponseDto {
 
     private Long id;
     private Long userId;
+    private String userEmail;
     private String userName;
     private DispatchType dispatchType;
     private String dispatchedUniversity;
@@ -30,6 +31,7 @@ public class DispatchCertifyInfoResponseDto {
         return DispatchCertifyInfoResponseDto.builder()
                 .id(dispatchCertify.getId())
                 .userId(dispatchCertify.getUser().getId())
+                .userEmail(dispatchCertify.getUser().getEmail())
                 .userName(dispatchCertify.getUser().getName())
                 .dispatchType(dispatchCertify.getDispatchType())
                 .dispatchedUniversity(dispatchCertify.getDispatchedUniversity())
