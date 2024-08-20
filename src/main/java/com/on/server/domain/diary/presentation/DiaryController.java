@@ -41,7 +41,7 @@ public class DiaryController {
 
     // 1. 일기 리스트 보여주는 일기 홈
     @GetMapping("/list")
-    @Operation(summary = "일기 홈 조회")
+    @Operation(summary = "일기 홈 조회", description = "D-Day 계산 : 2일 남은 경우 = 2, 당일인 경우 = 0, 2일 지난 경우 = -2")
     @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public CommonResponse<?> getDiaryHome(@AuthenticationPrincipal UserDetails userDetails) {
 
