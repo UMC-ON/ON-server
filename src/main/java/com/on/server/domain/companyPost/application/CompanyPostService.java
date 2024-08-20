@@ -14,6 +14,7 @@ import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -54,13 +55,13 @@ public class CompanyPostService {
 
     // 3. 새로운 게시글 작성
     @Transactional
-    public CompanyPostResponseDTO createCompanyPost(CompanyPostRequestDTO requestDTO) {
+    public CompanyPostResponseDTO createCompanyPost(CompanyPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
 
         List<UuidFile> uploadedImages = new ArrayList<>();
-        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
-            uploadedImages = requestDTO.getImageFiles().stream()
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            uploadedImages = imageFiles.stream()
                     .map(file -> uuidFileService.saveFile(file, FilePath.POST))
                     .collect(Collectors.toList());
         }

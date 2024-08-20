@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -66,14 +67,18 @@ public class CompanyPostController {
     @Operation(summary = "새로운 동행구하기 게시글 작성")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CompanyPostResponseDTO> createCompanyPost(@ModelAttribute CompanyPostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CompanyPostResponseDTO> createCompanyPost(
+            @RequestPart("requestDTO") CompanyPostRequestDTO requestDTO,
+            @RequestPart("imageFiles") List<MultipartFile> imageFiles,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
         // 현재 인증된 사용자의 ID를 DTO에 설정
         if (userDetails instanceof User) {
             User user = (User) userDetails;
             requestDTO.setUserId(user.getId());
         }
 
-        CompanyPostResponseDTO createdPost = companyPostService.createCompanyPost(requestDTO);
+        CompanyPostResponseDTO createdPost = companyPostService.createCompanyPost(requestDTO, imageFiles);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 

@@ -44,6 +44,6 @@ public class CompanyPostRequestDTO {
     private LocalDate endDate;
 
     // 이미지 파일 리스트
-    private List<MultipartFile> imageFiles;
+    //private List<MultipartFile> imageFiles;
 
 }
