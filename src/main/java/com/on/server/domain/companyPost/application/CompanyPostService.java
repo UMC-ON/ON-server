@@ -78,6 +78,7 @@ public class CompanyPostService {
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
                 .currentRecruitNumber(0L) // 모집 인원을 초기화
+                .isRecruitCompleted(false)
                 .images(uploadedImages) // 이미지 리스트를 초기화된 리스트로 설정
                 .build();
 
@@ -138,6 +139,7 @@ public class CompanyPostService {
                 .travelArea(companyPost.getTravelArea())
                 .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
                 .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
+                .isRecruitCompletd(companyPost.isRecruitCompleted())
                 .schedulePeriodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
