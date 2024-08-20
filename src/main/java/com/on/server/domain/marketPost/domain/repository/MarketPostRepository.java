@@ -19,7 +19,9 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
     // 필터링
     @Query("SELECT mp FROM MarketPost mp WHERE (:dealType IS NULL OR mp.dealType = :dealType) " +
             "AND (:currentCountry IS NULL OR mp.currentCountry = :currentCountry) " +
-            "AND (:dealStatus IS NULL OR mp.dealStatus = :dealStatus)")
+            "AND (:dealStatus IS NULL OR mp.dealStatus = :dealStatus)"+
+            "ORDER BY mp.createdAt DESC")
+
     List<MarketPost> findFilteredMarketPosts(
             @Param("dealType") DealType dealType,
             @Param("currentCountry") String currentCountry,
@@ -38,4 +40,8 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
             "AND mp.id <> :marketPostId " +
             "ORDER BY mp.createdAt DESC")
     List<MarketPost> findTop3ByCurrentCountryAndAwaitingOrder(@Param("currentCountry") String currentCountry, @Param("marketPostId") Long marketPostId);
+
+    // 최신순 정렬
+    List<MarketPost> findAllByOrderByCreatedAtDesc();
+    List<MarketPost> findByUserOrderByCreatedAtDesc(User user);
 }

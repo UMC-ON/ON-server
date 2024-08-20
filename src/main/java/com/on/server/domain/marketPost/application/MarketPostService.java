@@ -33,7 +33,7 @@ public class MarketPostService {
 
     // 1. 모든 물품글 조회
     public List<MarketPostResponseDTO> getAllMarketPosts() {
-        return marketPostRepository.findAll().stream()
+        return marketPostRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -82,7 +82,7 @@ public class MarketPostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
 
-        return marketPostRepository.findByUser(user).stream()
+        return marketPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
