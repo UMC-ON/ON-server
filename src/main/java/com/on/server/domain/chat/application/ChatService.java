@@ -300,6 +300,10 @@ public class ChatService {
         Long updateCurrentNumber = companyPost.getCurrentRecruitNumber() + 1;
         companyPost.updateCurrentNumber(updateCurrentNumber);
 
+        if(updateCurrentNumber == companyPost.getTotalRecruitNumber()) {
+            companyPost.updateRecruitCompleted(true);
+        }
+
         companyPostRepository.save(companyPost);
 
 
