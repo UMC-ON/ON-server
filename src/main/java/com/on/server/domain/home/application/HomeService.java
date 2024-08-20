@@ -114,9 +114,10 @@ public class HomeService {
                         companyPost.getUser().getAge(),
                         companyPost.getUser().getGender(),
                         companyPost.getStartDate(),
+                        companyPost.getEndDate(),
                         companyPost.getCurrentRecruitNumber(),
                         companyPost.getTotalRecruitNumber(),
-                        companyPost.getTravelArea().get(0)
+                        companyPost.getTravelArea()
                 )).toList();
     }
 
