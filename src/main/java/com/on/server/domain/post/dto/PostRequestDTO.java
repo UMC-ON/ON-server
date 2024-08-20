@@ -27,7 +27,4 @@ public class PostRequestDTO {
 
     // 파견교 공개 여부
     private boolean isAnonymousUniv;
-
-    // 이미지 파일 리스트
-    private List<MultipartFile> imageFiles;
 }

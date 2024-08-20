@@ -33,7 +33,7 @@ public class PostController {
 
     // 1. 특정 게시판(boardType)의 모든 게시글을 조회
     @Operation(summary = "특정 게시판의 모든 게시글 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{boardType}")
     public ResponseEntity<List<PostResponseDTO>> getAllPostsByBoardType(@PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
         List<PostResponseDTO> posts = postService.getAllPostsByBoardType(boardType);
@@ -43,24 +43,24 @@ public class PostController {
 
     // 2. 특정 게시판(boardType)에 새로운 게시글을 작성
     @Operation(summary = "특정 게시판에 새로운 게시글 작성")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(value = "/{boardType}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @ModelAttribute PostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @RequestPart("postRequestDTO") PostRequestDTO requestDTO,  @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,  @AuthenticationPrincipal UserDetails userDetails) {
         // 현재 인증된 사용자의 ID를 DTO에 설정
         if (userDetails instanceof User) {
             User user = (User) userDetails;
             requestDTO.setId(user.getId());
         }
 
-        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO);
+        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO, imageFiles);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
     // 3. 특정 게시판(boardType) 내의 특정 게시글(postId)을 조회
     @Operation(summary = "특정 게시판 내의 특정 게시글 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{boardType}/{postId}")
     public ResponseEntity<PostResponseDTO> getPostById(@PathVariable("boardType") BoardType boardType, @PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetails userDetails) {
         PostResponseDTO post = postService.getPostById(boardType, postId);
@@ -70,7 +70,7 @@ public class PostController {
 
     // 4. 자기가 특정 게시판에 작성한 모든 게시글 조회
     @Operation(summary = "사용자가 특정 게시판에 작성한 모든 게시글 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/user/{userId}/{boardType}")
     public ResponseEntity<List<PostResponseDTO>> getPostsByUserIdAndBoardType(@PathVariable("userId") Long userId, @PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
         List<PostResponseDTO> posts = postService.getPostsByUserIdAndBoardType(userId, boardType);
@@ -80,7 +80,7 @@ public class PostController {
 
     // 5. 자기가 특정 게시판에 작성한 특정 게시글(postId)을 삭제
     @Operation(summary = "사용자가 특정 게시판에 작성한 특정 게시글 삭제")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @DeleteMapping("/user/{userId}/{boardType}/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable("userId") Long userId, @PathVariable("boardType") BoardType boardType,@PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetails userDetails) {
         postService.deletePost(userId, boardType, postId);
@@ -91,7 +91,7 @@ public class PostController {
 
     // 6. 국가 필터링 API
     @Operation(summary = "국가 필터링된 게시글 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/filter/{boardType}")
     public ResponseEntity<List<PostResponseDTO>> searchPostsByCountry(
             @PathVariable("boardType") BoardType boardType,
@@ -104,7 +104,7 @@ public class PostController {
 
     // 7. 게시글 검색 API
     @Operation(summary = "게시글 검색")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/search")
     public ResponseEntity<List<PostResponseDTO>> searchPosts(@RequestParam("keyword") String keyword, @AuthenticationPrincipal UserDetails userDetails) {
         List<PostResponseDTO> posts = postService.searchPosts(keyword);
@@ -113,7 +113,7 @@ public class PostController {
 
     // 8. 특정 게시판의 최신 게시글 4개 조회
     @Operation(summary = "특정 게시판의 최신 게시글 4개 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/recent/{boardType}")
     public ResponseEntity<List<PostResponseDTO>> getLatestPosts(@PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
         List<PostResponseDTO> latestPosts = postService.getLatestPostsByBoardType(boardType);

@@ -26,17 +26,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
-    private final UuidFileRepository uuidFileRepository;
     private final UuidFileService uuidFileService;
 
     // 1. 특정 게시판의 모든 게시글 조회
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> getAllPostsByBoardType(BoardType boardType) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
@@ -46,12 +44,20 @@ public class PostService {
     }
 
     // 2. 특정 게시판에 새로운 게시글 작성
-    public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO) {
+    @Transactional
+    public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
         User user = userRepository.findById(requestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
+        // 이미지 파일 처리
+        List<UuidFile> uploadedImages = new ArrayList<>();
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            uploadedImages = imageFiles.stream()
+                    .map(file -> uuidFileService.saveFile(file, FilePath.POST))
+                    .collect(Collectors.toList());
+        }
 
         // Post 객체 생성
         Post post = Post.builder()
@@ -61,31 +67,16 @@ public class PostService {
                 .isAnonymous(requestDTO.isAnonymous())
                 .isAnonymousUniv(requestDTO.isAnonymousUniv())
                 .board(board)
-                .user(user)
-                .images(new ArrayList<>())
+                .images(uploadedImages)
                 .build();
 
         // 게시글 저장
-        post = postRepository.saveAndFlush(post);
+        post = postRepository.save(post);
 
-        // 이미지 파일 처리
-        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
-            List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
-                    .map(file -> {
-                        UuidFile uuidFile = uuidFileService.saveFile(file, FilePath.POST);
-                        uuidFileRepository.flush();
-                        return uuidFile;
-                    })
-                    .collect(Collectors.toList());
-
-            post.getImages().addAll(uploadedImages);
-        }
-        post = postRepository.saveAndFlush(post);
         return mapToPostResponseDTO(post, true);
     }
 
     // 3. 특정 게시글 조회
-    @Transactional(readOnly = true)
     public PostResponseDTO getPostById(BoardType boardType, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
@@ -96,7 +87,6 @@ public class PostService {
     }
 
     // 4. 특정 사용자가 특정 게시판에 작성한 모든 게시글 조회
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> getPostsByUserIdAndBoardType(Long userId, BoardType boardType) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -110,6 +100,7 @@ public class PostService {
     }
 
     // 5. 특정 게시글 삭제
+    @Transactional
     public void deletePost(Long userId, BoardType boardType, Long postId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -132,7 +123,6 @@ public class PostService {
     }
 
     // 게시글 검색 기능
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> searchPosts(String keyword) {
         List<Post> posts = postRepository.searchPosts(keyword);
         return posts.stream()
@@ -141,7 +131,6 @@ public class PostService {
     }
 
     // 국가 필터링 메서드
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> getPostsByCountryAndBoardType(BoardType boardType, String country) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
@@ -155,7 +144,6 @@ public class PostService {
     }
 
     // 특정 게시판의 최신 게시글 4개 조회
-    @Transactional(readOnly = true)
     public List<PostResponseDTO> getLatestPostsByBoardType(BoardType boardType) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
