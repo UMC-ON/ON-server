@@ -13,14 +13,14 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 특정 사용자와 게시판의 모든 게시글 조회
-    List<Post> findByUserAndBoard(User user, Board board);
+    List<Post> findByUserAndBoardOrderByCreatedAtDesc(User user, Board board);
 
     // 제목 또는 내용에 키워드가 포함된 게시글 검색
-    @Query("SELECT p FROM Post p WHERE p.title LIKE %:keyword% OR p.content LIKE %:keyword%")
+    @Query("SELECT p FROM Post p WHERE p.title LIKE %:keyword% OR p.content LIKE %:keyword% ORDER BY p.createdAt DESC")
     List<Post> searchPosts(@Param("keyword") String keyword);
 
     // 작성자의 국가를 기준으로 게시글 필터링
-    @Query("SELECT p FROM Post p WHERE p.board = :board AND p.user.country = :country")
+    @Query("SELECT p FROM Post p WHERE p.board = :board AND p.user.country = :country ORDER BY p.createdAt DESC")
     List<Post> findByBoardAndUserCountry(@Param("board") Board board, @Param("country") String country);
 
 
