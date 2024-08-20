@@ -19,7 +19,9 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
     // 필터링
     @Query("SELECT mp FROM MarketPost mp WHERE (:dealType IS NULL OR mp.dealType = :dealType) " +
             "AND (:currentCountry IS NULL OR mp.currentCountry = :currentCountry) " +
-            "AND (:dealStatus IS NULL OR mp.dealStatus = :dealStatus)")
+            "AND (:dealStatus IS NULL OR mp.dealStatus = :dealStatus)"+
+            "ORDER BY mp.createdAt DESC")
+
     List<MarketPost> findFilteredMarketPosts(
             @Param("dealType") DealType dealType,
             @Param("currentCountry") String currentCountry,
@@ -29,7 +31,8 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
     @Query("SELECT mp FROM MarketPost mp WHERE " +
             "mp.currentCountry LIKE %:keyword% OR " +
             "mp.title LIKE %:keyword% OR " +
-            "mp.content LIKE %:keyword%")
+            "mp.content LIKE %:keyword%" +
+            "ORDER BY mp.createdAt DESC")
     List<MarketPost> searchMarketPosts(@Param("keyword") String keyword);
 
     // 내 주변 물품거래글: 특정 국가에서 거래 상태가 AWAIT인 최신순 3개의 게시글 조회
@@ -38,4 +41,8 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
             "AND mp.id <> :marketPostId " +
             "ORDER BY mp.createdAt DESC")
     List<MarketPost> findTop3ByCurrentCountryAndAwaitingOrder(@Param("currentCountry") String currentCountry, @Param("marketPostId") Long marketPostId);
+
+    // 최신순 정렬
+    List<MarketPost> findAllByOrderByCreatedAtDesc();
+    List<MarketPost> findByUserOrderByCreatedAtDesc(User user);
 }
