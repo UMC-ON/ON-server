@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class PostService {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
         return board.getPosts().stream()
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
                 .map(post -> mapToPostResponseDTO(post, true)) // 댓글 수 포함
                 .collect(Collectors.toList());
     }
@@ -93,7 +95,7 @@ public class PostService {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
-        List<Post> posts = postRepository.findByUserAndBoard(user, board);
+        List<Post> posts = postRepository.findByUserAndBoardOrderByCreatedAtDesc(user, board);
         return posts.stream()
                 .map(post -> mapToPostResponseDTO(post, true)) // 댓글 수 포함
                 .collect(Collectors.toList());
