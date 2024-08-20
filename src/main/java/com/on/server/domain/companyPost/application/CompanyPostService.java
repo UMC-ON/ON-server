@@ -124,6 +124,14 @@ public class CompanyPostService {
                 .collect(Collectors.toList());
     }
 
+    // 내 주변 동행글 조회
+    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(String country) {
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(country);
+        return nearbyPosts.stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     // CompanyPost 엔티티를 CompanyPostResponseDto로 매핑하는 메서드
     private CompanyPostResponseDTO mapToCompanyPostResponseDTO(CompanyPost companyPost) {
         return CompanyPostResponseDTO.builder()
@@ -140,10 +148,11 @@ public class CompanyPostService {
                 .travelArea(companyPost.getTravelArea())
                 .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
                 .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
-                .isRecruitCompletd(companyPost.isRecruitCompleted())
+                .isRecruitCompleted(companyPost.isRecruitCompleted())
                 .schedulePeriodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
+                .currentCountry(companyPost.getCurrentCountry())
                 .createdAt(companyPost.getCreatedAt())
                 .imageUrls(companyPost.getImages().stream()
                         .map(UuidFile::getFileUrl)
