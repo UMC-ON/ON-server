@@ -139,7 +139,16 @@ public class MarketPostService {
     public List<MarketPostResponseDTO> searchMarketPosts(String keyword) {
         List<MarketPost> marketPosts = marketPostRepository.searchMarketPosts(keyword);
         return marketPosts.stream()
-                .map(marketPost -> mapToMarketPostResponseDTO(marketPost))
+                .map(this::mapToMarketPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 내 주변 물품거래글
+    // 특정 물품글 조회와 함께 동일한 위치의 다른 게시글 3개 조회
+    public List<MarketPostResponseDTO> getNearbyMarketPosts(String currentCountry) {
+        List<MarketPost> nearbyPosts = marketPostRepository.findTop3ByCurrentCountryAndAwaitingOrder(currentCountry);
+        return nearbyPosts.stream()
+                .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
 
