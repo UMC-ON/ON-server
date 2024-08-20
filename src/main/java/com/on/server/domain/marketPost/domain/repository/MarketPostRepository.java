@@ -31,7 +31,8 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
     @Query("SELECT mp FROM MarketPost mp WHERE " +
             "mp.currentCountry LIKE %:keyword% OR " +
             "mp.title LIKE %:keyword% OR " +
-            "mp.content LIKE %:keyword%")
+            "mp.content LIKE %:keyword%" +
+            "ORDER BY mp.createdAt DESC")
     List<MarketPost> searchMarketPosts(@Param("keyword") String keyword);
 
     // 내 주변 물품거래글: 특정 국가에서 거래 상태가 AWAIT인 최신순 3개의 게시글 조회
