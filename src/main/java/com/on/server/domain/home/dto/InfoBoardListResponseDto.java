@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class InfoBoardListResponseDto {
+
+    private Long postId;
     private String title;
     private String content;
 

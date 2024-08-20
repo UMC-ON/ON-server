@@ -50,6 +50,7 @@ public class HomeService {
                             .getNickname();
 
                     return InfoBoardListResponseDto.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
                             .content(post.getContent())
                             .postTime(formatTime(post.getCreatedAt()))
@@ -81,6 +82,7 @@ public class HomeService {
                             .getNickname();
 
                     return FreeBoardListResponseDto.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
                             .content(post.getContent())
                             .postTime(formatTime(post.getCreatedAt()))
@@ -107,6 +109,7 @@ public class HomeService {
 
         return companyPostList.stream()
                 .map(companyPost -> new CompanyBoardListResponseDto(
+                        companyPost.getId(),
                         companyPost.getImages().get(0).getFileUrl(),
                         companyPost.getTitle(),
                         companyPost.getUser().getNickname(),
