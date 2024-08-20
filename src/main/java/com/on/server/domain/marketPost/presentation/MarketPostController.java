@@ -124,4 +124,15 @@ public class MarketPostController {
         List<MarketPostResponseDTO> searchResults = marketPostService.searchMarketPosts(keyword);
         return ResponseEntity.ok(searchResults);
     }
+
+    // 내 주변 물품거래글
+    // 특정 게시글의 위치를 기준으로 근처 게시글 조회
+    @Operation(summary = "내 주변 물품거래글")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
+    @GetMapping("/{marketPostId}/nearby")
+    public ResponseEntity<List<MarketPostResponseDTO>> getNearbyMarketPosts(@PathVariable Long marketPostId) {
+        MarketPostResponseDTO post = marketPostService.getMarketPostById(marketPostId);
+        List<MarketPostResponseDTO> nearbyPosts = marketPostService.getNearbyMarketPosts(post.getCurrentCountry(), marketPostId);
+        return ResponseEntity.ok(nearbyPosts);
+    }
 }
