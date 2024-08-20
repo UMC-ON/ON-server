@@ -63,6 +63,7 @@ public class ChatService {
 
                     Chat chat = chatRepository.findFirstByChattingRoomOrderByCreatedAtDesc(chattingRoom);
 
+
                     SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
                     CompanyPost companyPost = specialChat.getCompanyPost();
 
@@ -71,12 +72,15 @@ public class ChatService {
 
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
+                    String chatContents = (chat != null) ? chat.getContents() : null;
+                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
+
                     return new CompanyChatRoomListResponseDto.roomListDto(
                             chattingRoom.getId(),
                             senderName,
                             companyPost.getTravelArea().get(0),
-                            chat.getContents(),
-                            formatLastChatTime(chat.getCreatedAt())
+                            chatContents,
+                            lastChatTime
                     );
                 }).toList();
 
@@ -123,12 +127,15 @@ public class ChatService {
 
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
+                    String chatContents = (chat != null) ? chat.getContents() : null;
+                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
+
                     return new MarketChatRoomListResponseDto.roomListDto(
                             chattingRoom.getId(),
                             senderName,
                             marketPost.getImages().get(0).getFileUrl(), // 상품 이미지
-                            chat.getContents(),
-                            formatLastChatTime(chat.getCreatedAt())
+                            chatContents,
+                            lastChatTime
                     );
                 }).toList();
 
@@ -299,6 +306,10 @@ public class ChatService {
         // 찾은 companyPost currentRecruitNumber +1 하기
         Long updateCurrentNumber = companyPost.getCurrentRecruitNumber() + 1;
         companyPost.updateCurrentNumber(updateCurrentNumber);
+
+        if (updateCurrentNumber == companyPost.getTotalRecruitNumber()) {
+            companyPost.updateRecruitCompleted(true);
+        }
 
         companyPostRepository.save(companyPost);
 
