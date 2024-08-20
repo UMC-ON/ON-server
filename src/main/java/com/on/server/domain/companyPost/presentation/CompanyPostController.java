@@ -58,8 +58,8 @@ public class CompanyPostController {
     @Operation(summary = "특정 동행구하기 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{companyPostId}")
-    public ResponseEntity<CompanyPostResponseDTO> getCompanyPostById(@PathVariable Long companyPostId, @AuthenticationPrincipal UserDetails userDetails) {
-        CompanyPostResponseDTO post = companyPostService.getCompanyPostById(companyPostId);
+    public ResponseEntity<List<CompanyPostResponseDTO>> getCompanyPostById(@PathVariable Long companyPostId, @AuthenticationPrincipal UserDetails userDetails) {
+        List<CompanyPostResponseDTO> post = companyPostService.getCompanyPostById(companyPostId);
         return ResponseEntity.ok(post);
     }
 

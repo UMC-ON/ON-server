@@ -47,10 +47,11 @@ public class CompanyPostService {
     }
 
     // 2. 특정 게시글 조회
-    public CompanyPostResponseDTO getCompanyPostById(Long companyPostId) {
-        CompanyPost companyPost = companyPostRepository.findById(companyPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + companyPostId));
-        return mapToCompanyPostResponseDTO(companyPost);
+    public List<CompanyPostResponseDTO> getCompanyPostById(Long companyPostId) {
+        return companyPostRepository.findById(companyPostId)
+                .stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // 3. 새로운 게시글 작성
