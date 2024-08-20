@@ -49,27 +49,4 @@ public class CompanyParticipantService {
                 .companyParticipantStatus(companyParticipant.getCompanyParticipantstatus())
                 .build();
     }
-
-    public CompanyParticipantResponseDTO updateStatus(Long participantId, CompanyParticipantStatus status) {
-
-        // 특정 신청자 정보 가져오기
-        CompanyParticipant companyParticipant = companyParticipantRepository.findById(participantId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid participant ID"));
-
-        // 상태 업데이트
-        if (companyParticipant.getCompanyParticipantstatus() != CompanyParticipantStatus.AWAIT) {
-            throw new RuntimeException("신청 상태가 AWAIT인 경우에만 PARTICIPANT로 업데이트할 수 있습니다.");
-        }
-
-        companyParticipant.setCompanyParticipantstatus(CompanyParticipantStatus.PARTICIPANT);
-        companyParticipantRepository.save(companyParticipant);
-
-        // 응답 DTO 생성 및 반환
-        return CompanyParticipantResponseDTO.builder()
-                .companyParticipantId(companyParticipant.getId())
-                .companyPostId(companyParticipant.getCompanyPost().getId())
-                .userId(companyParticipant.getUser().getId())
-                .companyParticipantStatus(companyParticipant.getCompanyParticipantstatus())
-                .build();
-    }
 }

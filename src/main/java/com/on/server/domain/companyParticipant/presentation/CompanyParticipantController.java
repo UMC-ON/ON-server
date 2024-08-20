@@ -28,12 +28,4 @@ public class CompanyParticipantController {
         CompanyParticipantResponseDTO responseDTO = companyParticipantService.applyToCompanyPost(requestDTO);
         return ResponseEntity.ok(responseDTO);
     }
-
-    @Operation(summary = "동행구하기글 작성자가 동행 신청 상태 업데이트")
-    @PutMapping("/{participantId}/status")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
-    public ResponseEntity<CompanyParticipantResponseDTO> updateParticipantStatus(@PathVariable Long participantId, @AuthenticationPrincipal UserDetails userDetails) {
-        CompanyParticipantResponseDTO responseDTO = companyParticipantService.updateStatus(participantId, CompanyParticipantStatus.PARTICIPANT);
-        return ResponseEntity.ok(responseDTO);
-    }
 }
