@@ -102,6 +102,10 @@ public class HomeService {
 
         List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country);
 
+        if(companyPostList.isEmpty()) {
+            return null;
+        }
+
         return getCompanyBoardDto(companyPostList);
     }
 
