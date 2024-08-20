@@ -125,8 +125,10 @@ public class CompanyPostService {
     }
 
     // 내 주변 동행글 조회
-    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(String country) {
-        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(country);
+    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(Long companyPostId) {
+        CompanyPostResponseDTO post = getCompanyPostById(companyPostId).get(0);  // 첫 번째 요소 선택
+        String firstCountry = post.getTravelArea().get(0); // 첫 번째 국가를 기준으로 설정
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId); // 내 게시글 제외
         return nearbyPosts.stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());

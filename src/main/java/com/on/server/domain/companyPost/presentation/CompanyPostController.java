@@ -113,8 +113,7 @@ public class CompanyPostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{companyPostId}/nearby")
     public ResponseEntity<List<CompanyPostResponseDTO>> getNearbyCompanyPostsByLikeTravelArea(@PathVariable Long companyPostId) {
-        CompanyPostResponseDTO post = companyPostService.getCompanyPostById(companyPostId).get(0);
-        List<CompanyPostResponseDTO> nearbyPosts = companyPostService.getNearbyCompanyPostsByLikeTravelArea(post.getCurrentCountry());
+        List<CompanyPostResponseDTO> nearbyPosts = companyPostService.getNearbyCompanyPostsByLikeTravelArea(companyPostId);
         return ResponseEntity.ok(nearbyPosts);
     }
 }
