@@ -25,6 +25,9 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "age_anonymous", nullable = false)
     private boolean ageAnonymous;
 
+    @Column(name = "current_country", nullable = false)
+    private String currentCountry;
+
     @Column(name = "university_anonymous", nullable = false)
     private boolean universityAnonymous;
 

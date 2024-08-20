@@ -79,6 +79,7 @@ public class CompanyPostService {
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
                 .currentRecruitNumber(0L) // 모집 인원을 초기화
+                .currentCountry(requestDTO.getCurrentCountry())
                 .isRecruitCompleted(false)
                 .images(uploadedImages) // 이미지 리스트를 초기화된 리스트로 설정
                 .build();

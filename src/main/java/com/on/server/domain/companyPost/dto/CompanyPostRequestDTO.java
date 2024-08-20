@@ -22,6 +22,9 @@ public class CompanyPostRequestDTO {
     //파견교 비공개 여부
     private boolean universityAnonymous;
 
+    // 현재 국가
+    private String currentCountry;
+
     //제목
     private String title;
 
