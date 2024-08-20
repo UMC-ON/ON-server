@@ -23,7 +23,7 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
     @Query("SELECT cp FROM CompanyPost cp WHERE (:startDate IS NULL OR cp.startDate >= :startDate) " +
             "AND (:endDate IS NULL OR cp.endDate <= :endDate) " +
             "AND (:gender IS NULL OR cp.user.gender = :gender) " +
-            "AND (:country IS NULL OR :country MEMBER OF cp.travelArea)")
+            "AND (:country IS NULL OR :country IN elements(cp.travelArea))")
     List<CompanyPost> findFilteredCompanyPosts(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
