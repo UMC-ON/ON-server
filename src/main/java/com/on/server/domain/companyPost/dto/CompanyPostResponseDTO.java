@@ -58,6 +58,9 @@ public class CompanyPostResponseDTO {
     // 전체 모집 인원 수
     private Long totalRecruitNumber;
 
+    // 모집 완료 여부
+    private boolean isRecruitCompletd;
+
     // 예정 일정 기간
     private Long schedulePeriodDay;
 
