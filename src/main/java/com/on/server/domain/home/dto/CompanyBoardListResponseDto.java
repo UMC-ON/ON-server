@@ -12,6 +12,8 @@ import java.util.List;
 @Builder
 @Getter
 public class CompanyBoardListResponseDto {
+    private Long postId;
+
     private String postImg;
 
     private String title;
