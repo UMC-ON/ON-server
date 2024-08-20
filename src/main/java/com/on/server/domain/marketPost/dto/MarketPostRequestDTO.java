@@ -33,9 +33,6 @@ public class MarketPostRequestDTO {
     // 상품 설명
     private String content;
 
-    // 이미지 파일 리스트
-    private List<MultipartFile> imageFiles;
-
     // 현재 위치 국가
     private String currentCountry;
 
