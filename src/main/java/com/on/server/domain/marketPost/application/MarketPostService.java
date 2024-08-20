@@ -145,8 +145,8 @@ public class MarketPostService {
 
     // 내 주변 물품거래글
     // 특정 물품글 조회와 함께 동일한 위치의 다른 게시글 3개 조회
-    public List<MarketPostResponseDTO> getNearbyMarketPosts(String currentCountry) {
-        List<MarketPost> nearbyPosts = marketPostRepository.findTop3ByCurrentCountryAndAwaitingOrder(currentCountry);
+    public List<MarketPostResponseDTO> getNearbyMarketPosts(String currentCountry, Long marketPostId) {
+        List<MarketPost> nearbyPosts = marketPostRepository.findTop3ByCurrentCountryAndAwaitingOrder(currentCountry, marketPostId);
         return nearbyPosts.stream()
                 .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());

@@ -132,7 +132,7 @@ public class MarketPostController {
     @GetMapping("/{marketPostId}/nearby")
     public ResponseEntity<List<MarketPostResponseDTO>> getNearbyMarketPosts(@PathVariable Long marketPostId) {
         MarketPostResponseDTO post = marketPostService.getMarketPostById(marketPostId);
-        List<MarketPostResponseDTO> nearbyPosts = marketPostService.getNearbyMarketPosts(post.getCurrentCountry());
+        List<MarketPostResponseDTO> nearbyPosts = marketPostService.getNearbyMarketPosts(post.getCurrentCountry(), marketPostId);
         return ResponseEntity.ok(nearbyPosts);
     }
 }
