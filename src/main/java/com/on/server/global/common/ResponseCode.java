@@ -43,6 +43,7 @@ public enum ResponseCode {
     INVALID_FILE_EXTENSION(4015, false, "유효하지 않은 파일 확장자입니다."),
     INVALID_EXPIRE_DATE(4016, false, "유효하지 않은 만료 날짜입니다."),
     FILE_NEEDED(4017, false, "파일이 필요합니다."),
+    INVALID_CHATTING_ROOM(4018, false, "유효하지 않은 채팅방입니다."),
 
     /**
      * 401 Unauthorized
@@ -79,10 +80,11 @@ public enum ResponseCode {
 
 
     /**
-        해당되는 코드 매핑
-        @param code
-        @param inSuccess
-        @param message
+     * 해당되는 코드 매핑
+     *
+     * @param code
+     * @param inSuccess
+     * @param message
      **/
     ResponseCode(int code, boolean inSuccess, String message) {
         this.inSuccess = inSuccess;

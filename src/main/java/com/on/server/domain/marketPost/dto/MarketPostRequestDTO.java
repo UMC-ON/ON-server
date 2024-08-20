@@ -1,12 +1,17 @@
 package com.on.server.domain.marketPost.dto;
 
+import com.on.server.domain.marketPost.domain.DealStatus;
+import com.on.server.domain.marketPost.domain.DealType;
 import com.on.server.domain.marketPost.domain.MarketPost;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class MarketPostRequestDTO {
 
@@ -23,20 +28,14 @@ public class MarketPostRequestDTO {
     private Long cost;
 
     // 거래 유형
-    private MarketPost.DealType dealType;
+    private DealType dealType;
 
-    // 거래 상태
-    private MarketPost.DealStatus dealStatus;
-
-    // 모집 인원 수
+    // 상품 설명
     private String content;
 
-    // 이미지 ID 리스트
-    private List<Long> imageIdList;
+    // 현재 위치 국가
+    private String currentCountry;
 
-    // 국가 ID
-    private Long countryId;
-
-    // 위치 ID
-    private Long locationId;
+    // 현재 위치 지역
+    private String currentLocation;
 }

@@ -9,7 +9,6 @@ import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +24,9 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-
-    // 1. 특정 게시글의 모든 댓글 조회
+    // 특정 게시글의 모든 댓글 및 답글 조회
     @Transactional(readOnly = true)
-    public List<CommentResponseDTO> getAllCommentsByPostId(Long postId) {
+    public List<CommentResponseDTO> getAllCommentsAndRepliesByPostId(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
@@ -38,35 +36,108 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    // 2. 새로운 댓글 작성
-    public CommentResponseDTO createComment(CommentRequestDTO commentRequestDTO) {
-        User user = userRepository.findById(commentRequestDTO.getUserId())
+    // 특정 댓글의 모든 답글 조회
+    @Transactional(readOnly = true)
+    public List<CommentResponseDTO> getAllRepliesByCommentId(Long commentId) {
+        Comment parentComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
+
+        List<Comment> replies = commentRepository.findByParentComment(parentComment); // 수정된 부분
+        return replies.stream()
+                .map(this::mapToCommentResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    // 새로운 댓글 작성
+    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO) {
+        User user = userRepository.findById(commentRequestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        Post post = postRepository.findById(commentRequestDTO.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
+        Integer anonymousIndex = null;
+        if (commentRequestDTO.isAnonymous()) {
+            anonymousIndex = generateAnonymousIndex(user, post);
+        }
 
         Comment comment = Comment.builder()
                 .contents(commentRequestDTO.getContents())
                 .isAnonymous(commentRequestDTO.isAnonymous())
                 .post(post)
                 .user(user)
+                .anonymousIndex(anonymousIndex)
                 .build();
 
         commentRepository.save(comment);
-
         return mapToCommentResponseDTO(comment);
+    }
+
+    // 답글 작성
+    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO) {
+        User user = userRepository.findById(commentRequestDTO.getId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
+
+        Integer anonymousIndex = null;
+        if (commentRequestDTO.isAnonymous()) {
+            anonymousIndex = generateAnonymousIndex(user, parentComment.getPost());
+        }
+
+        Comment reply = Comment.builder()
+                .contents(commentRequestDTO.getContents())
+                .isAnonymous(commentRequestDTO.isAnonymous())
+                .post(parentComment.getPost())
+                .user(user)
+                .parentComment(parentComment)
+                .anonymousIndex(anonymousIndex)
+                .build();
+
+        commentRepository.save(reply);
+        return mapToCommentResponseDTO(reply);
+    }
+
+    // 익명 인덱스 생성 로직
+    private Integer generateAnonymousIndex(User user, Post post) {
+        List<Comment> userComments = commentRepository.findByUserAndPostAndIsAnonymousTrue(user, post);
+        if (!userComments.isEmpty()) {
+            return userComments.get(0).getAnonymousIndex();
+        }
+
+        List<Integer> existingIndices = commentRepository.findAnonymousIndicesByPost(post);
+        int newIndex = existingIndices.isEmpty() ? 1 : existingIndices.stream().max(Integer::compare).orElse(0) + 1;
+        return newIndex;
     }
 
     // Comment 엔티티를 CommentResponseDTO로 매핑하는 메서드
     private CommentResponseDTO mapToCommentResponseDTO(Comment comment) {
+        boolean isReply = comment.getParentComment() != null;
+
+        Long replyId = null;
+
+        if (isReply) {
+            // 부모 댓글의 자식 댓글들 중 현재 댓글의 인덱스를 찾아서 replyId로 설정
+            List<Comment> siblings = comment.getParentComment().getChildrenComment();
+            replyId = (long) (siblings.indexOf(comment) + 1);
+        }
+
+        String nickname = comment.getIsAnonymous() ? "익명" + comment.getAnonymousIndex() : comment.getUser().getNickname();
+
+        CommentResponseDTO.WriterInfo writerInfo = CommentResponseDTO.WriterInfo.builder()
+                .id(comment.getUser().getId())
+                .nickname(nickname)
+                .build();
+
         return CommentResponseDTO.builder()
-                .commentId(comment.getId())
-                .userId(comment.getUser().getId())
+                .commentId(isReply ? comment.getParentComment().getId() : comment.getId())
+                .replyId(replyId)
                 .postId(comment.getPost().getId())
+                .writerInfo(writerInfo)
                 .isAnonymous(comment.getIsAnonymous())
                 .contents(comment.getContents())
+                .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0)
                 .build();
     }
 
 }
-

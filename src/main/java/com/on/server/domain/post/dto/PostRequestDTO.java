@@ -2,15 +2,19 @@ package com.on.server.domain.post.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class PostRequestDTO {
 
     // 작성자 ID
-    private Long userId;
+    private Long id;
 
     // 게시글 제목
     private String title;
@@ -23,7 +27,4 @@ public class PostRequestDTO {
 
     // 파견교 공개 여부
     private boolean isAnonymousUniv;
-
-    // 이미지 ID 리스트
-    private List<Long> imageIdList;
 }

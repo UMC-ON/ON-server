@@ -1,11 +1,11 @@
 package com.on.server.domain.companyPost.domain;
 
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,9 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "age_anonymous", nullable = false)
     private boolean ageAnonymous;
 
+    @Column(name = "current_country", nullable = false)
+    private String currentCountry;
+
     @Column(name = "university_anonymous", nullable = false)
     private boolean universityAnonymous;
 
@@ -34,16 +37,22 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "departure_place", nullable = false)
-    private String departurePlace;
+    // 여행 지역 리스트
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "company_post_travel_area", joinColumns = @JoinColumn(name = "company_post_id"))
+    @Column(name = "travel_area")
+    private List<String> travelArea = new ArrayList<>();
 
-    @Column(name = "arrive_place", nullable = false)
-    private String arrivePlace;
+    @Column(name = "current_recruit_number", nullable = false)
+    private Long currentRecruitNumber = 0L;
 
-    @Column(name = "recruit_number", nullable = false)
-    private Long recruitNumber;
+    @Column(name = "total_recruit_number", nullable = false)
+    private Long totalRecruitNumber;
 
-    @Column(name = "schedule_pariod_day", nullable = false)
+    @Column(name = "is_recruit_completed", nullable = false)
+    private boolean isRecruitCompleted;
+
+    @Column(name = "schedule_period_day", nullable = false)
     private Long schedulePeriodDay;
 
     @Column(name = "start_date", nullable = false)
@@ -52,10 +61,16 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-//    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
-//    private List<Image> images = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "companyPost", cascade = CascadeType.ALL)
-//    private List<CompanyParticipant> participants = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "company_post_id")
+    private List<UuidFile> images = new ArrayList<>();
+
+    public void updateCurrentNumber(Long currentRecruitNumber) {
+        this.currentRecruitNumber = currentRecruitNumber;
+    }
+
+    public void updateRecruitCompleted(boolean isRecruitCompleted) {
+        this.isRecruitCompleted = isRecruitCompleted;
+    }
 
 }
