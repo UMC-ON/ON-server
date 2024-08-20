@@ -136,7 +136,7 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
         // Board 객체와 국가를 기준으로 게시글을 조회합니다.
-        List<Post> posts = postRepository.findByBoardAndCountryInTitleOrContent(board, country);
+        List<Post> posts = postRepository.findByBoardAndUserCountry(board, country);
 
         return posts.stream()
                 .map(post -> mapToPostResponseDTO(post, true))
