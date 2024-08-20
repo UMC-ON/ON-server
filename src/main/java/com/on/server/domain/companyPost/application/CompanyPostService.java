@@ -41,7 +41,7 @@ public class CompanyPostService {
 
     // 1. 모든 게시글 조회
     public List<CompanyPostResponseDTO> getAllCompanyPosts() {
-        return companyPostRepository.findAll().stream()
+        return companyPostRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -94,7 +94,7 @@ public class CompanyPostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
 
-        return companyPostRepository.findByUser(user).stream()
+        return companyPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }

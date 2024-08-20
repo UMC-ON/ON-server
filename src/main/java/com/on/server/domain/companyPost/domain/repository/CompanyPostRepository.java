@@ -23,7 +23,8 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
     @Query("SELECT cp FROM CompanyPost cp WHERE (:startDate IS NULL OR cp.startDate >= :startDate) " +
             "AND (:endDate IS NULL OR cp.endDate <= :endDate) " +
             "AND (:gender IS NULL OR cp.user.gender = :gender) " +
-            "AND (:country IS NULL OR :country IN elements(cp.travelArea))")
+            "AND (:country IS NULL OR :country IN elements(cp.travelArea))" +
+            "ORDER BY cp.createdAt DESC")
     List<CompanyPost> findFilteredCompanyPosts(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -45,4 +46,7 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
     @Query("SELECT c FROM CompanyPost c WHERE :country MEMBER OF c.travelArea AND c.isRecruitCompleted = false AND c.id <> :companyPostId ORDER BY c.createdAt DESC")
     List<CompanyPost> findTop5ByTravelAreaLike(@Param("country") String country, @Param("companyPostId") Long companyPostId);
 
+    // 최신순 정렬
+    List<CompanyPost> findAllByOrderByCreatedAtDesc();
+    List<CompanyPost> findByUserOrderByCreatedAtDesc(User user);
 }
