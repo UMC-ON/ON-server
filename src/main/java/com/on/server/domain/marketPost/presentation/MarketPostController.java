@@ -53,7 +53,7 @@ public class MarketPostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MarketPostResponseDTO> createMarketPost(@RequestPart("requestDTO") MarketPostRequestDTO requestDTO,
-                                                                  @RequestPart("imageFiles") List<MultipartFile> imageFiles, @AuthenticationPrincipal UserDetails userDetails) {
+                                                                  @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles, @AuthenticationPrincipal UserDetails userDetails) {
         // 현재 인증된 사용자의 ID를 DTO에 설정
         if (userDetails instanceof User) {
             User user = (User) userDetails;
