@@ -46,9 +46,6 @@ public class CompanyPostResponseDTO {
     // 제목
     private String title;
 
-    // 디폴트 국가 (파견교 국가)
-    private String country;
-
     // 내용
     private String content;
 

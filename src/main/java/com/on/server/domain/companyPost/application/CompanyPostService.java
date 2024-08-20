@@ -135,7 +135,6 @@ public class CompanyPostService {
                 .nickname(companyPost.getUser().getNickname())
                 .gender(companyPost.getUser().getGender())
                 .universityAnonymous(companyPost.isUniversityAnonymous())
-                .country(companyPost.getUser().getCountry())
                 .title(companyPost.getTitle())
                 .content(companyPost.getContent())
                 .travelArea(companyPost.getTravelArea())

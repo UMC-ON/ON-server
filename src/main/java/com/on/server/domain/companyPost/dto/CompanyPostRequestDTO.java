@@ -46,7 +46,4 @@ public class CompanyPostRequestDTO {
     // 희망 시기 끝
     private LocalDate endDate;
 
-    // 이미지 파일 리스트
-    //private List<MultipartFile> imageFiles;
-
 }
