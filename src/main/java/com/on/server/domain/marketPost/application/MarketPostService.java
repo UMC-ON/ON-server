@@ -15,6 +15,7 @@ import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,14 +47,14 @@ public class MarketPostService {
 
     // 3. 새로운 물품글 작성
     @Transactional
-    public MarketPostResponseDTO createMarketPost(MarketPostRequestDTO requestDTO) {
+    public MarketPostResponseDTO createMarketPost(MarketPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
 
         // 이미지 파일 처리
         List<UuidFile> uploadedImages = new ArrayList<>();
-        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
-            uploadedImages = requestDTO.getImageFiles().stream()
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            uploadedImages = imageFiles.stream()
                     .map(file -> uuidFileService.saveFile(file, FilePath.POST))
                     .collect(Collectors.toList());
         }

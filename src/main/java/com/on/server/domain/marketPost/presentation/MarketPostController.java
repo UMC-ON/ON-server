@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,14 +52,15 @@ public class MarketPostController {
     @Operation(summary = "새로운 물품거래글 작성")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MarketPostResponseDTO> createMarketPost(@ModelAttribute MarketPostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MarketPostResponseDTO> createMarketPost(@RequestPart("requestDTO") MarketPostRequestDTO requestDTO,
+                                                                  @RequestPart("imageFiles") List<MultipartFile> imageFiles, @AuthenticationPrincipal UserDetails userDetails) {
         // 현재 인증된 사용자의 ID를 DTO에 설정
         if (userDetails instanceof User) {
             User user = (User) userDetails;
             requestDTO.setUserId(user.getId());
         }
 
-        MarketPostResponseDTO createdPost = marketPostService.createMarketPost(requestDTO);
+        MarketPostResponseDTO createdPost = marketPostService.createMarketPost(requestDTO, imageFiles);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
