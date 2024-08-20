@@ -31,7 +31,7 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
     @Query("SELECT mp FROM MarketPost mp WHERE " +
             "mp.currentCountry LIKE %:keyword% OR " +
             "mp.title LIKE %:keyword% OR " +
-            "mp.content LIKE %:keyword%" +
+            "mp.content LIKE %:keyword% " +
             "ORDER BY mp.createdAt DESC")
     List<MarketPost> searchMarketPosts(@Param("keyword") String keyword);
 
