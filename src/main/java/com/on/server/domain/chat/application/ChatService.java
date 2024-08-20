@@ -51,16 +51,20 @@ public class ChatService {
 
     public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) {
         // '동행 구하기' 채팅방 목록
-        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwoAndChattingRoomType(user, user, ChatType.COMPANY);
+        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
+
+        Integer roomCount = (int) chattingRoomList.stream()
+                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY)
+                .count();
 
         List<CompanyChatRoomListResponseDto.roomListDto> roomListDto = chattingRoomList.stream()
+                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY) // ChatType.COMPANY로 필터링
                 .map(chattingRoom -> {
 
                     Chat chat = chatRepository.findFirstByChattingRoomOrderByCreatedAtDesc(chattingRoom);
 
                     SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
-                    CompanyPost companyPost = companyPostRepository.findById(specialChat.getCompanyPost().getId())
-                            .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
+                    CompanyPost companyPost = specialChat.getCompanyPost();
 
                     User chatUserOne = chattingRoom.getChatUserOne();
                     User chatUserTwo = chattingRoom.getChatUserTwo();
@@ -77,7 +81,7 @@ public class ChatService {
                 }).toList();
 
         CompanyChatRoomListResponseDto companyChatRoomListResponseDto = CompanyChatRoomListResponseDto.builder()
-                .roomCount(chattingRoomList.size())
+                .roomCount(roomCount)
                 .roomList(roomListDto)
                 .build();
 
@@ -99,16 +103,20 @@ public class ChatService {
 
     public MarketChatRoomListResponseDto getMarketChatRoomList(User user) {
         // '중고 거래' 채팅방 목록
-        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwoAndChattingRoomType(user, user, ChatType.MARKET);
+        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
+
+        Integer roomCount = (int) chattingRoomList.stream()
+                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
+                .count();
 
         List<MarketChatRoomListResponseDto.roomListDto> roomListDto = chattingRoomList.stream()
+                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
                 .map(chattingRoom -> {
 
                     Chat chat = chatRepository.findFirstByChattingRoomOrderByCreatedAtDesc(chattingRoom);
 
                     SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
-                    MarketPost marketPost = marketPostRepository.findById(specialChat.getMarketPost().getId())
-                            .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
+                    MarketPost marketPost = specialChat.getMarketPost();
 
                     User chatUserOne = chattingRoom.getChatUserOne();
                     User chatUserTwo = chattingRoom.getChatUserTwo();
@@ -125,7 +133,7 @@ public class ChatService {
                 }).toList();
 
         MarketChatRoomListResponseDto marketChatRoomListResponseDto = MarketChatRoomListResponseDto.builder()
-                .roomCount(chattingRoomList.size())
+                .roomCount(roomCount)
                 .roomList(roomListDto)
                 .build();
 
@@ -289,7 +297,7 @@ public class ChatService {
         CompanyPost companyPost = specialChat.getCompanyPost();
 
         // 찾은 companyPost currentRecruitNumber +1 하기
-        Long updateCurrentNumber = companyPost.getCurrentRecruitNumber() + 1 ;
+        Long updateCurrentNumber = companyPost.getCurrentRecruitNumber() + 1;
         companyPost.updateCurrentNumber(updateCurrentNumber);
 
         companyPostRepository.save(companyPost);
