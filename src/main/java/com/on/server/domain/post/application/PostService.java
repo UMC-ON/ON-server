@@ -45,7 +45,7 @@ public class PostService {
 
     // 2. 특정 게시판에 새로운 게시글 작성
     @Transactional
-    public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO) {
+    public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
         User user = userRepository.findById(requestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Board board = boardRepository.findByType(boardType)
@@ -53,8 +53,8 @@ public class PostService {
 
         // 이미지 파일 처리
         List<UuidFile> uploadedImages = new ArrayList<>();
-        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
-            uploadedImages = requestDTO.getImageFiles().stream()
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            uploadedImages = imageFiles.stream()
                     .map(file -> uuidFileService.saveFile(file, FilePath.POST))
                     .collect(Collectors.toList());
         }

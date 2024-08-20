@@ -46,14 +46,14 @@ public class PostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(value = "/{boardType}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @ModelAttribute PostRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @RequestPart("postRequestDTO") PostRequestDTO requestDTO,  @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,  @AuthenticationPrincipal UserDetails userDetails) {
         // 현재 인증된 사용자의 ID를 DTO에 설정
         if (userDetails instanceof User) {
             User user = (User) userDetails;
             requestDTO.setId(user.getId());
         }
 
-        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO);
+        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO, imageFiles);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
