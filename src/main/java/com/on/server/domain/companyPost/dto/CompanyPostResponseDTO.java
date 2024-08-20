@@ -59,7 +59,7 @@ public class CompanyPostResponseDTO {
     private Long totalRecruitNumber;
 
     // 모집 완료 여부
-    private boolean isRecruitCompletd;
+    private boolean isRecruitCompleted;
 
     // 예정 일정 기간
     private Long schedulePeriodDay;
