@@ -46,4 +46,5 @@ public class Post extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "post_id")
     private List<UuidFile> images = new ArrayList<>();
+
 }
