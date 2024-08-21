@@ -41,7 +41,7 @@ public class CompanyPostResponseDTO {
     private boolean universityAnonymous;
 
     // 현재 국가
-    private String country;
+    private String currentCountry;
 
     // 제목
     private String title;
@@ -57,6 +57,9 @@ public class CompanyPostResponseDTO {
 
     // 전체 모집 인원 수
     private Long totalRecruitNumber;
+
+    // 모집 완료 여부
+    private boolean isRecruitCompleted;
 
     // 예정 일정 기간
     private Long schedulePeriodDay;

@@ -14,6 +14,7 @@ import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CompanyPostService {
 
     private final CompanyPostRepository companyPostRepository;
@@ -31,34 +32,52 @@ public class CompanyPostService {
     private final UuidFileRepository uuidFileRepository;
 
     // 필터링 기능 추가
-    @Transactional(readOnly = true)
     public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
-        List<CompanyPost> filteredPosts = companyPostRepository.findFilteredCompanyPosts(startDate, endDate, gender, country);
-        return filteredPosts.stream()
+        List<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender);
+
+        if (country != null && !country.isEmpty()) {
+            posts = posts.stream()
+                    .filter(post -> post.getTravelArea().stream()
+                            .anyMatch(area -> {
+                                String firstWord = area.split(" ")[0];  // travelArea의 첫 번째 단어 추출
+                                return firstWord.equalsIgnoreCase(country);
+                            }))
+                    .collect(Collectors.toList());
+        }
+
+        // DTO 변환
+        return posts.stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
 
     // 1. 모든 게시글 조회
-    @Transactional(readOnly = true)
     public List<CompanyPostResponseDTO> getAllCompanyPosts() {
-        return companyPostRepository.findAll().stream()
+        return companyPostRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
 
     // 2. 특정 게시글 조회
-    @Transactional(readOnly = true)
-    public CompanyPostResponseDTO getCompanyPostById(Long companyPostId) {
-        CompanyPost companyPost = companyPostRepository.findById(companyPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + companyPostId));
-        return mapToCompanyPostResponseDTO(companyPost);
+    public List<CompanyPostResponseDTO> getCompanyPostById(Long companyPostId) {
+        return companyPostRepository.findById(companyPostId)
+                .stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // 3. 새로운 게시글 작성
-    public CompanyPostResponseDTO createCompanyPost(CompanyPostRequestDTO requestDTO) {
+    @Transactional
+    public CompanyPostResponseDTO createCompanyPost(CompanyPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
+
+        List<UuidFile> uploadedImages = new ArrayList<>();
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            uploadedImages = imageFiles.stream()
+                    .map(file -> uuidFileService.saveFile(file, FilePath.POST))
+                    .collect(Collectors.toList());
+        }
 
         CompanyPost companyPost = CompanyPost.builder()
                 .user(user)
@@ -72,40 +91,28 @@ public class CompanyPostService {
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
                 .currentRecruitNumber(0L) // 모집 인원을 초기화
-                .images(new ArrayList<>()) // images 필드를 빈 리스트로 초기화
+                .currentCountry(requestDTO.getCurrentCountry())
+                .isRecruitCompleted(false)
+                .images(uploadedImages) // 이미지 리스트를 초기화된 리스트로 설정
                 .build();
 
-        companyPost = companyPostRepository.saveAndFlush(companyPost);
-
-        if (requestDTO.getImageFiles() != null && !requestDTO.getImageFiles().isEmpty()) {
-            List<UuidFile> uploadedImages = requestDTO.getImageFiles().stream()
-                    .map(file -> {
-                        UuidFile savedFile = uuidFileService.saveFile(file, FilePath.POST);
-                        uuidFileRepository.flush();
-                        return savedFile;
-                    })
-                    .collect(Collectors.toList());
-
-            companyPost.getImages().addAll(uploadedImages);
-        }
-
-        companyPost = companyPostRepository.saveAndFlush(companyPost);
+        companyPost = companyPostRepository.save(companyPost);
 
         return mapToCompanyPostResponseDTO(companyPost);
     }
 
     // 4. 특정 사용자가 작성한 모든 게시글 조회
-    @Transactional(readOnly = true)
     public List<CompanyPostResponseDTO> getCompanyPostsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
 
-        return companyPostRepository.findByUser(user).stream()
+        return companyPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
 
     // 5. 특정 게시글 삭제
+    @Transactional
     public void deleteCompanyPost(Long userId, Long companyPostId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
@@ -123,9 +130,18 @@ public class CompanyPostService {
     }
 
     // 6. 최신 4개의 동행 구하기 게시글 조회
-    @Transactional(readOnly = true)
     public List<CompanyPostResponseDTO> getRecentCompanyPosts() {
         return companyPostRepository.findTop4ByOrderByCreatedAtDesc().stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 내 주변 동행글 조회
+    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(Long companyPostId) {
+        CompanyPostResponseDTO post = getCompanyPostById(companyPostId).get(0);  // 첫 번째 요소 선택
+        String firstCountry = post.getTravelArea().get(0); // 첫 번째 국가를 기준으로 설정
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId); // 내 게시글 제외
+        return nearbyPosts.stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -141,15 +157,16 @@ public class CompanyPostService {
                 .nickname(companyPost.getUser().getNickname())
                 .gender(companyPost.getUser().getGender())
                 .universityAnonymous(companyPost.isUniversityAnonymous())
-                .country(companyPost.getUser().getCountry())
                 .title(companyPost.getTitle())
                 .content(companyPost.getContent())
                 .travelArea(companyPost.getTravelArea())
                 .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
                 .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
+                .isRecruitCompleted(companyPost.isRecruitCompleted())
                 .schedulePeriodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
+                .currentCountry(companyPost.getCurrentCountry())
                 .createdAt(companyPost.getCreatedAt())
                 .imageUrls(companyPost.getImages().stream()
                         .map(UuidFile::getFileUrl)

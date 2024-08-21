@@ -6,11 +6,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @Builder
 @Getter
 public class CompanyBoardListResponseDto {
+    private Long postId;
+
     private String postImg;
 
     private String title;
@@ -25,9 +28,11 @@ public class CompanyBoardListResponseDto {
 
     private LocalDate startDate;
 
+    private LocalDate endDate;
+
     private Long currentRecruitNumber;
 
     private Long totalRecruitNumber;
 
-    private String travelPlace;
+    private List<String> travelArea;
 }

@@ -82,7 +82,7 @@ public class DiaryService {
             dDay = null;
         }
         else { //startDate 저장되어있는 경우
-            dDay = ChronoUnit.DAYS.between(LocalDate.now(), startDate);
+            dDay = ChronoUnit.DAYS.between(diaryRequestDto.getDate(), startDate);
         }
 
 

@@ -25,6 +25,9 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "age_anonymous", nullable = false)
     private boolean ageAnonymous;
 
+    @Column(name = "current_country", nullable = false)
+    private String currentCountry;
+
     @Column(name = "university_anonymous", nullable = false)
     private boolean universityAnonymous;
 
@@ -46,6 +49,9 @@ public class CompanyPost extends BaseEntity {
     @Column(name = "total_recruit_number", nullable = false)
     private Long totalRecruitNumber;
 
+    @Column(name = "is_recruit_completed", nullable = false)
+    private boolean isRecruitCompleted;
+
     @Column(name = "schedule_period_day", nullable = false)
     private Long schedulePeriodDay;
 
@@ -61,6 +67,10 @@ public class CompanyPost extends BaseEntity {
 
     public void updateCurrentNumber(Long currentRecruitNumber) {
         this.currentRecruitNumber = currentRecruitNumber;
+    }
+
+    public void updateRecruitCompleted(boolean isRecruitCompleted) {
+        this.isRecruitCompleted = isRecruitCompleted;
     }
 
 }
