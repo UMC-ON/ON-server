@@ -114,7 +114,7 @@ public class HomeService {
         return companyPostList.stream()
                 .map(companyPost -> new CompanyBoardListResponseDto(
                         companyPost.getId(),
-                        companyPost.getImages().get(0).getFileUrl(),
+                        companyPost.getImages() != null ? companyPost.getImages().get(0).getFileUrl() : null,
                         companyPost.getTitle(),
                         companyPost.getUser().getNickname(),
                         companyPost.isAgeAnonymous(),
