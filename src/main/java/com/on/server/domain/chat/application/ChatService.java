@@ -152,43 +152,53 @@ public class ChatService {
         User chatUserTwo = userRepository.findById(chatRequestDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-        ChattingRoom chattingRoom = ChattingRoom.builder()
-                .chattingRoomType(chatRequestDto.getChatType())
-                .chatUserOne(user) // 글 보고 채팅 신청하는 사람
-                .chatUserTwo(chatUserTwo) // 글 주인
-                .build();
+        ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwo(user, chatUserTwo);
 
+        Long responseRoomId = 0L;
 
-        ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
-
-        if (chatRequestDto.getChatType() == ChatType.COMPANY) {
-            CompanyPost companyPost = companyPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
-
-            SpecialChat specialChat = SpecialChat.builder()
-                    .chattingRoom(savedChattingRoom)
-                    .user(chatUserTwo)
-                    .companyPost(companyPost)
-                    .specialChatType(chatRequestDto.getChatType())
-                    .build();
-
-            specialChatRepository.save(specialChat);
-
+        if (existingRoom != null) {
+            responseRoomId = existingRoom.getId();
         } else {
-            MarketPost marketPost = marketPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
-
-            SpecialChat specialChat = SpecialChat.builder()
-                    .chattingRoom(savedChattingRoom)
-                    .user(chatUserTwo)
-                    .marketPost(marketPost)
-                    .specialChatType(chatRequestDto.getChatType())
+            ChattingRoom chattingRoom = ChattingRoom.builder()
+                    .chattingRoomType(chatRequestDto.getChatType())
+                    .chatUserOne(user) // 글 보고 채팅 신청하는 사람
+                    .chatUserTwo(chatUserTwo) // 글 주인
                     .build();
 
-            specialChatRepository.save(specialChat);
+            ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
+
+            if (chatRequestDto.getChatType() == ChatType.COMPANY) {
+                CompanyPost companyPost = companyPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
+
+                SpecialChat specialChat = SpecialChat.builder()
+                        .chattingRoom(savedChattingRoom)
+                        .user(chatUserTwo)
+                        .companyPost(companyPost)
+                        .specialChatType(chatRequestDto.getChatType())
+                        .build();
+
+                specialChatRepository.save(specialChat);
+
+            } else {
+                MarketPost marketPost = marketPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
+
+                SpecialChat specialChat = SpecialChat.builder()
+                        .chattingRoom(savedChattingRoom)
+                        .user(chatUserTwo)
+                        .marketPost(marketPost)
+                        .specialChatType(chatRequestDto.getChatType())
+                        .build();
+
+                specialChatRepository.save(specialChat);
+
+            }
+
+            responseRoomId = savedChattingRoom.getId();
 
         }
 
         return ChatResponseDto.builder()
-                .roomId(savedChattingRoom.getId())
+                .roomId(responseRoomId)
                 .build();
     }
 
