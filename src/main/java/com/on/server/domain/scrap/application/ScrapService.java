@@ -97,6 +97,7 @@ public class ScrapService {
                 .imageUrls(marketPost.getImages().stream()
                         .map(UuidFile::getFileUrl) // 이미지 URL 리스트를 가져오는 로직
                         .collect(Collectors.toList()))
+                .createdAt(marketPost.getCreatedAt())
                 .build();
     }
 }
