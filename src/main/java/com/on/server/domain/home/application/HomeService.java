@@ -17,6 +17,7 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,7 +101,8 @@ public class HomeService {
 
         String country = user.getCountry();
 
-        List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country);
+        List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country, PageRequest.of(0, 5));
+
 
         if(companyPostList.isEmpty()) {
             return null;
@@ -114,7 +116,7 @@ public class HomeService {
         return companyPostList.stream()
                 .map(companyPost -> new CompanyBoardListResponseDto(
                         companyPost.getId(),
-                        companyPost.getImages() != null ? companyPost.getImages().get(0).getFileUrl() : null,
+                        companyPost.getImages().isEmpty() ? null : companyPost.getImages().get(0).getFileUrl(),
                         companyPost.getTitle(),
                         companyPost.getUser().getNickname(),
                         companyPost.isAgeAnonymous(),
