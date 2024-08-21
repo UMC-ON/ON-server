@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "댓글 작성")
@@ -47,7 +48,7 @@ public class CommentController {
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
     public ResponseEntity<CommentResponseDTO> createComment(@PathVariable("postId") Long postId,
                                                             @RequestBody CommentRequestDTO commentRequestDTO,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+                                                            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         CommentResponseDTO createdComment = commentService.createComment(postId, commentRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
@@ -58,7 +59,7 @@ public class CommentController {
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
     public ResponseEntity<CommentResponseDTO> createReply(@PathVariable("commentId") Long commentId,
                                                           @RequestBody CommentRequestDTO commentRequestDTO,
-                                                          @AuthenticationPrincipal UserDetails userDetails) {
+                                                          @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         CommentResponseDTO createdReply = commentService.createReply(commentId, commentRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReply);
     }

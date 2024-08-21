@@ -1,5 +1,9 @@
 package com.on.server.domain.companyParticipant.application;
 
+import com.on.server.domain.alarm.application.AlertService;
+import com.on.server.domain.alarm.application.FcmService;
+import com.on.server.domain.alarm.domain.AlertType;
+import com.on.server.domain.alarm.dto.FcmRequestDto;
 import com.on.server.domain.companyParticipant.domain.repository.CompanyParticipantRepository;
 import com.on.server.domain.companyParticipant.dto.CompanyParticipantRequestDTO;
 import com.on.server.domain.companyParticipant.dto.CompanyParticipantResponseDTO;
@@ -13,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -21,8 +27,10 @@ public class CompanyParticipantService {
     private final CompanyParticipantRepository companyParticipantRepository;
     private final CompanyPostRepository companyPostRepository;
     private final UserRepository userRepository;
+    private final FcmService fcmService;
+    private final AlertService alertService;
 
-    public CompanyParticipantResponseDTO applyToCompanyPost(CompanyParticipantRequestDTO requestDTO) {
+    public CompanyParticipantResponseDTO applyToCompanyPost(CompanyParticipantRequestDTO requestDTO) throws IOException {
 
         // 신청자 유저 정보 가져오기
         User user = userRepository.findById(requestDTO.getUserId())
@@ -40,6 +48,20 @@ public class CompanyParticipantService {
                 .build();
 
         companyParticipantRepository.save(companyParticipant);
+
+        String title = "내 글에 " + user.getNickname() + "님이 동행 신청했어요.";
+        AlertType alertType = AlertType.동행;
+        String body = String.join(", ", companyPost.getTravelArea());
+        fcmService.sendMessage(companyPost.getUser().getDeviceToken(), alertType, title, body);
+
+        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
+                .title(title)
+                .body(body)
+                .alertType(alertType)
+                .alertConnectId(companyPost.getId())
+                .build();
+
+        alertService.saveAlert(companyPost.getUser(), fcmRequestDto);
 
         // 응답 DTO 생성 및 반환
         return CompanyParticipantResponseDTO.builder()

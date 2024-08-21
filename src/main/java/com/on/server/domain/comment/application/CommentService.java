@@ -1,5 +1,10 @@
 package com.on.server.domain.comment.application;
 
+import com.on.server.domain.alarm.application.AlertService;
+import com.on.server.domain.alarm.application.FcmService;
+import com.on.server.domain.alarm.domain.AlertType;
+import com.on.server.domain.alarm.dto.FcmRequestDto;
+import com.on.server.domain.board.domain.BoardType;
 import com.on.server.domain.comment.domain.Comment;
 import com.on.server.domain.comment.domain.repository.CommentRepository;
 import com.on.server.domain.comment.dto.CommentRequestDTO;
@@ -12,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +29,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final FcmService fcmService;
+    private final AlertService alertService;
 
     // 특정 게시글의 모든 댓글 및 답글 조회
     @Transactional(readOnly = true)
@@ -50,7 +58,7 @@ public class CommentService {
 
 
     // 새로운 댓글 작성
-    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO) throws IOException {
         User user = userRepository.findById(commentRequestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Post post = postRepository.findById(postId)
@@ -70,11 +78,35 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+
+        String title;
+        AlertType alertType;
+        if(post.getBoard().getType() == BoardType.INFO) { //정보게시판 댓글
+            title = "내 정보글에 새로운 댓글이 달렸어요.";
+            alertType = AlertType.정보;
+        }
+        else { //자유게시판 댓글
+            title = "내 자유글에 새로운 댓글이 달렸어요.";
+            alertType = AlertType.자유;
+        }
+        String body = commentRequestDTO.getContents();
+
+        fcmService.sendMessage(post.getUser().getDeviceToken(), alertType, title, body);
+
+        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
+                .title(title)
+                .body(body)
+                .alertType(alertType)
+                .alertConnectId(post.getId())
+                .build();
+
+        alertService.saveAlert(post.getUser(), fcmRequestDto);
+
         return mapToCommentResponseDTO(comment);
     }
 
     // 답글 작성
-    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO) throws IOException {
         User user = userRepository.findById(commentRequestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Comment parentComment = commentRepository.findById(parentCommentId)
@@ -95,6 +127,32 @@ public class CommentService {
                 .build();
 
         commentRepository.save(reply);
+
+        Post post = postRepository.findById(parentComment.getPost().getId())
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
+        String title;
+        AlertType alertType;
+        if(post.getBoard().getType() == BoardType.INFO) { //정보게시판 댓글
+            title = "내 정보글에 새로운 대댓글이 달렸어요.";
+            alertType = AlertType.정보;
+        }
+        else { //자유게시판 댓글
+            title = "내 자유글에 새로운 대댓글이 달렸어요.";
+            alertType = AlertType.자유;
+        }
+        String body = commentRequestDTO.getContents();
+
+        fcmService.sendMessage(post.getUser().getDeviceToken(), alertType, title, body);
+
+        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
+                .title(title)
+                .body(body)
+                .alertType(alertType)
+                .alertConnectId(post.getId())
+                .build();
+
+        alertService.saveAlert(post.getUser(), fcmRequestDto);
         return mapToCommentResponseDTO(reply);
     }
 

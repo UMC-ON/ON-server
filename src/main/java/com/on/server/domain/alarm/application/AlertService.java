@@ -62,6 +62,8 @@ public class AlertService {
                 .alertType(fcmRequestDto.getAlertType())
                 .user(user)
                 .build();
+
+        alertRepository.save(alert);
     }
 
 

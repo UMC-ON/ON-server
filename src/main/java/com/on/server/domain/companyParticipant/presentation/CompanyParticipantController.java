@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Tag(name = "동행 신청하기")
 @RestController
 @RequestMapping("/api/v1/company-participant")
@@ -24,7 +26,7 @@ public class CompanyParticipantController {
     @Operation(summary = "동행구하기글에 동행 신청")
     @PostMapping("/apply")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
-    public ResponseEntity<CompanyParticipantResponseDTO> applyToCompanyPost(@RequestBody CompanyParticipantRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CompanyParticipantResponseDTO> applyToCompanyPost(@RequestBody CompanyParticipantRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         CompanyParticipantResponseDTO responseDTO = companyParticipantService.applyToCompanyPost(requestDTO);
         return ResponseEntity.ok(responseDTO);
     }
