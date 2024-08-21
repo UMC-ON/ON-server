@@ -1,6 +1,7 @@
 package com.on.server.domain.companyPost.presentation;
 
 import com.on.server.domain.companyPost.application.CompanyPostService;
+import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
 import com.on.server.domain.user.domain.Gender;
