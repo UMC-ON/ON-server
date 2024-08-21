@@ -89,9 +89,10 @@ public class MarketPostController {
     public ResponseEntity<List<MarketPostResponseDTO>> getFilteredMarketPosts(
             @RequestParam(required = false) DealType dealType,
             @RequestParam(required = false) String currentCountry,
+            @RequestParam(required = false) DealStatus dealStatus,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        List<MarketPostResponseDTO> filteredPosts = marketPostService.getFilteredMarketPosts(dealType, currentCountry);
+        List<MarketPostResponseDTO> filteredPosts = marketPostService.getFilteredMarketPosts(dealType, currentCountry, dealStatus);
         return ResponseEntity.ok(filteredPosts);
     }
 
