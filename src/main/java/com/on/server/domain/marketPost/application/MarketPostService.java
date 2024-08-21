@@ -121,9 +121,9 @@ public class MarketPostService {
         return mapToMarketPostResponseDTO(updatedMarketPost);
     }
 
-    // 필터링: 거래형식, 국가 필터링
-    public List<MarketPostResponseDTO> getFilteredMarketPosts(DealType dealType, String currentCountry) {
-        return marketPostRepository.findFilteredMarketPosts(dealType, currentCountry, null).stream()
+    // 필터링: 거래형식, 국가, 거래상태 필터링
+    public List<MarketPostResponseDTO> getFilteredMarketPosts(DealType dealType, String currentCountry, DealStatus dealStatus) {
+        return marketPostRepository.findFilteredMarketPosts(dealType, currentCountry, dealStatus).stream()
                 .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
