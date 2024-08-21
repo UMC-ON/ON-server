@@ -56,7 +56,7 @@ public class HomeService {
                             .postTime(formatTime(post.getCreatedAt()))
                             .postImg(post.getImages().isEmpty() ? null : post.getImages().get(0).getFileUrl())
                             .writer(writer)
-                            .commentCount(post.getCommentCount())
+                            .commentCount(post.getCommentCount() != null ? post.getCommentCount() : 0)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class HomeService {
 
     public static String formatTime(LocalDateTime createdAt) {
 
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return createdAt.format(timeFormatter);
     }
 
@@ -87,7 +87,7 @@ public class HomeService {
                             .content(post.getContent())
                             .postTime(formatTime(post.getCreatedAt()))
                             .writer(writer)
-                            .commentCount(post.getCommentCount())
+                            .commentCount(post.getCommentCount() != null ? post.getCommentCount() : 0)
                             .build();
                 })
                 .collect(Collectors.toList());
