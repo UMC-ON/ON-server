@@ -17,6 +17,7 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,8 @@ public class HomeService {
                             .orElse(null)
                             .getNickname();
 
+                    int commentCount = post.getComments() != null ? post.getComments().size() : 0;
+
                     return InfoBoardListResponseDto.builder()
                             .postId(post.getId())
                             .title(post.getTitle())
@@ -56,7 +59,7 @@ public class HomeService {
                             .postTime(formatTime(post.getCreatedAt()))
                             .postImg(post.getImages().isEmpty() ? null : post.getImages().get(0).getFileUrl())
                             .writer(writer)
-                            .commentCount(post.getCommentCount() != null ? post.getCommentCount() : 0)
+                            .commentCount(commentCount)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -81,13 +84,15 @@ public class HomeService {
                             .orElse(null)
                             .getNickname();
 
+                    int commentCount = post.getComments() != null ? post.getComments().size() : 0;
+
                     return FreeBoardListResponseDto.builder()
                             .postId(post.getId())
                             .title(post.getTitle())
                             .content(post.getContent())
                             .postTime(formatTime(post.getCreatedAt()))
                             .writer(writer)
-                            .commentCount(post.getCommentCount() != null ? post.getCommentCount() : 0)
+                            .commentCount(commentCount)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -100,7 +105,8 @@ public class HomeService {
 
         String country = user.getCountry();
 
-        List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country);
+        List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country, PageRequest.of(0, 5));
+
 
         if(companyPostList.isEmpty()) {
             return null;
@@ -114,7 +120,7 @@ public class HomeService {
         return companyPostList.stream()
                 .map(companyPost -> new CompanyBoardListResponseDto(
                         companyPost.getId(),
-                        companyPost.getImages().get(0).getFileUrl(),
+                        companyPost.getImages().isEmpty() ? null : companyPost.getImages().get(0).getFileUrl(),
                         companyPost.getTitle(),
                         companyPost.getUser().getNickname(),
                         companyPost.isAgeAnonymous(),

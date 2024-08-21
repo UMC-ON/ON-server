@@ -34,5 +34,5 @@ public class CompanyBoardListResponseDto {
 
     private Long totalRecruitNumber;
 
-    private List<String> travelPlace;
+    private List<String> travelArea;
 }
