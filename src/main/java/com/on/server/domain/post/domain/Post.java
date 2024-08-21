@@ -23,7 +23,7 @@ public class Post extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content")
+    @Column(name = "content", length = 2000)
     private String content;
 
     @Column(name = "is_anonymous", nullable = false)
