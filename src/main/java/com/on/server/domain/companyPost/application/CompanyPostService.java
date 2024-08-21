@@ -41,7 +41,7 @@ public class CompanyPostService {
 
     // 1. 모든 게시글 조회
     public List<CompanyPostResponseDTO> getAllCompanyPosts() {
-        return companyPostRepository.findAll().stream()
+        return companyPostRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -94,7 +94,7 @@ public class CompanyPostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
 
-        return companyPostRepository.findByUser(user).stream()
+        return companyPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -124,6 +124,16 @@ public class CompanyPostService {
                 .collect(Collectors.toList());
     }
 
+    // 내 주변 동행글 조회
+    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(Long companyPostId) {
+        CompanyPostResponseDTO post = getCompanyPostById(companyPostId).get(0);  // 첫 번째 요소 선택
+        String firstCountry = post.getTravelArea().get(0); // 첫 번째 국가를 기준으로 설정
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId); // 내 게시글 제외
+        return nearbyPosts.stream()
+                .map(this::mapToCompanyPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     // CompanyPost 엔티티를 CompanyPostResponseDto로 매핑하는 메서드
     private CompanyPostResponseDTO mapToCompanyPostResponseDTO(CompanyPost companyPost) {
         return CompanyPostResponseDTO.builder()
@@ -140,10 +150,11 @@ public class CompanyPostService {
                 .travelArea(companyPost.getTravelArea())
                 .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
                 .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
-                .isRecruitCompletd(companyPost.isRecruitCompleted())
+                .isRecruitCompleted(companyPost.isRecruitCompleted())
                 .schedulePeriodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
+                .currentCountry(companyPost.getCurrentCountry())
                 .createdAt(companyPost.getCreatedAt())
                 .imageUrls(companyPost.getImages().stream()
                         .map(UuidFile::getFileUrl)

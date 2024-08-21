@@ -108,5 +108,13 @@ public class CompanyPostController {
         List<CompanyPostResponseDTO> recentPosts = companyPostService.getRecentCompanyPosts();
         return ResponseEntity.ok(recentPosts);
     }
+
+    @Operation(summary = "내 주변 동행글 조회")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
+    @GetMapping("/{companyPostId}/nearby")
+    public ResponseEntity<List<CompanyPostResponseDTO>> getNearbyCompanyPostsByLikeTravelArea(@PathVariable Long companyPostId) {
+        List<CompanyPostResponseDTO> nearbyPosts = companyPostService.getNearbyCompanyPostsByLikeTravelArea(companyPostId);
+        return ResponseEntity.ok(nearbyPosts);
+    }
 }
 

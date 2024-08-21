@@ -33,7 +33,7 @@ public class MarketPostService {
 
     // 1. 모든 물품글 조회
     public List<MarketPostResponseDTO> getAllMarketPosts() {
-        return marketPostRepository.findAll().stream()
+        return marketPostRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -82,7 +82,7 @@ public class MarketPostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
 
-        return marketPostRepository.findByUser(user).stream()
+        return marketPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -139,7 +139,16 @@ public class MarketPostService {
     public List<MarketPostResponseDTO> searchMarketPosts(String keyword) {
         List<MarketPost> marketPosts = marketPostRepository.searchMarketPosts(keyword);
         return marketPosts.stream()
-                .map(marketPost -> mapToMarketPostResponseDTO(marketPost))
+                .map(this::mapToMarketPostResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 내 주변 물품거래글
+    // 특정 물품글 조회와 함께 동일한 위치의 다른 게시글 3개 조회
+    public List<MarketPostResponseDTO> getNearbyMarketPosts(String currentCountry, Long marketPostId) {
+        List<MarketPost> nearbyPosts = marketPostRepository.findTop3ByCurrentCountryAndAwaitingOrder(currentCountry, marketPostId);
+        return nearbyPosts.stream()
+                .map(this::mapToMarketPostResponseDTO)
                 .collect(Collectors.toList());
     }
 
