@@ -23,13 +23,11 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
     @Query("SELECT cp FROM CompanyPost cp WHERE (:startDate IS NULL OR cp.startDate >= :startDate) " +
             "AND (:endDate IS NULL OR cp.endDate <= :endDate) " +
             "AND (:gender IS NULL OR cp.user.gender = :gender) " +
-            "AND (:country IS NULL OR :country IN elements(cp.travelArea))" +
             "ORDER BY cp.createdAt DESC")
-    List<CompanyPost> findFilteredCompanyPosts(
+    List<CompanyPost> findFilteredCompanyPostsWithoutCountry(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("gender") Gender gender,
-            @Param("country") String country);
+            @Param("gender") Gender gender);
 
     // 최신 4개의 글을 최신순으로 가져오기
     default List<CompanyPost> findTop4ByOrderByCreatedAtDesc() {

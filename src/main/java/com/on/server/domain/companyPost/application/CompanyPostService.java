@@ -33,8 +33,20 @@ public class CompanyPostService {
 
     // 필터링 기능 추가
     public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
-        List<CompanyPost> filteredPosts = companyPostRepository.findFilteredCompanyPosts(startDate, endDate, gender, country);
-        return filteredPosts.stream()
+        List<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender);
+
+        if (country != null && !country.isEmpty()) {
+            posts = posts.stream()
+                    .filter(post -> post.getTravelArea().stream()
+                            .anyMatch(area -> {
+                                String firstWord = area.split(" ")[0];  // travelArea의 첫 번째 단어 추출
+                                return firstWord.equalsIgnoreCase(country);
+                            }))
+                    .collect(Collectors.toList());
+        }
+
+        // DTO 변환
+        return posts.stream()
                 .map(this::mapToCompanyPostResponseDTO)
                 .collect(Collectors.toList());
     }
