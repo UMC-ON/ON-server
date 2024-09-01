@@ -7,7 +7,7 @@ import com.on.server.domain.chat.domain.SpecialChat;
 import com.on.server.domain.chat.domain.repository.ChatRepository;
 import com.on.server.domain.chat.domain.repository.ChattingRoomRepository;
 import com.on.server.domain.chat.domain.repository.SpecialChatRepository;
-import com.on.server.domain.chat.dto.*;
+import com.on.server.domain.chat.dto.response.*;
 import com.on.server.domain.companyParticipant.domain.CompanyParticipant;
 import com.on.server.domain.companyParticipant.domain.repository.CompanyParticipantRepository;
 import com.on.server.domain.companyPost.domain.CompanyPost;
@@ -49,7 +49,7 @@ public class ChatService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final SpecialChatRepository specialChatRepository;
 
-    public CompanyChatRoomListResponseDto getCompanyChatRoomList(User user) {
+    public CompanyChatRoomListDto getCompanyChatRoomList(User user) {
         // '동행 구하기' 채팅방 목록
         List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
 
@@ -57,7 +57,7 @@ public class ChatService {
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY)
                 .count();
 
-        List<CompanyChatRoomListResponseDto.roomListDto> roomListDto = chattingRoomList.stream()
+        List<CompanyRoomDto> roomListDto = chattingRoomList.stream()
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY) // ChatType.COMPANY로 필터링
                 .map(chattingRoom -> {
 
@@ -75,7 +75,7 @@ public class ChatService {
                     String chatContents = (chat != null) ? chat.getContents() : null;
                     String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
 
-                    return new CompanyChatRoomListResponseDto.roomListDto(
+                    return new CompanyRoomDto(
                             chattingRoom.getId(),
                             senderName,
                             companyPost.getTravelArea().get(0),
@@ -84,12 +84,12 @@ public class ChatService {
                     );
                 }).toList();
 
-        CompanyChatRoomListResponseDto companyChatRoomListResponseDto = CompanyChatRoomListResponseDto.builder()
+        CompanyChatRoomListDto companyChatRoomListDto = CompanyChatRoomListDto.builder()
                 .roomCount(roomCount)
                 .roomList(roomListDto)
                 .build();
 
-        return companyChatRoomListResponseDto;
+        return companyChatRoomListDto;
     }
 
     private String formatLastChatTime(LocalDateTime createdAt) {
@@ -105,7 +105,7 @@ public class ChatService {
         }
     }
 
-    public MarketChatRoomListResponseDto getMarketChatRoomList(User user) {
+    public MarketChatRoomListDto getMarketChatRoomList(User user) {
         // '중고 거래' 채팅방 목록
         List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
 
@@ -113,7 +113,7 @@ public class ChatService {
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
                 .count();
 
-        List<MarketChatRoomListResponseDto.roomListDto> roomListDto = chattingRoomList.stream()
+        List<MarketRoomDto> roomListDto = chattingRoomList.stream()
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
                 .map(chattingRoom -> {
 
@@ -130,7 +130,7 @@ public class ChatService {
                     String chatContents = (chat != null) ? chat.getContents() : null;
                     String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
 
-                    return new MarketChatRoomListResponseDto.roomListDto(
+                    return new MarketRoomDto(
                             chattingRoom.getId(),
                             senderName,
                             marketPost.getImages().get(0).getFileUrl(), // 상품 이미지
@@ -139,17 +139,17 @@ public class ChatService {
                     );
                 }).toList();
 
-        MarketChatRoomListResponseDto marketChatRoomListResponseDto = MarketChatRoomListResponseDto.builder()
+        MarketChatRoomListDto marketChatRoomListDto = MarketChatRoomListDto.builder()
                 .roomCount(roomCount)
                 .roomList(roomListDto)
                 .build();
 
-        return marketChatRoomListResponseDto;
+        return marketChatRoomListDto;
     }
 
     @Transactional
-    public ChatResponseDto createChatRoom(User user, ChatRequestDto chatRequestDto) {
-        User chatUserTwo = userRepository.findById(chatRequestDto.getReceiverId())
+    public ChatDto createChatRoom(User user, com.on.server.domain.chat.dto.request.ChatDto chatDto) {
+        User chatUserTwo = userRepository.findById(chatDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
         ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwo(user, chatUserTwo);
@@ -160,33 +160,33 @@ public class ChatService {
             responseRoomId = existingRoom.getId();
         } else {
             ChattingRoom chattingRoom = ChattingRoom.builder()
-                    .chattingRoomType(chatRequestDto.getChatType())
+                    .chattingRoomType(chatDto.getChatType())
                     .chatUserOne(user) // 글 보고 채팅 신청하는 사람
                     .chatUserTwo(chatUserTwo) // 글 주인
                     .build();
 
             ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
 
-            if (chatRequestDto.getChatType() == ChatType.COMPANY) {
-                CompanyPost companyPost = companyPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
+            if (chatDto.getChatType() == ChatType.COMPANY) {
+                CompanyPost companyPost = companyPostRepository.findById(chatDto.getPostId()).orElse(null);
 
                 SpecialChat specialChat = SpecialChat.builder()
                         .chattingRoom(savedChattingRoom)
                         .user(chatUserTwo)
                         .companyPost(companyPost)
-                        .specialChatType(chatRequestDto.getChatType())
+                        .specialChatType(chatDto.getChatType())
                         .build();
 
                 specialChatRepository.save(specialChat);
 
             } else {
-                MarketPost marketPost = marketPostRepository.findById(chatRequestDto.getPostId()).orElse(null);
+                MarketPost marketPost = marketPostRepository.findById(chatDto.getPostId()).orElse(null);
 
                 SpecialChat specialChat = SpecialChat.builder()
                         .chattingRoom(savedChattingRoom)
                         .user(chatUserTwo)
                         .marketPost(marketPost)
-                        .specialChatType(chatRequestDto.getChatType())
+                        .specialChatType(chatDto.getChatType())
                         .build();
 
                 specialChatRepository.save(specialChat);
@@ -197,13 +197,13 @@ public class ChatService {
 
         }
 
-        return ChatResponseDto.builder()
+        return ChatDto.builder()
                 .roomId(responseRoomId)
                 .build();
     }
 
 
-    public CompanyChatResponseDto getCompanyInfo(User user, Long roomId) {
+    public CompanyChatDto getCompanyInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
@@ -221,7 +221,7 @@ public class ChatService {
         CompanyPost companyPost = companyPostRepository.findById(specialChat.getCompanyPost().getId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-        CompanyChatResponseDto companyChatResponseDto = CompanyChatResponseDto.builder()
+        CompanyChatDto companyChatDto = CompanyChatDto.builder()
                 .isFullyRecruited(companyPost.getCurrentRecruitNumber() >= companyPost.getTotalRecruitNumber())
                 .periodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
@@ -231,10 +231,10 @@ public class ChatService {
                 .participantNumber(companyPost.getCurrentRecruitNumber())
                 .build();
 
-        return companyChatResponseDto;
+        return companyChatDto;
     }
 
-    public MarketChatResponseDto getMarketInfo(User user, Long roomId) {
+    public MarketChatDto getMarketInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
@@ -253,30 +253,30 @@ public class ChatService {
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
 
-        MarketChatResponseDto marketChatResponseDto = MarketChatResponseDto.builder()
+        MarketChatDto marketChatDto = MarketChatDto.builder()
                 .productName(marketPost.getTitle())
                 .productPrice(marketPost.getCost())
                 .tradeMethod(marketPost.getDealType())
                 .imageUrl(marketPost.getImages().get(0).getFileUrl())
                 .build();
 
-        return marketChatResponseDto;
+        return marketChatDto;
     }
 
-    public ChatListResponseDto getMessageList(User user, Long roomId) {
+    public ChatListDto getMessageList(User user, Long roomId) {
         // 채팅 목록 조회
         ChattingRoom currentChattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
         List<Chat> chatList = chatRepository.findAllByChattingRoom(currentChattingRoom);
 
-        List<ChatListResponseDto.chatListDto> chatListDto = chatList.stream()
-                .map(chat -> new ChatListResponseDto.chatListDto(
+        List<ChatMessageDto> chatListDto = chatList.stream()
+                .map(chat -> new ChatMessageDto(
                         chat.getContents(),
                         chat.getUser().getId()
                 )).toList();
 
-        ChatListResponseDto chatListResponseDto = ChatListResponseDto.builder()
+        ChatListDto chatListResponseDto = ChatListDto.builder()
                 .currentUserId(user.getId())
                 .chatList(chatListDto)
                 .build();

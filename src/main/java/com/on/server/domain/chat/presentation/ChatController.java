@@ -1,9 +1,8 @@
 package com.on.server.domain.chat.presentation;
 
 import com.on.server.domain.chat.application.ChatService;
-import com.on.server.domain.chat.dto.ChatRequestDto;
+import com.on.server.domain.chat.dto.request.ChatDto;
 import com.on.server.domain.user.domain.User;
-import com.on.server.global.common.BaseRuntimeException;
 import com.on.server.global.common.CommonResponse;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.security.SecurityService;
@@ -50,10 +49,10 @@ public class ChatController {
     @PostMapping("/request")
     @Operation(summary = "채팅 요청 API", description = "채팅 요청 API로, 채팅 요청 시 새로운 채팅방을 생성합니다.")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    public CommonResponse<?> postChatRoom(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ChatRequestDto chatRequestDto) {
+    public CommonResponse<?> postChatRoom(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ChatDto chatDto) {
         User user = securityService.getUserByUserDetails(userDetails);
 
-        return new CommonResponse<>(ResponseCode.SUCCESS, chatService.createChatRoom(user, chatRequestDto));
+        return new CommonResponse<>(ResponseCode.SUCCESS, chatService.createChatRoom(user, chatDto));
 
     }
 
