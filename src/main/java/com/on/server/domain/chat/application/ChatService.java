@@ -22,6 +22,9 @@ import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +52,9 @@ public class ChatService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final SpecialChatRepository specialChatRepository;
 
-    public CompanyChatRoomListDto getCompanyChatRoomList(User user) {
+    public Page<CompanyChatRoomListDto> getCompanyChatRoomList(User user, Pageable pageable) {
         // '동행 구하기' 채팅방 목록
-        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
+        Page<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user, pageable);
 
         Integer roomCount = (int) chattingRoomList.stream()
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY)
@@ -89,7 +92,7 @@ public class ChatService {
                 .roomList(roomListDto)
                 .build();
 
-        return companyChatRoomListDto;
+        return new PageImpl<>(List.of(companyChatRoomListDto), pageable, roomListDto.size());
     }
 
     private String formatLastChatTime(LocalDateTime createdAt) {
@@ -105,9 +108,9 @@ public class ChatService {
         }
     }
 
-    public MarketChatRoomListDto getMarketChatRoomList(User user) {
+    public Page<MarketChatRoomListDto> getMarketChatRoomList(User user, Pageable pageable) {
         // '중고 거래' 채팅방 목록
-        List<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user);
+        Page<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user, pageable);
 
         Integer roomCount = (int) chattingRoomList.stream()
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
@@ -144,7 +147,8 @@ public class ChatService {
                 .roomList(roomListDto)
                 .build();
 
-        return marketChatRoomListDto;
+        return new PageImpl<>(List.of(marketChatRoomListDto), pageable, roomListDto.size());
+
     }
 
     @Transactional
@@ -263,12 +267,12 @@ public class ChatService {
         return marketChatDto;
     }
 
-    public ChatListDto getMessageList(User user, Long roomId) {
+    public Page<ChatListDto> getMessageList(User user, Long roomId, Pageable pageable) {
         // 채팅 목록 조회
         ChattingRoom currentChattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-        List<Chat> chatList = chatRepository.findAllByChattingRoom(currentChattingRoom);
+        Page<Chat> chatList = chatRepository.findAllByChattingRoom(currentChattingRoom, pageable);
 
         List<ChatMessageDto> chatListDto = chatList.stream()
                 .map(chat -> new ChatMessageDto(
@@ -281,7 +285,7 @@ public class ChatService {
                 .chatList(chatListDto)
                 .build();
 
-        return chatListResponseDto;
+        return new PageImpl<>(List.of(chatListResponseDto), pageable, chatList.getTotalElements());
     }
 
     @Transactional

@@ -7,6 +7,8 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,12 +29,13 @@ public class ChatController {
     @Operation(summary = "[동행] 채팅방 목록 조회 API", description = "특정 유저의 '동행' 채팅방 리스트를 조회하는 API 입니다.")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<?> getCompanyChatRoomList(
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject Pageable pageable
     ) {
 
         User user = securityService.getUserByUserDetails(userDetails);
 
-        return ResponseEntity.ok(chatService.getCompanyChatRoomList(user));
+        return ResponseEntity.ok(chatService.getCompanyChatRoomList(user, pageable));
     }
 
     // [GET] 거래 - 채팅방 목록 조회
@@ -40,11 +43,12 @@ public class ChatController {
     @Operation(summary = "[거래] 채팅방 목록 조회 API", description = "특정 유저의 '거래' 채팅방 리스트를 조회하는 API 입니다.")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<?> getMarketChatRoomList(
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject Pageable pageable
     ) {
         User user = securityService.getUserByUserDetails(userDetails);
 
-        return ResponseEntity.ok(chatService.getMarketChatRoomList(user));
+        return ResponseEntity.ok(chatService.getMarketChatRoomList(user, pageable));
     }
 
 
@@ -93,11 +97,12 @@ public class ChatController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<?> getChattingMessage(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable("roomId") Long roomId
+            @PathVariable("roomId") Long roomId,
+            @ParameterObject Pageable pageable
     ) {
         User user = securityService.getUserByUserDetails(userDetails);
 
-        return ResponseEntity.ok(chatService.getMessageList(user, roomId));
+        return ResponseEntity.ok(chatService.getMessageList(user, roomId, pageable));
     }
 
     // [POST] 메시지 전송
