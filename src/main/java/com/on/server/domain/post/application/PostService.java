@@ -41,7 +41,7 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
         return board.getPosts().stream()
                 .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                .map(post -> mapToPostResponseDTO(post, true)) // 댓글 수 포함
+                .map(post -> PostResponseDTO.from(post, true))
                 .collect(Collectors.toList());
     }
 
@@ -75,7 +75,7 @@ public class PostService {
         // 게시글 저장
         post = postRepository.save(post);
 
-        return mapToPostResponseDTO(post, true);
+        return PostResponseDTO.from(post, true);
     }
 
     // 3. 특정 게시글 조회
@@ -85,7 +85,7 @@ public class PostService {
         if (!post.getBoard().getType().equals(boardType)) {
             throw new RuntimeException("해당 게시판에 게시글이 존재하지 않습니다.");
         }
-        return mapToPostResponseDTO(post, true); // 댓글 수 포함
+        return PostResponseDTO.from(post, true);
     }
 
     // 4. 특정 사용자가 특정 게시판에 작성한 모든 게시글 조회
@@ -97,7 +97,7 @@ public class PostService {
 
         List<Post> posts = postRepository.findByUserAndBoardOrderByCreatedAtDesc(user, board);
         return posts.stream()
-                .map(post -> mapToPostResponseDTO(post, true)) // 댓글 수 포함
+                .map(post -> PostResponseDTO.from(post, true))
                 .collect(Collectors.toList());
     }
 
@@ -128,7 +128,7 @@ public class PostService {
     public List<PostResponseDTO> searchPosts(String keyword) {
         List<Post> posts = postRepository.searchPosts(keyword);
         return posts.stream()
-                .map(post -> mapToPostResponseDTO(post, true))
+                .map(post -> PostResponseDTO.from(post, true))
                 .collect(Collectors.toList());
     }
 
@@ -141,7 +141,7 @@ public class PostService {
         List<Post> posts = postRepository.findByBoardAndUserCountry(board, country);
 
         return posts.stream()
-                .map(post -> mapToPostResponseDTO(post, true))
+                .map(post -> PostResponseDTO.from(post, true))
                 .collect(Collectors.toList());
     }
 
@@ -152,37 +152,7 @@ public class PostService {
 
         List<Post> posts = postRepository.findTop4ByBoardOrderByCreatedAtDesc(board);
         return posts.stream()
-                .map(post -> mapToPostResponseDTO(post, true))
+                .map(post -> PostResponseDTO.from(post, true))
                 .collect(Collectors.toList());
-    }
-
-    // Post 엔티티를 PostResponseDTO로 매핑하는 메서드
-    private PostResponseDTO mapToPostResponseDTO(Post post, boolean includeCommentCount) {
-        User user = post.getUser();
-        Set<UserStatus> roles = user.getRoles();
-        UserStatus userStatus = roles.iterator().next();
-
-        int commentCount = (post.getComments() != null) ? post.getComments().size() : 0;
-
-        PostResponseDTO.WriterInfo writerInfo = PostResponseDTO.WriterInfo.builder()
-                .id(user.getId())
-                .nickname(user.getNickname())
-                .country(user.getCountry())
-                .dispatchedUniversity(user.getDispatchedUniversity())
-                .userStatus(userStatus)
-                .build();
-
-        return PostResponseDTO.builder()
-                .postId(post.getId())
-                .boardType(post.getBoard().getType())
-                .writerInfo(writerInfo)
-                .title(post.getTitle())
-                .content(post.getContent())
-                .isAnonymous(post.getIsAnonymous())
-                .isAnonymousUniv(post.getIsAnonymousUniv())
-                .createdAt(post.getCreatedAt())
-                .commentCount(includeCommentCount ? commentCount : 0)
-                .imageUrls(post.getImages().stream().map(UuidFile::getFileUrl).collect(Collectors.toList()))
-                .build();
     }
 }
