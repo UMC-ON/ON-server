@@ -133,10 +133,14 @@ public class ChatService {
                     String chatContents = (chat != null) ? chat.getContents() : null;
                     String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
 
+                    String fileUrl = (!marketPost.getImages().isEmpty())
+                            ? marketPost.getImages().get(0).getFileUrl()
+                            : null;
+
                     return new MarketRoomDto(
                             chattingRoom.getId(),
                             senderName,
-                            marketPost.getImages().get(0).getFileUrl(), // 상품 이미지
+                            fileUrl, // 상품 이미지
                             chatContents,
                             lastChatTime
                     );
