@@ -6,11 +6,9 @@ import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
-import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +25,7 @@ import java.util.stream.Collectors;
 public class CompanyPostService {
 
     private final CompanyPostRepository companyPostRepository;
-    private final UserRepository userRepository;
     private final UuidFileService uuidFileService;
-    private final UuidFileRepository uuidFileRepository;
 
     // 필터링 기능 추가
     public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
@@ -47,14 +43,14 @@ public class CompanyPostService {
 
         // DTO 변환
         return posts.stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
     // 1. 모든 게시글 조회
     public List<CompanyPostResponseDTO> getAllCompanyPosts() {
         return companyPostRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
@@ -62,15 +58,13 @@ public class CompanyPostService {
     public List<CompanyPostResponseDTO> getCompanyPostById(Long companyPostId) {
         return companyPostRepository.findById(companyPostId)
                 .stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
     // 3. 새로운 게시글 작성
     @Transactional
-    public CompanyPostResponseDTO createCompanyPost(CompanyPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
-        User user = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
+    public CompanyPostResponseDTO createCompanyPost(User user, CompanyPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
 
         List<UuidFile> uploadedImages = new ArrayList<>();
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -98,28 +92,23 @@ public class CompanyPostService {
 
         companyPost = companyPostRepository.save(companyPost);
 
-        return mapToCompanyPostResponseDTO(companyPost);
+        return CompanyPostResponseDTO.from(companyPost);
     }
 
     // 4. 특정 사용자가 작성한 모든 게시글 조회
-    public List<CompanyPostResponseDTO> getCompanyPostsByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
-
+    public List<CompanyPostResponseDTO> getCompanyPostsByUser(User user) {
         return companyPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
     // 5. 특정 게시글 삭제
     @Transactional
-    public void deleteCompanyPost(Long userId, Long companyPostId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
+    public void deleteCompanyPost(User user, Long companyPostId) {
         CompanyPost companyPost = companyPostRepository.findById(companyPostId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + companyPostId));
 
-        if (!companyPost.getUser().getId().equals(userId)) {
+        if (!companyPost.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
@@ -132,7 +121,7 @@ public class CompanyPostService {
     // 6. 최신 4개의 동행 구하기 게시글 조회
     public List<CompanyPostResponseDTO> getRecentCompanyPosts() {
         return companyPostRepository.findTop4ByOrderByCreatedAtDesc().stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
@@ -149,35 +138,7 @@ public class CompanyPostService {
         List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId);
 
         return nearbyPosts.stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
-    }
-
-    // CompanyPost 엔티티를 CompanyPostResponseDto로 매핑하는 메서드
-    private CompanyPostResponseDTO mapToCompanyPostResponseDTO(CompanyPost companyPost) {
-        return CompanyPostResponseDTO.builder()
-                .companyPostId(companyPost.getId())
-                .userId(companyPost.getUser().getId())
-                .age(companyPost.getUser().getAge())
-                .ageAnonymous(companyPost.isAgeAnonymous())
-                .dispatchedUniversity(companyPost.getUser().getDispatchedUniversity())
-                .nickname(companyPost.getUser().getNickname())
-                .gender(companyPost.getUser().getGender())
-                .universityAnonymous(companyPost.isUniversityAnonymous())
-                .title(companyPost.getTitle())
-                .content(companyPost.getContent())
-                .travelArea(companyPost.getTravelArea())
-                .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
-                .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
-                .isRecruitCompleted(companyPost.isRecruitCompleted())
-                .schedulePeriodDay(companyPost.getSchedulePeriodDay())
-                .startDate(companyPost.getStartDate())
-                .endDate(companyPost.getEndDate())
-                .currentCountry(companyPost.getCurrentCountry())
-                .createdAt(companyPost.getCreatedAt())
-                .imageUrls(companyPost.getImages().stream()
-                        .map(UuidFile::getFileUrl)
-                        .collect(Collectors.toList()))  // 이미지 URL 리스트
-                .build();
     }
 }
