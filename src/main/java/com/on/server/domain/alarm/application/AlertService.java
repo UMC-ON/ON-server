@@ -8,6 +8,8 @@ import com.on.server.domain.alarm.dto.FcmRequestDto;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +34,16 @@ public class AlertService {
     }
 
     // 2. 알림 리스트 조회하기
-    public List<AlertListResponseDto> getAlertList(User user) {
+    public List<AlertListResponseDto> getAlertList(User user, Pageable pageable) {
 
-        List<Alert> alertList = alertRepository.findByUser(user);
+        Page<Alert> alertList = alertRepository.findByUser(user, pageable);
 
         List<AlertListResponseDto> alertDtoList = getAlertListDto(alertList);
 
         return alertDtoList;
     }
 
-    private static List<AlertListResponseDto> getAlertListDto(List<Alert> alertList) {
+    private static List<AlertListResponseDto> getAlertListDto(Page<Alert> alertList) {
         return alertList.stream()
                 .map(alert -> new AlertListResponseDto(
                                 alert.getTitle(),
