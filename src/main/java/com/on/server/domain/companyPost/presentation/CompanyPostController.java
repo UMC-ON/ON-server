@@ -74,7 +74,7 @@ public class CompanyPostController {
         User user = securityService.getUserByUserDetails(userDetails);
 
         CompanyPostResponseDTO createdPost = companyPostService.createCompanyPost(user, requestDTO, imageFiles);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        return ResponseEntity.ok(createdPost);
     }
 
     // 4. 마이페이지에서 자기가 작성한 모든 게시글 조회
