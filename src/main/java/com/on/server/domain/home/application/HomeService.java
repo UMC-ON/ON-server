@@ -100,26 +100,9 @@ public class HomeService {
             return null;
         }
 
-        return getCompanyBoardDto(companyPostList);
-    }
-
-    private static List<CompanyBoardListResponseDto> getCompanyBoardDto(List<CompanyPost> companyPostList) {
-
         return companyPostList.stream()
-                .map(companyPost -> new CompanyBoardListResponseDto(
-                        companyPost.getId(),
-                        companyPost.getImages().isEmpty() ? null : companyPost.getImages().get(0).getFileUrl(),
-                        companyPost.getTitle(),
-                        companyPost.getUser().getNickname(),
-                        companyPost.isAgeAnonymous(),
-                        companyPost.getUser().getAge(),
-                        companyPost.getUser().getGender(),
-                        companyPost.getStartDate(),
-                        companyPost.getEndDate(),
-                        companyPost.getCurrentRecruitNumber(),
-                        companyPost.getTotalRecruitNumber(),
-                        companyPost.getTravelArea()
-                )).toList();
+                .map(CompanyBoardListResponseDto::getCompanyBoardDto)
+                .toList();
     }
 
 }
