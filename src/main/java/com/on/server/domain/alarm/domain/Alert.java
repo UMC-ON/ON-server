@@ -13,23 +13,18 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 public class Alert extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alert_id")
-    private Long id;
 
     @Column(name = "title", nullable = false)
     private String title;
 
+    @Column(name = "contents", nullable = false)
     private String contents;
 
     @Column(name = "alert_connect_id") // 게시글 알림일 경우만 추가하기 (게시글 아닐 경우 null 값 저장)
     private Long alertConnectId;
 
-//    @Column(name = "redirect_url")
-//    private String redirectUrl;
-
     @Enumerated(EnumType.STRING)
+    @Column(name = "alert_type", nullable = false)
     private AlertType alertType;
 
     // 알림을 받는 사용자
