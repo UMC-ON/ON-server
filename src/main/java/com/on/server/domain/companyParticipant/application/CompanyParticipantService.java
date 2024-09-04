@@ -8,7 +8,6 @@ import com.on.server.domain.companyParticipant.domain.CompanyParticipantStatus;
 import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.companyPost.domain.repository.CompanyPostRepository;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +19,8 @@ public class CompanyParticipantService {
 
     private final CompanyParticipantRepository companyParticipantRepository;
     private final CompanyPostRepository companyPostRepository;
-    private final UserRepository userRepository;
 
-    public CompanyParticipantResponseDTO applyToCompanyPost(CompanyParticipantRequestDTO requestDTO) {
-
-        // 신청자 유저 정보 가져오기
-        User user = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: "));
+    public CompanyParticipantResponseDTO applyToCompanyPost(User user, CompanyParticipantRequestDTO requestDTO) {
 
         // 신청한 게시글 정보 가져오기
         CompanyPost companyPost = companyPostRepository.findById(requestDTO.getCompanyPostId())
