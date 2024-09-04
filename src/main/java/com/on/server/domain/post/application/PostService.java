@@ -31,27 +31,15 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final UuidFileService uuidFileService;
 
-    // 1. 특정 게시판의 모든 게시글 조회
-    public List<PostResponseDTO> getAllPostsByBoardType(BoardType boardType) {
-        Board board = boardRepository.findByType(boardType)
-                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
-        return board.getPosts().stream()
-                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                .map(post -> PostResponseDTO.from(post, true))
-                .collect(Collectors.toList());
-    }
-
-    // 2. 특정 게시판에 새로운 게시글 작성
+    // 특정 게시판에 새로운 게시글 작성
     @Transactional
     public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO, List<MultipartFile> imageFiles, User user) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
-        // 이미지 파일 처리
         List<UuidFile> uploadedImages = new ArrayList<>();
         if (imageFiles != null && !imageFiles.isEmpty()) {
             uploadedImages = imageFiles.stream()
@@ -59,7 +47,6 @@ public class PostService {
                     .collect(Collectors.toList());
         }
 
-        // Post 객체 생성
         Post post = Post.builder()
                 .user(user)
                 .title(requestDTO.getTitle())
@@ -70,13 +57,12 @@ public class PostService {
                 .images(uploadedImages)
                 .build();
 
-        // 게시글 저장
         post = postRepository.save(post);
 
         return PostResponseDTO.from(post, true);
     }
 
-    // 3. 특정 게시글 조회
+    // 특정 게시글 조회
     public PostResponseDTO getPostById(BoardType boardType, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
@@ -86,18 +72,8 @@ public class PostService {
         return PostResponseDTO.from(post, true);
     }
 
-    // 4. 특정 사용자가 특정 게시판에 작성한 모든 게시글 조회
-    public List<PostResponseDTO> getPostsByUserIdAndBoardType(User user, BoardType boardType) {
-        Board board = boardRepository.findByType(boardType)
-                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
-        List<Post> posts = postRepository.findByUserAndBoardOrderByCreatedAtDesc(user, board);
-        return posts.stream()
-                .map(post -> PostResponseDTO.from(post,true))
-                .collect(Collectors.toList());
-    }
-
-    // 5. 특정 게시글 삭제
+    // 특정 게시글 삭제
     @Transactional
     public void deletePost(User user, BoardType boardType, Long postId) {
         Post post = postRepository.findById(postId)
@@ -130,20 +106,8 @@ public class PostService {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
-        // Board 객체와 국가를 기준으로 게시글을 조회합니다.
         List<Post> posts = postRepository.findByBoardAndUserCountry(board, country);
 
-        return posts.stream()
-                .map(post -> PostResponseDTO.from(post, true))
-                .collect(Collectors.toList());
-    }
-
-    // 특정 게시판의 최신 게시글 4개 조회
-    public List<PostResponseDTO> getLatestPostsByBoardType(BoardType boardType) {
-        Board board = boardRepository.findByType(boardType)
-                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
-
-        List<Post> posts = postRepository.findTop4ByBoardOrderByCreatedAtDesc(board);
         return posts.stream()
                 .map(post -> PostResponseDTO.from(post, true))
                 .collect(Collectors.toList());
