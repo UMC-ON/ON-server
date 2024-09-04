@@ -7,6 +7,7 @@ import com.on.server.domain.marketPost.dto.MarketPostRequestDTO;
 import com.on.server.domain.marketPost.dto.MarketPostResponseDTO;
 import com.on.server.domain.scrap.application.ScrapService;
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +29,13 @@ import java.util.List;
 public class MarketPostController {
 
     private final MarketPostService marketPostService;
-    private final ScrapService scrapService;
+    private final SecurityService securityService;
 
     // 1. 모든 물품글 조회
     @Operation(summary = "모든 물품거래글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping
-    public ResponseEntity<List<MarketPostResponseDTO>> getAllMarketPosts(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<MarketPostResponseDTO>> getAllMarketPosts() {
         List<MarketPostResponseDTO> posts = marketPostService.getAllMarketPosts();
         return ResponseEntity.ok(posts);
     }
@@ -43,7 +44,7 @@ public class MarketPostController {
     @Operation(summary = "특정 물품거래글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{marketPostId}")
-    public ResponseEntity<MarketPostResponseDTO> getMarketPostById(@PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MarketPostResponseDTO> getMarketPostById(@PathVariable Long marketPostId) {
         MarketPostResponseDTO post = marketPostService.getMarketPostById(marketPostId);
         return ResponseEntity.ok(post);
     }
@@ -53,33 +54,35 @@ public class MarketPostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MarketPostResponseDTO> createMarketPost(@RequestPart("requestDTO") MarketPostRequestDTO requestDTO,
-                                                                  @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles, @AuthenticationPrincipal UserDetails userDetails) {
-        // 현재 인증된 사용자의 ID를 DTO에 설정
-        if (userDetails instanceof User) {
-            User user = (User) userDetails;
-            requestDTO.setUserId(user.getId());
-        }
+                                                                  @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+                                                                  @AuthenticationPrincipal UserDetails userDetails) {
 
-        MarketPostResponseDTO createdPost = marketPostService.createMarketPost(requestDTO, imageFiles);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        MarketPostResponseDTO createdPost = marketPostService.createMarketPost(user, requestDTO, imageFiles);
+        return ResponseEntity.ok(createdPost);
     }
 
     // 4. 마이페이지에서 자기가 작성한 모든 물품글 조회
     @Operation(summary = "자기가 작성한 모든 물품거래글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<MarketPostResponseDTO>> getMarketPostsByUserId(@PathVariable Long userId, @AuthenticationPrincipal UserDetails userDetails) {
-        List<MarketPostResponseDTO> posts = marketPostService.getMarketPostsByUserId(userId);
+    @GetMapping("/user")
+    public ResponseEntity<List<MarketPostResponseDTO>> getMarketPostsByUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        List<MarketPostResponseDTO> posts = marketPostService.getMarketPostsByUser(user);
         return ResponseEntity.ok(posts);
     }
 
     // 5. 마이페이지에서 자기가 작성한 특정 게시글 삭제
-    @Operation(summary = "자기가 작성한 특정 동행구하기 게시글 삭제")
+    @Operation(summary = "자기가 작성한 물품거래 게시글 삭제")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    @DeleteMapping("/user/{userId}/{marketPostId}")
-    public ResponseEntity<Void> deleteMarketPost(@PathVariable Long userId, @PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
-        marketPostService.deleteMarketPost(userId, marketPostId);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/user/{marketPostId}")
+    public ResponseEntity<Void> deleteMarketPost(@PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        marketPostService.deleteMarketPost(user, marketPostId);
+        return ResponseEntity.ok().build();
     }
 
     // 6. 필터링된 물품글 조회 (국가와 거래 유형에 따라 필터링)
@@ -89,8 +92,7 @@ public class MarketPostController {
     public ResponseEntity<List<MarketPostResponseDTO>> getFilteredMarketPosts(
             @RequestParam(required = false) DealType dealType,
             @RequestParam(required = false) String currentCountry,
-            @RequestParam(required = false) DealStatus dealStatus,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @RequestParam(required = false) DealStatus dealStatus) {
 
         List<MarketPostResponseDTO> filteredPosts = marketPostService.getFilteredMarketPosts(dealType, currentCountry, dealStatus);
         return ResponseEntity.ok(filteredPosts);
@@ -100,7 +102,7 @@ public class MarketPostController {
     @Operation(summary = "거래 가능 물품만 보기")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/available")
-    public ResponseEntity<List<MarketPostResponseDTO>> getAvailableMarketPosts(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<MarketPostResponseDTO>> getAvailableMarketPosts() {
 
         // DealStatus를 AWAIT으로 고정하여 필터링
         List<MarketPostResponseDTO> availablePosts = marketPostService.getAvailableMarketPosts();
@@ -111,7 +113,7 @@ public class MarketPostController {
     @Operation(summary = "거래 상태 업데이트")
     @PutMapping("/{marketPostId}/status")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId) {
 
         MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId, DealStatus.COMPLETE);
         return ResponseEntity.ok(updatedPost);
