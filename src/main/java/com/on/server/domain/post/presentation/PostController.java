@@ -7,6 +7,7 @@ import com.on.server.domain.post.dto.PostRequestDTO;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.board.domain.BoardType;
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,15 @@ import java.util.stream.Collectors;
 public class PostController {
 
     private final PostService postService;
+    private final SecurityService securityService;
 
     // 1. 특정 게시판(boardType)의 모든 게시글을 조회
     @Operation(summary = "특정 게시판의 모든 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getAllPostsByBoardType(@PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<PostResponseDTO>> getAllPostsByBoardType(
+            @PathVariable("boardType") BoardType boardType
+    ) {
         List<PostResponseDTO> posts = postService.getAllPostsByBoardType(boardType);
 
         return ResponseEntity.ok(posts);
@@ -46,14 +50,14 @@ public class PostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @PostMapping(value = "/{boardType}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponseDTO> createPost(@PathVariable("boardType") BoardType boardType, @RequestPart("postRequestDTO") PostRequestDTO requestDTO,  @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,  @AuthenticationPrincipal UserDetails userDetails) {
-        // 현재 인증된 사용자의 ID를 DTO에 설정
-        if (userDetails instanceof User) {
-            User user = (User) userDetails;
-            requestDTO.setId(user.getId());
-        }
-
-        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO, imageFiles);
+    public ResponseEntity<PostResponseDTO> createPost(
+            @PathVariable("boardType") BoardType boardType,
+            @RequestPart("postRequestDTO") PostRequestDTO requestDTO,
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @AuthenticationPrincipal UserDetails userDetails)
+    {
+        User user = securityService.getUserByUserDetails(userDetails);
+        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO, imageFiles, user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
@@ -62,7 +66,10 @@ public class PostController {
     @Operation(summary = "특정 게시판 내의 특정 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{boardType}/{postId}")
-    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable("boardType") BoardType boardType, @PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<PostResponseDTO> getPostById(
+            @PathVariable("boardType") BoardType boardType,
+            @PathVariable("postId") Long postId
+    ) {
         PostResponseDTO post = postService.getPostById(boardType, postId);
 
         return ResponseEntity.ok(post);
@@ -71,9 +78,13 @@ public class PostController {
     // 4. 자기가 특정 게시판에 작성한 모든 게시글 조회
     @Operation(summary = "사용자가 특정 게시판에 작성한 모든 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    @GetMapping("/user/{userId}/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getPostsByUserIdAndBoardType(@PathVariable("userId") Long userId, @PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
-        List<PostResponseDTO> posts = postService.getPostsByUserIdAndBoardType(userId, boardType);
+    @GetMapping("/user/{boardType}")
+    public ResponseEntity<List<PostResponseDTO>> getPostsByUserIdAndBoardType(
+            @PathVariable("boardType") BoardType boardType,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User user = securityService.getUserByUserDetails(userDetails);
+        List<PostResponseDTO> posts = postService.getPostsByUserIdAndBoardType(user, boardType);
 
         return ResponseEntity.ok(posts);
     }
@@ -81,9 +92,14 @@ public class PostController {
     // 5. 자기가 특정 게시판에 작성한 특정 게시글(postId)을 삭제
     @Operation(summary = "사용자가 특정 게시판에 작성한 특정 게시글 삭제")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    @DeleteMapping("/user/{userId}/{boardType}/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable("userId") Long userId, @PathVariable("boardType") BoardType boardType,@PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetails userDetails) {
-        postService.deletePost(userId, boardType, postId);
+    @DeleteMapping("/user/{boardType}/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable("boardType") BoardType boardType,
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal UserDetails userDetails)
+    {
+        User user = securityService.getUserByUserDetails(userDetails);
+        postService.deletePost(user, boardType, postId);
 
         return ResponseEntity.noContent().build();
     }
@@ -95,8 +111,8 @@ public class PostController {
     @GetMapping("/filter/{boardType}")
     public ResponseEntity<List<PostResponseDTO>> searchPostsByCountry(
             @PathVariable("boardType") BoardType boardType,
-            @RequestParam(name = "country") String country) {
-
+            @RequestParam(name = "country") String country
+    ) {
         List<PostResponseDTO> filteredPosts = postService.getPostsByCountryAndBoardType(boardType, country);
         return ResponseEntity.ok(filteredPosts);
     }
@@ -106,7 +122,9 @@ public class PostController {
     @Operation(summary = "게시글 검색")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/search")
-    public ResponseEntity<List<PostResponseDTO>> searchPosts(@RequestParam("keyword") String keyword, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<PostResponseDTO>> searchPosts(
+            @RequestParam("keyword") String keyword
+    ) {
         List<PostResponseDTO> posts = postService.searchPosts(keyword);
         return ResponseEntity.ok(posts);
     }
@@ -115,7 +133,9 @@ public class PostController {
     @Operation(summary = "특정 게시판의 최신 게시글 4개 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/recent/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getLatestPosts(@PathVariable("boardType") BoardType boardType, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<PostResponseDTO>> getLatestPosts(
+            @PathVariable("boardType") BoardType boardType
+    ) {
         List<PostResponseDTO> latestPosts = postService.getLatestPostsByBoardType(boardType);
         return ResponseEntity.ok(latestPosts);
     }

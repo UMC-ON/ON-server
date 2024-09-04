@@ -47,9 +47,7 @@ public class PostService {
 
     // 2. 특정 게시판에 새로운 게시글 작성
     @Transactional
-    public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
-        User user = userRepository.findById(requestDTO.getId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO, List<MultipartFile> imageFiles, User user) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
@@ -89,31 +87,26 @@ public class PostService {
     }
 
     // 4. 특정 사용자가 특정 게시판에 작성한 모든 게시글 조회
-    public List<PostResponseDTO> getPostsByUserIdAndBoardType(Long userId, BoardType boardType) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public List<PostResponseDTO> getPostsByUserIdAndBoardType(User user, BoardType boardType) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
 
         List<Post> posts = postRepository.findByUserAndBoardOrderByCreatedAtDesc(user, board);
         return posts.stream()
-                .map(post -> PostResponseDTO.from(post, true))
+                .map(post -> PostResponseDTO.from(post,true))
                 .collect(Collectors.toList());
     }
 
     // 5. 특정 게시글 삭제
     @Transactional
-    public void deletePost(Long userId, BoardType boardType, Long postId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public void deletePost(User user, BoardType boardType, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
-        if (!post.getUser().getId().equals(userId) || !post.getBoard().getType().equals(boardType)) {
+        if (!post.getBoard().getType().equals(boardType)) {
             throw new RuntimeException("해당 게시판에 게시글이 존재하지 않습니다.");
         }
 
-        // 게시글에 연결된 이미지 삭제
         List<UuidFile> images = post.getImages();
         if (images != null) {
             for (UuidFile image : images) {
