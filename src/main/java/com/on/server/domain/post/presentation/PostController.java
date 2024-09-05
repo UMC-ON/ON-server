@@ -45,9 +45,9 @@ public class PostController {
             @AuthenticationPrincipal UserDetails userDetails)
     {
         User user = securityService.getUserByUserDetails(userDetails);
-        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO, imageFiles, user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        PostResponseDTO createdPost = postService.createPost(boardType, requestDTO, imageFiles, user);
+        return ResponseEntity.ok(createdPost);
     }
 
     // 특정 게시판(boardType) 내의 특정 게시글(postId)을 조회
@@ -59,7 +59,6 @@ public class PostController {
             @PathVariable("postId") Long postId
     ) {
         PostResponseDTO post = postService.getPostById(boardType, postId);
-
         return ResponseEntity.ok(post);
     }
 
@@ -74,9 +73,9 @@ public class PostController {
             @AuthenticationPrincipal UserDetails userDetails)
     {
         User user = securityService.getUserByUserDetails(userDetails);
-        postService.deletePost(user, boardType, postId);
 
-        return ResponseEntity.noContent().build();
+        postService.deletePost(user, boardType, postId);
+        return ResponseEntity.ok().build();
     }
 
 
