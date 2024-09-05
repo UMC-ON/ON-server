@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final PostRepository postRepository;
 
     // 특정 게시글의 모든 댓글 및 답글 조회
@@ -51,9 +50,7 @@ public class CommentService {
 
 
     // 새로운 댓글 작성
-    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO) {
-        User user = userRepository.findById(commentRequestDTO.getId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO, User user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
@@ -75,9 +72,7 @@ public class CommentService {
     }
 
     // 답글 작성
-    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO) {
-        User user = userRepository.findById(commentRequestDTO.getId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO, User user) {
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
 
@@ -99,7 +94,7 @@ public class CommentService {
         return CommentResponseDTO.from(reply);
     }
 
-    // 익명 인덱스 생성 로직
+    // 익명 인덱스 생성
     private Integer generateAnonymousIndex(User user, Post post) {
         List<Comment> userComments = commentRepository.findByUserAndPostAndIsAnonymousTrue(user, post);
         if (!userComments.isEmpty()) {
