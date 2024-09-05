@@ -4,6 +4,7 @@ import com.on.server.domain.comment.domain.Comment;
 import com.on.server.domain.comment.domain.repository.CommentRepository;
 import com.on.server.domain.comment.dto.CommentRequestDTO;
 import com.on.server.domain.comment.dto.CommentResponseDTO;
+import com.on.server.domain.comment.dto.WriterInfo;
 import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.user.domain.User;
@@ -32,7 +33,7 @@ public class CommentService {
 
         List<Comment> comments = commentRepository.findByPost(post);
         return comments.stream()
-                .map(this::mapToCommentResponseDTO)
+                .map(CommentResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
@@ -42,9 +43,9 @@ public class CommentService {
         Comment parentComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
-        List<Comment> replies = commentRepository.findByParentComment(parentComment); // 수정된 부분
+        List<Comment> replies = commentRepository.findByParentComment(parentComment);
         return replies.stream()
-                .map(this::mapToCommentResponseDTO)
+                .map(CommentResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +71,7 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
-        return mapToCommentResponseDTO(comment);
+        return CommentResponseDTO.from(comment);
     }
 
     // 답글 작성
@@ -95,7 +96,7 @@ public class CommentService {
                 .build();
 
         commentRepository.save(reply);
-        return mapToCommentResponseDTO(reply);
+        return CommentResponseDTO.from(reply);
     }
 
     // 익명 인덱스 생성 로직
@@ -108,36 +109,6 @@ public class CommentService {
         List<Integer> existingIndices = commentRepository.findAnonymousIndicesByPost(post);
         int newIndex = existingIndices.isEmpty() ? 1 : existingIndices.stream().max(Integer::compare).orElse(0) + 1;
         return newIndex;
-    }
-
-    // Comment 엔티티를 CommentResponseDTO로 매핑하는 메서드
-    private CommentResponseDTO mapToCommentResponseDTO(Comment comment) {
-        boolean isReply = comment.getParentComment() != null;
-
-        Long replyId = null;
-
-        if (isReply) {
-            // 부모 댓글의 자식 댓글들 중 현재 댓글의 인덱스를 찾아서 replyId로 설정
-            List<Comment> siblings = comment.getParentComment().getChildrenComment();
-            replyId = (long) (siblings.indexOf(comment) + 1);
-        }
-
-        String nickname = comment.getIsAnonymous() ? "익명" + comment.getAnonymousIndex() : comment.getUser().getNickname();
-
-        CommentResponseDTO.WriterInfo writerInfo = CommentResponseDTO.WriterInfo.builder()
-                .id(comment.getUser().getId())
-                .nickname(nickname)
-                .build();
-
-        return CommentResponseDTO.builder()
-                .commentId(isReply ? comment.getParentComment().getId() : comment.getId())
-                .replyId(replyId)
-                .postId(comment.getPost().getId())
-                .writerInfo(writerInfo)
-                .isAnonymous(comment.getIsAnonymous())
-                .contents(comment.getContents())
-                .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0)
-                .build();
     }
 
 }
