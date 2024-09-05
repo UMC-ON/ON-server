@@ -60,7 +60,7 @@ public class CommentController {
         User user = securityService.getUserByUserDetails(userDetails);
 
         CommentResponseDTO createdComment = commentService.createComment(postId, commentRequestDTO, user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
+        return ResponseEntity.ok(createdComment);
     }
 
     // 4. 특정 댓글(CommentId)에 답글 작성
@@ -75,7 +75,7 @@ public class CommentController {
         User user = securityService.getUserByUserDetails(userDetails);
 
         CommentResponseDTO createdReply = commentService.createReply(commentId, commentRequestDTO, user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdReply);
+        return ResponseEntity.ok(createdReply);
     }
 }
 
