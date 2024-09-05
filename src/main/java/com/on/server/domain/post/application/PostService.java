@@ -14,6 +14,9 @@ import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +41,7 @@ public class PostService {
     @Transactional
     public PostResponseDTO createPost(BoardType boardType, PostRequestDTO requestDTO, List<MultipartFile> imageFiles, User user) {
         Board board = boardRepository.findByType(boardType)
-                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시판을 찾을 수 없습니다."));
 
         List<UuidFile> uploadedImages = new ArrayList<>();
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -65,9 +68,9 @@ public class PostService {
     // 특정 게시글 조회
     public PostResponseDTO getPostById(BoardType boardType, Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
         if (!post.getBoard().getType().equals(boardType)) {
-            throw new RuntimeException("해당 게시판에 게시글이 존재하지 않습니다.");
+            throw new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당 게시판에 게시글이 존재하지 않습니다.");
         }
         return PostResponseDTO.from(post, true);
     }
@@ -77,10 +80,14 @@ public class PostService {
     @Transactional
     public void deletePost(User user, BoardType boardType, Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다."));
 
         if (!post.getBoard().getType().equals(boardType)) {
-            throw new RuntimeException("해당 게시판에 게시글이 존재하지 않습니다.");
+            throw new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당 게시판에 게시글이 존재하지 않습니다.");
+        }
+
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException(ResponseCode.INVALID_REQUEST_ROLE, "삭제 권한이 없습니다.");
         }
 
         List<UuidFile> images = post.getImages();
@@ -104,7 +111,7 @@ public class PostService {
     // 국가 필터링 메서드
     public List<PostResponseDTO> getPostsByCountryAndBoardType(BoardType boardType, String country) {
         Board board = boardRepository.findByType(boardType)
-                .orElseThrow(() -> new RuntimeException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시판을 찾을 수 없습니다."));
 
         List<Post> posts = postRepository.findByBoardAndUserCountry(board, country);
 
