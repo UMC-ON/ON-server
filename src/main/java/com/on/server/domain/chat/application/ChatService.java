@@ -281,7 +281,8 @@ public class ChatService {
         List<ChatMessageDto> chatListDto = chatList.stream()
                 .map(chat -> new ChatMessageDto(
                         chat.getContents(),
-                        chat.getUser().getId()
+                        chat.getUser().getId(),
+                        chat.getCreatedAt()
                 )).toList();
 
         ChatListDto chatListResponseDto = ChatListDto.builder()

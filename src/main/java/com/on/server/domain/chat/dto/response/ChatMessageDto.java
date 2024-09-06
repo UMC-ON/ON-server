@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -12,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class ChatMessageDto {
     private String message; // 채팅 메시지 내용
     private Long userId; // 채팅 작성자 ID
+    private LocalDateTime createdAt; // 메시지 전송 시간
 }
