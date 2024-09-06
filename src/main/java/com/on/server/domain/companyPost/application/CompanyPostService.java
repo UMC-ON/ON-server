@@ -9,6 +9,9 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,10 +109,10 @@ public class CompanyPostService {
     @Transactional
     public void deleteCompanyPost(User user, Long companyPostId) {
         CompanyPost companyPost = companyPostRepository.findById(companyPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + companyPostId));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + companyPostId));
 
         if (!companyPost.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+            throw new UnauthorizedException(ResponseCode.GRANT_ROLE_NOT_ALLOWED, "삭제 권한이 없습니다.");
         }
 
         // 연관된 이미지 삭제
