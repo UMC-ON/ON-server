@@ -12,6 +12,8 @@ import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.ResponseCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,26 +30,22 @@ public class CommentService {
 
     // 특정 게시글의 모든 댓글 및 답글 조회
     @Transactional(readOnly = true)
-    public List<CommentResponseDTO> getAllCommentsAndRepliesByPostId(Long postId) {
+    public Page<CommentResponseDTO> getAllCommentsAndRepliesByPostId(Long postId, Pageable pageable) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
 
-        List<Comment> comments = commentRepository.findByPost(post);
-        return comments.stream()
-                .map(CommentResponseDTO::from)
-                .collect(Collectors.toList());
+        Page<Comment> comments = commentRepository.findByPost(post, pageable);
+        return comments.map(CommentResponseDTO::from);
     }
 
     // 특정 댓글의 모든 답글 조회
     @Transactional(readOnly = true)
-    public List<CommentResponseDTO> getAllRepliesByCommentId(Long commentId) {
+    public Page<CommentResponseDTO> getAllRepliesByCommentId(Long commentId, Pageable pageable) {
         Comment parentComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "댓글을 찾을 수 없습니다. ID: " + commentId));
 
-        List<Comment> replies = commentRepository.findByParentComment(parentComment);
-        return replies.stream()
-                .map(CommentResponseDTO::from)
-                .collect(Collectors.toList());
+        Page<Comment> replies = commentRepository.findByParentComment(parentComment, pageable);
+        return replies.map(CommentResponseDTO::from);
     }
 
 

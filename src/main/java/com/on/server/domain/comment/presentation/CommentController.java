@@ -8,6 +8,8 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,10 +32,11 @@ public class CommentController {
     @Operation(summary = "특정 게시글의 모든 댓글 및 답글 조회")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDTO>> getAllCommentsAndRepliesByPostId(
-            @PathVariable("postId") Long postId
+    public ResponseEntity<Page<CommentResponseDTO>> getAllCommentsAndRepliesByPostId(
+            @PathVariable("postId") Long postId,
+            Pageable pageable
     ) {
-        List<CommentResponseDTO> comments = commentService.getAllCommentsAndRepliesByPostId(postId);
+        Page<CommentResponseDTO> comments = commentService.getAllCommentsAndRepliesByPostId(postId, pageable);
         return ResponseEntity.ok(comments);
     }
 
@@ -41,10 +44,11 @@ public class CommentController {
     @Operation(summary = "특정 댓글의 모든 답글 조회")
     @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
     @GetMapping("/{commentId}/reply")
-    public ResponseEntity<List<CommentResponseDTO>> getAllRepliesByCommentId(
-            @PathVariable("commentId") Long commentId
+    public ResponseEntity<Page<CommentResponseDTO>> getAllRepliesByCommentId(
+            @PathVariable("commentId") Long commentId,
+            Pageable pageable
     ) {
-        List<CommentResponseDTO> replies = commentService.getAllRepliesByCommentId(commentId);
+        Page<CommentResponseDTO> replies = commentService.getAllRepliesByCommentId(commentId, pageable);
         return ResponseEntity.ok(replies);
     }
 

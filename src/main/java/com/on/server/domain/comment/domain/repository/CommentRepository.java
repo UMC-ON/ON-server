@@ -4,6 +4,8 @@ import com.on.server.domain.comment.domain.Comment;
 import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.user.domain.User;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,10 +14,10 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 게시글의 모든 댓글 및 답글 조회
-    List<Comment> findByPost(Post post);
+    Page<Comment> findByPost(Post post, Pageable pageable);
 
     // 댓글에 대한 답글 조회
-    List<Comment> findByParentComment(Comment parentComment);
+    Page<Comment> findByParentComment(Comment parentComment, Pageable pageable);
 
     // 사용자가 게시글에 작성한 익명 댓글 조회
     List<Comment> findByUserAndPostAndIsAnonymousTrue(User user, Post post);
