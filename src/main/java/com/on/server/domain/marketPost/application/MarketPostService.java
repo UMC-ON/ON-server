@@ -14,6 +14,8 @@ import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,10 +33,9 @@ public class MarketPostService {
     private final UuidFileService uuidFileService;
 
     // 1. 모든 물품글 조회
-    public List<MarketPostResponseDTO> getAllMarketPosts() {
-        return marketPostRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(MarketPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<MarketPostResponseDTO> getAllMarketPosts(Pageable pageable) {
+        return marketPostRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(MarketPostResponseDTO::from);
     }
 
     // 2. 특정 물품글 조회
@@ -75,10 +76,9 @@ public class MarketPostService {
     }
 
     // 4. 특정 사용자가 작성한 모든 물품글 조회
-    public List<MarketPostResponseDTO> getMarketPostsByUser(User user) {
-        return marketPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
-                .map(MarketPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<MarketPostResponseDTO> getMarketPostsByUser(User user, Pageable pageable) {
+        return marketPostRepository.findByUserOrderByCreatedAtDesc(user, pageable)
+                .map(MarketPostResponseDTO::from);
     }
 
     // 5. 특정 게시글 삭제
@@ -99,7 +99,7 @@ public class MarketPostService {
 
     // 6. 거래 상태 업데이트
     @Transactional
-    public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId, DealStatus status) {
+    public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + marketPostId));
 
@@ -111,25 +111,21 @@ public class MarketPostService {
     }
 
     // 필터링: 거래형식, 국가, 거래상태 필터링
-    public List<MarketPostResponseDTO> getFilteredMarketPosts(DealType dealType, String currentCountry, DealStatus dealStatus) {
-        return marketPostRepository.findFilteredMarketPosts(dealType, currentCountry, dealStatus).stream()
-                .map(MarketPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<MarketPostResponseDTO> getFilteredMarketPosts(DealType dealType, String currentCountry, DealStatus dealStatus, Pageable pageable) {
+        return marketPostRepository.findFilteredMarketPosts(dealType, currentCountry, dealStatus, pageable)
+                .map(MarketPostResponseDTO::from);
     }
 
     // 필터링: 거래 가능 물품만 보기
-    public List<MarketPostResponseDTO> getAvailableMarketPosts() {
-        return marketPostRepository.findFilteredMarketPosts(null, null, DealStatus.AWAIT).stream()
-                .map(MarketPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<MarketPostResponseDTO> getAvailableMarketPosts(Pageable pageable) {
+        return marketPostRepository.findFilteredMarketPosts(null, null, DealStatus.AWAIT, pageable)
+                .map(MarketPostResponseDTO::from);
     }
 
     // 검색 기능
-    public List<MarketPostResponseDTO> searchMarketPosts(String keyword) {
-        List<MarketPost> marketPosts = marketPostRepository.searchMarketPosts(keyword);
-        return marketPosts.stream()
-                .map(MarketPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<MarketPostResponseDTO> searchMarketPosts(String keyword, Pageable pageable) {
+        return marketPostRepository.searchMarketPosts(keyword, pageable)
+                .map(MarketPostResponseDTO::from);
     }
 
     // 내 주변 물품거래글

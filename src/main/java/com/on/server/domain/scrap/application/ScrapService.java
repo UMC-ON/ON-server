@@ -10,11 +10,10 @@ import com.on.server.domain.user.domain.User;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -46,10 +45,9 @@ public class ScrapService {
 
     // 2. 스크랩한 모든 물품글 조회
     @Transactional(readOnly = true)
-    public List<ScrapResponseDTO> getScrappedMarketPosts(User user) {
-        return scrapRepository.findByUser(user).stream()
-                .map(ScrapResponseDTO::from)  // Scrap 객체를 ScrapResponseDTO로 매핑
-                .collect(Collectors.toList());
+    public Page<ScrapResponseDTO> getScrappedMarketPosts(User user, Pageable pageable) {
+        return scrapRepository.findByUser(user, pageable)
+                .map(ScrapResponseDTO::from);
     }
 
     // 3. 스크랩 목록에서 자기가 작성한 특정 물품글 스크랩 취소 (삭제)

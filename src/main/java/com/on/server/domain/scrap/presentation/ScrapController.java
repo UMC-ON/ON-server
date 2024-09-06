@@ -8,13 +8,13 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "물품거래글 스크랩")
 @RequiredArgsConstructor
@@ -29,7 +29,8 @@ public class ScrapController {
     @Operation(summary = "특정 물품거래글 스크랩")
     @PostMapping
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<Void> scrapMarketPost(@RequestBody ScrapRequestDTO scrapRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> scrapMarketPost(@RequestBody ScrapRequestDTO scrapRequestDTO,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = securityService.getUserByUserDetails(userDetails);
 
@@ -41,11 +42,12 @@ public class ScrapController {
     @Operation(summary = "스크랩한 모든 물품거래글 조회")
     @GetMapping
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<List<ScrapResponseDTO>> getScrappedMarketPosts(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Page<ScrapResponseDTO>> getScrappedMarketPosts(@AuthenticationPrincipal UserDetails userDetails,
+                                                                         Pageable pageable) {
 
         User user = securityService.getUserByUserDetails(userDetails);
 
-        List<ScrapResponseDTO> posts = scrapService.getScrappedMarketPosts(user);
+        Page<ScrapResponseDTO> posts = scrapService.getScrappedMarketPosts(user, pageable);
         return ResponseEntity.ok(posts);
     }
 
@@ -53,7 +55,8 @@ public class ScrapController {
     @Operation(summary = "스크랩 목록에서 특정 물품글 스크랩 취소")
     @DeleteMapping("/{marketPostId}")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<Void> deleteScrap(@PathVariable Long marketPostId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deleteScrap(@PathVariable Long marketPostId,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = securityService.getUserByUserDetails(userDetails);
 
