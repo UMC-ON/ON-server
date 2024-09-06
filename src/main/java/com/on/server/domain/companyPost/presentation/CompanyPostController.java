@@ -9,6 +9,8 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +36,14 @@ public class CompanyPostController {
     @Operation(summary = "필터링된 동행구하기 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/filter")
-    public ResponseEntity<List<CompanyPostResponseDTO>> getFilteredCompanyPosts(
+    public ResponseEntity<Page<CompanyPostResponseDTO>> getFilteredCompanyPosts(
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Gender gender,
-            @RequestParam(required = false) String country) {
+            @RequestParam(required = false) String country,
+            Pageable pageable) {
 
-        List<CompanyPostResponseDTO> filteredPosts = companyPostService.getFilteredCompanyPosts(startDate, endDate, gender, country);
+        Page<CompanyPostResponseDTO> filteredPosts = companyPostService.getFilteredCompanyPosts(startDate, endDate, gender, country, pageable);
         return ResponseEntity.ok(filteredPosts);
     }
 
@@ -48,8 +51,8 @@ public class CompanyPostController {
     @Operation(summary = "모든 동행구하기 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping
-    public ResponseEntity<List<CompanyPostResponseDTO>> getAllCompanyPosts() {
-        List<CompanyPostResponseDTO> posts = companyPostService.getAllCompanyPosts();
+    public ResponseEntity<Page<CompanyPostResponseDTO>> getAllCompanyPosts(Pageable pageable) {
+        Page<CompanyPostResponseDTO> posts = companyPostService.getAllCompanyPosts(pageable);
         return ResponseEntity.ok(posts);
     }
 
@@ -81,10 +84,11 @@ public class CompanyPostController {
     @Operation(summary = "자기가 작성한 모든 동행구하기 게시글 모아보기(조회)")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/user")
-    public ResponseEntity<List<CompanyPostResponseDTO>> getCompanyPostsByUser(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Page<CompanyPostResponseDTO>> getCompanyPostsByUser(@AuthenticationPrincipal UserDetails userDetails,
+                                                                              Pageable pageable) {
         User user = securityService.getUserByUserDetails(userDetails);
 
-        List<CompanyPostResponseDTO> posts = companyPostService.getCompanyPostsByUser(user);
+        Page<CompanyPostResponseDTO> posts = companyPostService.getCompanyPostsByUser(user, pageable);
         return ResponseEntity.ok(posts);
     }
 

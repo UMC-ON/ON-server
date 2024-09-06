@@ -13,6 +13,9 @@ import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,8 +34,8 @@ public class CompanyPostService {
     private final UuidFileService uuidFileService;
 
     // 필터링 기능 추가
-    public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
-        List<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender);
+    public Page<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country, Pageable pageable) {
+        Page<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender, pageable);
 
         if (country != null && !country.isEmpty()) {
             posts = posts.stream()
@@ -41,20 +44,16 @@ public class CompanyPostService {
                                 String firstWord = area.split(" ")[0];  // travelArea의 첫 번째 단어 추출
                                 return firstWord.equalsIgnoreCase(country);
                             }))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> new PageImpl<>(list, pageable, list.size())));
         }
 
-        // DTO 변환
-        return posts.stream()
-                .map(CompanyPostResponseDTO::from)
-                .collect(Collectors.toList());
+        return posts.map(CompanyPostResponseDTO::from);
     }
 
     // 1. 모든 게시글 조회
-    public List<CompanyPostResponseDTO> getAllCompanyPosts() {
-        return companyPostRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(CompanyPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<CompanyPostResponseDTO> getAllCompanyPosts(Pageable pageable) {
+        return companyPostRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(CompanyPostResponseDTO::from);
     }
 
     // 2. 특정 게시글 조회
@@ -99,10 +98,9 @@ public class CompanyPostService {
     }
 
     // 4. 특정 사용자가 작성한 모든 게시글 조회
-    public List<CompanyPostResponseDTO> getCompanyPostsByUser(User user) {
-        return companyPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
-                .map(CompanyPostResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<CompanyPostResponseDTO> getCompanyPostsByUser(User user, Pageable pageable) {
+        return companyPostRepository.findByUserOrderByCreatedAtDesc(user, pageable)
+                .map(CompanyPostResponseDTO::from);
     }
 
     // 5. 특정 게시글 삭제
