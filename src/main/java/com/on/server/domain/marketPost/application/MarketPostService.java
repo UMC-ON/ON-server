@@ -7,11 +7,12 @@ import com.on.server.domain.marketPost.domain.repository.MarketPostRepository;
 import com.on.server.domain.marketPost.dto.MarketPostRequestDTO;
 import com.on.server.domain.marketPost.dto.MarketPostResponseDTO;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
-import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +28,6 @@ import java.util.stream.Collectors;
 public class MarketPostService {
 
     private final MarketPostRepository marketPostRepository;
-    private final UserRepository userRepository;
     private final UuidFileService uuidFileService;
 
     // 1. 모든 물품글 조회
@@ -40,7 +40,7 @@ public class MarketPostService {
     // 2. 특정 물품글 조회
     public MarketPostResponseDTO getMarketPostById(Long marketPostId) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + marketPostId));
         return MarketPostResponseDTO.from(marketPost);
     }
 
@@ -85,10 +85,10 @@ public class MarketPostService {
     @Transactional
     public void deleteMarketPost(User user, Long marketPostId) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + marketPostId));
 
         if (!marketPost.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+            throw new UnauthorizedException(ResponseCode.GRANT_ROLE_NOT_ALLOWED, "삭제 권한이 없습니다.");
         }
 
         // 연관된 이미지 삭제
@@ -101,7 +101,7 @@ public class MarketPostService {
     @Transactional
     public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId, DealStatus status) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + marketPostId));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + marketPostId));
 
         marketPost.completeDeal(); // 상태 업데이트
 
