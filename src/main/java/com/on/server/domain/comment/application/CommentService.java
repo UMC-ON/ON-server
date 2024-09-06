@@ -9,6 +9,8 @@ import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.repository.UserRepository;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponseDTO> getAllCommentsAndRepliesByPostId(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
 
         List<Comment> comments = commentRepository.findByPost(post);
         return comments.stream()
@@ -40,7 +42,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponseDTO> getAllRepliesByCommentId(Long commentId) {
         Comment parentComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "댓글을 찾을 수 없습니다. ID: " + commentId));
 
         List<Comment> replies = commentRepository.findByParentComment(parentComment);
         return replies.stream()
@@ -52,7 +54,7 @@ public class CommentService {
     // 새로운 댓글 작성
     public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO, User user) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
 
         Integer anonymousIndex = null;
         if (commentRequestDTO.isAnonymous()) {
@@ -74,7 +76,7 @@ public class CommentService {
     // 답글 작성
     public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO, User user) {
         Comment parentComment = commentRepository.findById(parentCommentId)
-                .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "부모 댓글을 찾을 수 없습니다. ID: " + parentCommentId));
 
         Integer anonymousIndex = null;
         if (commentRequestDTO.isAnonymous()) {
