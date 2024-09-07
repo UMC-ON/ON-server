@@ -11,6 +11,8 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -96,10 +98,11 @@ public class PostController {
     @Operation(summary = "게시글 검색")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/search")
-    public ResponseEntity<List<PostResponseDTO>> searchPosts(
-            @RequestParam("keyword") String keyword
+    public ResponseEntity<Page<PostResponseDTO>>searchPosts(
+            @RequestParam("keyword") String keyword,
+            Pageable pageable
     ) {
-        List<PostResponseDTO> posts = postService.searchPosts(keyword);
+        Page<PostResponseDTO> posts = postService.searchPosts(keyword, pageable);
         return ResponseEntity.ok(posts);
     }
 }

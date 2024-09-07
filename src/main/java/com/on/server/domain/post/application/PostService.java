@@ -18,6 +18,8 @@ import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -101,11 +103,9 @@ public class PostService {
     }
 
     // 게시글 검색 기능
-    public List<PostResponseDTO> searchPosts(String keyword) {
-        List<Post> posts = postRepository.searchPosts(keyword);
-        return posts.stream()
-                .map(post -> PostResponseDTO.from(post, true))
-                .collect(Collectors.toList());
+    public Page<PostResponseDTO> searchPosts(String keyword, Pageable pageable) {
+        Page<Post> posts = postRepository.searchPosts(keyword, pageable);
+        return posts.map(post -> PostResponseDTO.from(post, true));
     }
 
     // 국가 필터링 메서드

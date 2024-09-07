@@ -9,6 +9,8 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,10 +35,11 @@ public class BoardController {
     @Operation(summary = "특정 게시판의 모든 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getAllPostsByBoardType(
-            @PathVariable("boardType") BoardType boardType
+    public ResponseEntity<Page<PostResponseDTO>> getAllPostsByBoardType(
+            @PathVariable("boardType") BoardType boardType,
+            Pageable pageable
     ) {
-        List<PostResponseDTO> posts = boardService.getAllPostsByBoardType(boardType);
+        Page<PostResponseDTO> posts = boardService.getAllPostsByBoardType(boardType, pageable);
 
         return ResponseEntity.ok(posts);
     }
@@ -45,13 +48,14 @@ public class BoardController {
     @Operation(summary = "사용자가 특정 게시판에 작성한 모든 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/user/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> getPostsByUserIdAndBoardType(
+    public ResponseEntity<Page<PostResponseDTO>> getPostsByUserIdAndBoardType(
             @PathVariable("boardType") BoardType boardType,
+            Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         User user = securityService.getUserByUserDetails(userDetails);
-        List<PostResponseDTO> posts = boardService.getPostsByUserIdAndBoardType(user, boardType);
 
+        Page<PostResponseDTO> posts = boardService.getPostsByUserIdAndBoardType(user, boardType, pageable);
         return ResponseEntity.ok(posts);
     }
 
