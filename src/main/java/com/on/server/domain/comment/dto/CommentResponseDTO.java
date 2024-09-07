@@ -1,10 +1,13 @@
 package com.on.server.domain.comment.dto;
 
 import com.on.server.domain.comment.domain.Comment;
+import com.on.server.domain.comment.domain.repository.CommentRepository;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -36,14 +39,15 @@ public class CommentResponseDTO {
     private Integer replyCount;
 
 
-    public static CommentResponseDTO from(Comment comment) {
+    public static CommentResponseDTO from(Comment comment, CommentRepository commentRepository) {
         boolean isReply = comment.getParentComment() != null;
 
         Long replyId = null;
 
         if (isReply) {
-            List<Comment> siblings = comment.getParentComment().getChildrenComment();
-            replyId = (long) (siblings.indexOf(comment) + 1);
+            Page<Comment> repliesPage = commentRepository.findByParentComment(comment.getParentComment(), Pageable.unpaged());
+            List<Comment> replies = repliesPage.getContent();
+            replyId = (long) (replies.indexOf(comment) + 1);
         }
 
         String nickname = comment.getIsAnonymous() ? "익명" + comment.getAnonymousIndex() : comment.getUser().getNickname();
@@ -60,7 +64,8 @@ public class CommentResponseDTO {
                 .writerInfo(writerInfo)
                 .isAnonymous(comment.getIsAnonymous())
                 .contents(comment.getContents())
-                .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0)
+                .replyCount(isReply ? 0 : commentRepository.countByParentComment(comment))
+             //   .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0)
                 .build();
     }
 

@@ -35,7 +35,7 @@ public class CommentService {
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
 
         Page<Comment> comments = commentRepository.findByPost(post, pageable);
-        return comments.map(CommentResponseDTO::from);
+        return comments.map(comment -> CommentResponseDTO.from(comment, commentRepository));
     }
 
     // 특정 댓글의 모든 답글 조회
@@ -45,7 +45,7 @@ public class CommentService {
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "댓글을 찾을 수 없습니다. ID: " + commentId));
 
         Page<Comment> replies = commentRepository.findByParentComment(parentComment, pageable);
-        return replies.map(CommentResponseDTO::from);
+        return replies.map(reply -> CommentResponseDTO.from(reply, commentRepository));
     }
 
 
@@ -68,7 +68,7 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
-        return CommentResponseDTO.from(comment);
+        return CommentResponseDTO.from(comment, commentRepository);
     }
 
     // 답글 작성
@@ -91,7 +91,7 @@ public class CommentService {
                 .build();
 
         commentRepository.save(reply);
-        return CommentResponseDTO.from(reply);
+        return CommentResponseDTO.from(reply, commentRepository);
     }
 
     // 익명 인덱스 생성

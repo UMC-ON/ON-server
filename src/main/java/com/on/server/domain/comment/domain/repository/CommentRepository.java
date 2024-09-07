@@ -25,4 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 해당 게시글에 작성된 모든 익명 댓글의 익명 인덱스를 조회
     @Query("SELECT c.anonymousIndex FROM Comment c WHERE c.post = :post AND c.anonymousIndex IS NOT NULL")
     List<Integer> findAnonymousIndicesByPost(@Param("post") Post post);
+
+    // 특정 댓글에 답글이 몇 개인지 카운트
+    int countByParentComment(Comment parentComment);
 }
