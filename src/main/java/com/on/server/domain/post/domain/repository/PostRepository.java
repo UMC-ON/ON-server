@@ -28,4 +28,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findTop4ByBoardOrderByCreatedAtDesc(Board board);
 
     List<Post> findTop2ByBoardOrderByCreatedAtDesc(Optional<Board> byType);
+
+    Optional<Post> findById(Long id);
 }

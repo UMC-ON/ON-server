@@ -1,6 +1,8 @@
 package com.on.server.domain.alarm.domain;
 
 import com.on.server.domain.user.domain.User;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -32,13 +34,25 @@ public class Alert extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // 알림 읽음 여부
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false; // 기본값은 읽지 않음(false)
+
+    public void updateIsRead(boolean isRead) {
+        if (isRead == false) {
+            isRead = true;
+        }
+        this.isRead = isRead;
+    }
+
     @Builder
-    private Alert(String title, String contents, Long alertConnectId, AlertType alertType, User user) {
+    private Alert(String title, String contents, Long alertConnectId, AlertType alertType, User user, boolean isRead) {
         this.title = title;
         this.contents = contents;
         this.alertConnectId = alertConnectId;
         this.alertType = alertType;
         this.user = user;
+        this.isRead = isRead;
     }
 
 }

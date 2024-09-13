@@ -83,11 +83,11 @@ public class CommentService {
         AlertType alertType;
         if(post.getBoard().getType() == BoardType.INFO) { //정보게시판 댓글
             title = "내 정보글에 새로운 댓글이 달렸어요.";
-            alertType = AlertType.정보;
+            alertType = AlertType.INFORMATION;
         }
         else { //자유게시판 댓글
             title = "내 자유글에 새로운 댓글이 달렸어요.";
-            alertType = AlertType.자유;
+            alertType = AlertType.FREE;
         }
         String body = commentRequestDTO.getContents();
 
@@ -135,11 +135,11 @@ public class CommentService {
         AlertType alertType;
         if(post.getBoard().getType() == BoardType.INFO) { //정보게시판 댓글
             title = "내 정보글에 새로운 대댓글이 달렸어요.";
-            alertType = AlertType.정보;
+            alertType = AlertType.INFORMATION;
         }
         else { //자유게시판 댓글
             title = "내 자유글에 새로운 대댓글이 달렸어요.";
-            alertType = AlertType.자유;
+            alertType = AlertType.FREE;
         }
         String body = commentRequestDTO.getContents();
 

@@ -2,6 +2,7 @@ package com.on.server.domain.alarm.presentation;
 
 import com.on.server.domain.alarm.application.AlertService;
 import com.on.server.domain.alarm.dto.AlertListResponseDto;
+import com.on.server.domain.alarm.dto.AlertUrlDto;
 import com.on.server.domain.alarm.dto.DeviceTokenRequestDto;
 import com.on.server.domain.user.domain.User;
 import com.on.server.global.security.SecurityService;
@@ -58,9 +59,19 @@ public class AlertController {
 
         return ResponseEntity.ok(alertResponseDtoList);
 
-//        Long id = alertResponseDtoList.get(0).getAlertConnectId();
-//        //ResponseEntity.created() 으로 API 만들어서 보내주기
-//        return ResponseEntity.created(URI.create("/users/" + id)).build();
     }
+
+    // 알림 이동 페이지 조회
+    @PostMapping("/{alertId}")
+    @Operation(summary = "사용자 알림 읽음 상태 업데이트 및 URL 반환")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public ResponseEntity<?> getRedirect(@PathVariable Long alertId) {
+
+        // 알림 읽음으로 처리하기
+        AlertUrlDto alertUrlDto = alertService.markAsReadAndRedirect(alertId);
+
+        return ResponseEntity.created(URI.create(alertUrlDto.getApiUrl() + alertUrlDto.getConnectId())).build();
+    }
+
 
 }
