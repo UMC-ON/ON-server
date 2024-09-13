@@ -3,10 +3,7 @@ package com.on.server.domain.alarm.application;
 import com.on.server.domain.alarm.domain.Alert;
 import com.on.server.domain.alarm.domain.AlertType;
 import com.on.server.domain.alarm.domain.repository.AlertRepository;
-import com.on.server.domain.alarm.dto.AlertListResponseDto;
-import com.on.server.domain.alarm.dto.AlertUrlDto;
-import com.on.server.domain.alarm.dto.DeviceTokenRequestDto;
-import com.on.server.domain.alarm.dto.FcmRequestDto;
+import com.on.server.domain.alarm.dto.*;
 import com.on.server.domain.board.domain.BoardType;
 import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.domain.repository.PostRepository;
@@ -118,5 +115,10 @@ public class AlertService {
         }
     }
 
+    // 4. 안 읽은 알림 개수
+    public AlertCountDto getIsNotReadAlert(User user) {
+
+        return new AlertCountDto(alertRepository.countByUserAndIsReadFalse(user));
+    }
 
 }

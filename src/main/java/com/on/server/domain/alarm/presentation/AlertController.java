@@ -9,6 +9,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import okhttp3.Response;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -65,7 +66,9 @@ public class AlertController {
     @PostMapping("/{alertId}")
     @Operation(summary = "사용자 알림 읽음 상태 업데이트 및 URL 반환")
     @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    public ResponseEntity<?> getRedirect(@PathVariable Long alertId) {
+    public ResponseEntity<?> getRedirect(
+            @PathVariable Long alertId
+    ) {
 
         // 알림 읽음으로 처리하기
         AlertUrlDto alertUrlDto = alertService.markAsReadAndRedirect(alertId);
@@ -73,5 +76,15 @@ public class AlertController {
         return ResponseEntity.created(URI.create(alertUrlDto.getApiUrl() + alertUrlDto.getConnectId())).build();
     }
 
+    // 안 읽은 알림 개수
+    @GetMapping("/isNotRead")
+    @Operation(summary = "읽지 않은 알림 개수")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public ResponseEntity<?> isNotRead(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User user = securityService.getUserByUserDetails(userDetails);
 
+        return ResponseEntity.ok(alertService.getIsNotReadAlert(user));
+    }
 }

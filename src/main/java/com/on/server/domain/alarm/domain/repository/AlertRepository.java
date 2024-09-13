@@ -10,4 +10,6 @@ import java.util.List;
 
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     Page<Alert> findByUser(User user, Pageable pageable);
+
+    long countByUserAndIsReadFalse(User user);
 }
