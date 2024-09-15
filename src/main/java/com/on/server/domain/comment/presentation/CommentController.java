@@ -30,7 +30,7 @@ public class CommentController {
 
     // 1. 특정 게시글(postId)의 모든 댓글 및 답글 조회
     @Operation(summary = "특정 게시글의 모든 댓글 및 답글 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{postId}")
     public ResponseEntity<Page<CommentResponseDTO>> getAllCommentsAndRepliesByPostId(
             @PathVariable("postId") Long postId,
@@ -42,7 +42,7 @@ public class CommentController {
 
     // 2. 특정 댓글(commentId)의 모든 답글 조회
     @Operation(summary = "특정 댓글의 모든 답글 조회")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{commentId}/reply")
     public ResponseEntity<Page<CommentResponseDTO>> getAllRepliesByCommentId(
             @PathVariable("commentId") Long commentId,
@@ -55,7 +55,7 @@ public class CommentController {
     // 3. 특정 게시글(postId)에 새로운 댓글을 작성
     @Operation(summary = "특정 게시글에 댓글 작성")
     @PostMapping("/{postId}")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<CommentResponseDTO> createComment(
             @PathVariable("postId") Long postId,
             @RequestBody CommentRequestDTO commentRequestDTO,
@@ -70,7 +70,7 @@ public class CommentController {
     // 4. 특정 댓글(CommentId)에 답글 작성
     @Operation(summary = "특정 댓글에 답글 작성")
     @PostMapping("/{commentId}/reply")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE')")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<CommentResponseDTO> createReply(
             @PathVariable("commentId") Long commentId,
             @RequestBody CommentRequestDTO commentRequestDTO,
