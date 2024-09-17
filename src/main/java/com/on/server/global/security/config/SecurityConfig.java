@@ -35,6 +35,7 @@ public class SecurityConfig {
         corsConfig.addAllowedOrigin("http://localhost:3000");
         corsConfig.addAllowedOrigin("http://localhost:8080");
         corsConfig.addAllowedOrigin("https://on-boarding-abroad.vercel.app/");
+        corsConfig.addAllowedOrigin("https://on-refactoring-git-vercel-1425s-projects.vercel.app/");
         corsConfig.addAllowedMethod("*");
         corsConfig.addAllowedHeader("*");
         corsConfig.setAllowCredentials(true);
