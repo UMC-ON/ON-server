@@ -11,6 +11,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -100,7 +101,7 @@ public class PostController {
     @GetMapping("/search")
     public ResponseEntity<Page<PostResponseDTO>>searchPosts(
             @RequestParam("keyword") String keyword,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         Page<PostResponseDTO> posts = postService.searchPosts(keyword, pageable);
         return ResponseEntity.ok(posts);

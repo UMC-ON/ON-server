@@ -9,6 +9,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class BoardController {
     @GetMapping("/{boardType}")
     public ResponseEntity<Page<PostResponseDTO>> getAllPostsByBoardType(
             @PathVariable("boardType") BoardType boardType,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         Page<PostResponseDTO> posts = boardService.getAllPostsByBoardType(boardType, pageable);
 
@@ -50,7 +51,7 @@ public class BoardController {
     @GetMapping("/user/{boardType}")
     public ResponseEntity<Page<PostResponseDTO>> getPostsByUserIdAndBoardType(
             @PathVariable("boardType") BoardType boardType,
-            Pageable pageable,
+            @ParameterObject Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         User user = securityService.getUserByUserDetails(userDetails);
