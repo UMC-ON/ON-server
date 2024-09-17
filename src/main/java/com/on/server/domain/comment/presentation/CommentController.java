@@ -8,6 +8,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class CommentController {
     @GetMapping("/{postId}")
     public ResponseEntity<Page<CommentResponseDTO>> getAllCommentsAndRepliesByPostId(
             @PathVariable("postId") Long postId,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         Page<CommentResponseDTO> comments = commentService.getAllCommentsAndRepliesByPostId(postId, pageable);
         return ResponseEntity.ok(comments);
@@ -46,7 +47,7 @@ public class CommentController {
     @GetMapping("/{commentId}/reply")
     public ResponseEntity<Page<CommentResponseDTO>> getAllRepliesByCommentId(
             @PathVariable("commentId") Long commentId,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         Page<CommentResponseDTO> replies = commentService.getAllRepliesByCommentId(commentId, pageable);
         return ResponseEntity.ok(replies);
