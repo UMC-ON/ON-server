@@ -23,7 +23,7 @@ public class Post extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content")
+    @Column(name = "content", length = 2000)
     private String content;
 
     @Column(name = "is_anonymous", nullable = false)
@@ -31,9 +31,6 @@ public class Post extends BaseEntity {
 
     @Column(name = "is_anonymous_univ", nullable = false)
     private Boolean isAnonymousUniv;
-
-    @Column(name = "comment_count")
-    private Integer commentCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
@@ -49,4 +46,5 @@ public class Post extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "post_id")
     private List<UuidFile> images = new ArrayList<>();
+
 }
