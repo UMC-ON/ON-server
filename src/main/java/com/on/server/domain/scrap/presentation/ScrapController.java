@@ -8,6 +8,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class ScrapController {
     @GetMapping
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<Page<ScrapResponseDTO>> getScrappedMarketPosts(@AuthenticationPrincipal UserDetails userDetails,
-                                                                         Pageable pageable) {
+                                                                         @ParameterObject Pageable pageable) {
 
         User user = securityService.getUserByUserDetails(userDetails);
 

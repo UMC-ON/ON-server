@@ -10,6 +10,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -35,7 +36,7 @@ public class MarketPostController {
     @Operation(summary = "모든 물품거래글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping
-    public ResponseEntity<Page<MarketPostResponseDTO>> getAllMarketPosts(Pageable pageable) {
+    public ResponseEntity<Page<MarketPostResponseDTO>> getAllMarketPosts(@ParameterObject Pageable pageable) {
         Page<MarketPostResponseDTO> posts = marketPostService.getAllMarketPosts(pageable);
         return ResponseEntity.ok(posts);
     }
@@ -68,7 +69,7 @@ public class MarketPostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/user")
     public ResponseEntity<Page<MarketPostResponseDTO>> getMarketPostsByUser(@AuthenticationPrincipal UserDetails userDetails,
-                                                                            Pageable pageable) {
+                                                                            @ParameterObject Pageable pageable) {
         User user = securityService.getUserByUserDetails(userDetails);
 
         Page<MarketPostResponseDTO> posts = marketPostService.getMarketPostsByUser(user, pageable);
@@ -95,7 +96,7 @@ public class MarketPostController {
             @RequestParam(required = false) DealType dealType,
             @RequestParam(required = false) String currentCountry,
             @RequestParam(required = false) DealStatus dealStatus,
-            Pageable pageable) {
+            @ParameterObject Pageable pageable) {
 
         Page<MarketPostResponseDTO> filteredPosts = marketPostService.getFilteredMarketPosts(dealType, currentCountry, dealStatus, pageable);
         return ResponseEntity.ok(filteredPosts);
@@ -105,7 +106,7 @@ public class MarketPostController {
     @Operation(summary = "거래 가능 물품만 보기")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/available")
-    public ResponseEntity<Page<MarketPostResponseDTO>> getAvailableMarketPosts(Pageable pageable) {
+    public ResponseEntity<Page<MarketPostResponseDTO>> getAvailableMarketPosts(@ParameterObject Pageable pageable) {
 
         // DealStatus를 AWAIT으로 고정하여 필터링
         Page<MarketPostResponseDTO> availablePosts = marketPostService.getAvailableMarketPosts(pageable);
@@ -127,7 +128,7 @@ public class MarketPostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/search")
     public ResponseEntity<Page<MarketPostResponseDTO>> searchMarketPosts(@RequestParam String keyword,
-                                                                         Pageable pageable) {
+                                                                         @ParameterObject Pageable pageable) {
         Page<MarketPostResponseDTO> searchResults = marketPostService.searchMarketPosts(keyword, pageable);
         return ResponseEntity.ok(searchResults);
     }
