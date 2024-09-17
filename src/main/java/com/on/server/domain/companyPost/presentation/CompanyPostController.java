@@ -9,6 +9,7 @@ import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,7 @@ public class CompanyPostController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Gender gender,
             @RequestParam(required = false) String country,
-            Pageable pageable) {
+            @ParameterObject Pageable pageable) {
 
         Page<CompanyPostResponseDTO> filteredPosts = companyPostService.getFilteredCompanyPosts(startDate, endDate, gender, country, pageable);
         return ResponseEntity.ok(filteredPosts);
@@ -51,7 +52,7 @@ public class CompanyPostController {
     @Operation(summary = "모든 동행구하기 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping
-    public ResponseEntity<Page<CompanyPostResponseDTO>> getAllCompanyPosts(Pageable pageable) {
+    public ResponseEntity<Page<CompanyPostResponseDTO>> getAllCompanyPosts(@ParameterObject Pageable pageable) {
         Page<CompanyPostResponseDTO> posts = companyPostService.getAllCompanyPosts(pageable);
         return ResponseEntity.ok(posts);
     }
@@ -85,7 +86,7 @@ public class CompanyPostController {
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/user")
     public ResponseEntity<Page<CompanyPostResponseDTO>> getCompanyPostsByUser(@AuthenticationPrincipal UserDetails userDetails,
-                                                                              Pageable pageable) {
+                                                                              @ParameterObject Pageable pageable) {
         User user = securityService.getUserByUserDetails(userDetails);
 
         Page<CompanyPostResponseDTO> posts = companyPostService.getCompanyPostsByUser(user, pageable);
