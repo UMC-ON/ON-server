@@ -1,9 +1,13 @@
 package com.on.server.domain.comment.dto;
 
+import com.on.server.domain.comment.domain.Comment;
+import com.on.server.domain.comment.domain.repository.CommentRepository;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -35,15 +39,34 @@ public class CommentResponseDTO {
     private Integer replyCount;
 
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class WriterInfo {
-        // 작성자 ID
-        private Long id;
+    public static CommentResponseDTO from(Comment comment, CommentRepository commentRepository) {
+        boolean isReply = comment.getParentComment() != null;
 
-        // 작성자 닉네임
-        private String nickname;
+        Long replyId = null;
+
+        if (isReply) {
+            Page<Comment> repliesPage = commentRepository.findByParentComment(comment.getParentComment(), Pageable.unpaged());
+            List<Comment> replies = repliesPage.getContent();
+            replyId = (long) (replies.indexOf(comment) + 1);
+        }
+
+        String nickname = comment.getIsAnonymous() ? "익명" + comment.getAnonymousIndex() : comment.getUser().getNickname();
+
+        WriterInfo writerInfo = WriterInfo.builder()
+                .id(comment.getUser().getId())
+                .nickname(nickname)
+                .build();
+
+        return CommentResponseDTO.builder()
+                .commentId(isReply ? comment.getParentComment().getId() : comment.getId())
+                .replyId(replyId)
+                .postId(comment.getPost().getId())
+                .writerInfo(writerInfo)
+                .isAnonymous(comment.getIsAnonymous())
+                .contents(comment.getContents())
+                .replyCount(isReply ? 0 : commentRepository.countByParentComment(comment))
+             //   .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0)
+                .build();
     }
+
 }

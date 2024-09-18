@@ -9,9 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CommentRequestDTO {
 
-    // 작성자 ID
-    private Long id;
-
     // 익명 여부
     @JsonProperty("anonymous")
     private boolean isAnonymous;
