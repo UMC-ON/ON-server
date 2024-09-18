@@ -1,6 +1,8 @@
 package com.on.server.domain.companyPost.dto;
 
+import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.user.domain.Gender;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -75,4 +78,31 @@ public class CompanyPostResponseDTO {
 
     // 작성 시간
     private LocalDateTime createdAt;
+
+    public static CompanyPostResponseDTO from(CompanyPost companyPost) {
+        return CompanyPostResponseDTO.builder()
+                .companyPostId(companyPost.getId())
+                .userId(companyPost.getUser().getId())
+                .age(companyPost.getUser().getAge())
+                .ageAnonymous(companyPost.isAgeAnonymous())
+                .dispatchedUniversity(companyPost.getUser().getDispatchedUniversity())
+                .nickname(companyPost.getUser().getNickname())
+                .gender(companyPost.getUser().getGender())
+                .universityAnonymous(companyPost.isUniversityAnonymous())
+                .title(companyPost.getTitle())
+                .content(companyPost.getContent())
+                .travelArea(companyPost.getTravelArea())
+                .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
+                .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
+                .isRecruitCompleted(companyPost.isRecruitCompleted())
+                .schedulePeriodDay(companyPost.getSchedulePeriodDay())
+                .startDate(companyPost.getStartDate())
+                .endDate(companyPost.getEndDate())
+                .currentCountry(companyPost.getCurrentCountry())
+                .createdAt(companyPost.getCreatedAt())
+                .imageUrls(companyPost.getImages().stream()
+                        .map(UuidFile::getFileUrl)
+                        .collect(Collectors.toList()))  // 이미지 URL 리스트
+                .build();
+    }
 }

@@ -6,12 +6,16 @@ import com.on.server.domain.companyPost.dto.CompanyPostRequestDTO;
 import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
-import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
+import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,13 +31,11 @@ import java.util.stream.Collectors;
 public class CompanyPostService {
 
     private final CompanyPostRepository companyPostRepository;
-    private final UserRepository userRepository;
     private final UuidFileService uuidFileService;
-    private final UuidFileRepository uuidFileRepository;
 
     // 필터링 기능 추가
-    public List<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country) {
-        List<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender);
+    public Page<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country, Pageable pageable) {
+        Page<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender, pageable);
 
         if (country != null && !country.isEmpty()) {
             posts = posts.stream()
@@ -42,35 +44,29 @@ public class CompanyPostService {
                                 String firstWord = area.split(" ")[0];  // travelArea의 첫 번째 단어 추출
                                 return firstWord.equalsIgnoreCase(country);
                             }))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> new PageImpl<>(list, pageable, list.size())));
         }
 
-        // DTO 변환
-        return posts.stream()
-                .map(this::mapToCompanyPostResponseDTO)
-                .collect(Collectors.toList());
+        return posts.map(CompanyPostResponseDTO::from);
     }
 
     // 1. 모든 게시글 조회
-    public List<CompanyPostResponseDTO> getAllCompanyPosts() {
-        return companyPostRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(this::mapToCompanyPostResponseDTO)
-                .collect(Collectors.toList());
+    public Page<CompanyPostResponseDTO> getAllCompanyPosts(Pageable pageable) {
+        return companyPostRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(CompanyPostResponseDTO::from);
     }
 
     // 2. 특정 게시글 조회
     public List<CompanyPostResponseDTO> getCompanyPostById(Long companyPostId) {
         return companyPostRepository.findById(companyPostId)
                 .stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
     // 3. 새로운 게시글 작성
     @Transactional
-    public CompanyPostResponseDTO createCompanyPost(CompanyPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
-        User user = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + requestDTO.getUserId()));
+    public CompanyPostResponseDTO createCompanyPost(User user, CompanyPostRequestDTO requestDTO, List<MultipartFile> imageFiles) {
 
         List<UuidFile> uploadedImages = new ArrayList<>();
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -98,29 +94,23 @@ public class CompanyPostService {
 
         companyPost = companyPostRepository.save(companyPost);
 
-        return mapToCompanyPostResponseDTO(companyPost);
+        return CompanyPostResponseDTO.from(companyPost);
     }
 
     // 4. 특정 사용자가 작성한 모든 게시글 조회
-    public List<CompanyPostResponseDTO> getCompanyPostsByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
-
-        return companyPostRepository.findByUserOrderByCreatedAtDesc(user).stream()
-                .map(this::mapToCompanyPostResponseDTO)
-                .collect(Collectors.toList());
+    public Page<CompanyPostResponseDTO> getCompanyPostsByUser(User user, Pageable pageable) {
+        return companyPostRepository.findByUserOrderByCreatedAtDesc(user, pageable)
+                .map(CompanyPostResponseDTO::from);
     }
 
     // 5. 특정 게시글 삭제
     @Transactional
-    public void deleteCompanyPost(Long userId, Long companyPostId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. ID: " + userId));
+    public void deleteCompanyPost(User user, Long companyPostId) {
         CompanyPost companyPost = companyPostRepository.findById(companyPostId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. ID: " + companyPostId));
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + companyPostId));
 
-        if (!companyPost.getUser().getId().equals(userId)) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+        if (!companyPost.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException(ResponseCode.GRANT_ROLE_NOT_ALLOWED, "삭제 권한이 없습니다.");
         }
 
         // 연관된 이미지 삭제
@@ -132,7 +122,7 @@ public class CompanyPostService {
     // 6. 최신 4개의 동행 구하기 게시글 조회
     public List<CompanyPostResponseDTO> getRecentCompanyPosts() {
         return companyPostRepository.findTop4ByOrderByCreatedAtDesc().stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
@@ -149,35 +139,7 @@ public class CompanyPostService {
         List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId);
 
         return nearbyPosts.stream()
-                .map(this::mapToCompanyPostResponseDTO)
+                .map(CompanyPostResponseDTO::from)
                 .collect(Collectors.toList());
-    }
-
-    // CompanyPost 엔티티를 CompanyPostResponseDto로 매핑하는 메서드
-    private CompanyPostResponseDTO mapToCompanyPostResponseDTO(CompanyPost companyPost) {
-        return CompanyPostResponseDTO.builder()
-                .companyPostId(companyPost.getId())
-                .userId(companyPost.getUser().getId())
-                .age(companyPost.getUser().getAge())
-                .ageAnonymous(companyPost.isAgeAnonymous())
-                .dispatchedUniversity(companyPost.getUser().getDispatchedUniversity())
-                .nickname(companyPost.getUser().getNickname())
-                .gender(companyPost.getUser().getGender())
-                .universityAnonymous(companyPost.isUniversityAnonymous())
-                .title(companyPost.getTitle())
-                .content(companyPost.getContent())
-                .travelArea(companyPost.getTravelArea())
-                .currentRecruitNumber(companyPost.getCurrentRecruitNumber())  // 현재 모집 인원 수
-                .totalRecruitNumber(companyPost.getTotalRecruitNumber())  // 전체 모집 인원 수
-                .isRecruitCompleted(companyPost.isRecruitCompleted())
-                .schedulePeriodDay(companyPost.getSchedulePeriodDay())
-                .startDate(companyPost.getStartDate())
-                .endDate(companyPost.getEndDate())
-                .currentCountry(companyPost.getCurrentCountry())
-                .createdAt(companyPost.getCreatedAt())
-                .imageUrls(companyPost.getImages().stream()
-                        .map(UuidFile::getFileUrl)
-                        .collect(Collectors.toList()))  // 이미지 URL 리스트
-                .build();
     }
 }
