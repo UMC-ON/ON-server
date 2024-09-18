@@ -1,4 +1,4 @@
-package com.on.server.domain.chat.dto;
+package com.on.server.domain.chat.dto.request;
 
 import com.on.server.domain.chat.domain.ChatType;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Getter
-public class ChatRequestDto {
+public class ChatDto {
     private ChatType chatType;
     private Long receiverId;
     private Long postId;
