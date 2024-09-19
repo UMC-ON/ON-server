@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+import static com.on.server.domain.alarm.domain.AlertType.*;
+
 @Tag(name = "FCM 알림 테스트")
 @RestController
 @RequiredArgsConstructor
@@ -30,11 +32,13 @@ public class FcmTestController {
 
     @PostMapping("/alert")
     @Operation(summary = "알림 생성 테스트")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    public ResponseEntity pushMessage(@AuthenticationPrincipal UserDetails userDetails) throws IOException {
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public ResponseEntity<?> pushMessage(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) throws IOException {
         User user = securityService.getUserByUserDetails(userDetails);
 
-        fcmService.sendMessage(user.getDeviceToken(), "test title", "test body");
+        fcmService.sendMessage(user.getDeviceToken(), COMPANY,"test title", "test body");
 
         return ResponseEntity.ok().build();
     }
@@ -42,12 +46,13 @@ public class FcmTestController {
 
     @PostMapping("/save")
     @Operation(summary = "알림 저장 테스트")
-    @PreAuthorize("@securityService.isActiveAndNotNoneUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
-    public ResponseEntity makeAlert(@AuthenticationPrincipal UserDetails userDetails) {
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    public ResponseEntity<?> makeAlert(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody FcmRequestDto fcmRequestDto
+    ) {
+
         User user = securityService.getUserByUserDetails(userDetails);
-
-        FcmRequestDto fcmRequestDto = new FcmRequestDto();
-
         alertService.saveAlert(user, fcmRequestDto);
 
         return ResponseEntity.ok().build();
