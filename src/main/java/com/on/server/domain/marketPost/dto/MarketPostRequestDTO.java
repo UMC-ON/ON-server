@@ -1,14 +1,9 @@
 package com.on.server.domain.marketPost.dto;
 
-import com.on.server.domain.marketPost.domain.DealStatus;
 import com.on.server.domain.marketPost.domain.DealType;
-import com.on.server.domain.marketPost.domain.MarketPost;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Getter
 @Setter

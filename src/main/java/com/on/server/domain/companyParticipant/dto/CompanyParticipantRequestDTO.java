@@ -1,6 +1,5 @@
 package com.on.server.domain.companyParticipant.dto;
 
-import com.on.server.domain.companyParticipant.domain.CompanyParticipantStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

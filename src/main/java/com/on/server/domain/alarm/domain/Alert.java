@@ -1,15 +1,11 @@
 package com.on.server.domain.alarm.domain;
 
 import com.on.server.domain.user.domain.User;
-import com.on.server.global.common.ResponseCode;
-import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter

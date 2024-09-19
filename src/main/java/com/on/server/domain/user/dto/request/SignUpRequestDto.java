@@ -3,7 +3,6 @@ package com.on.server.domain.user.dto.request;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;

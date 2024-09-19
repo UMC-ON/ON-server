@@ -1,8 +1,6 @@
 package com.on.server.global.common;
 
-import com.google.api.Http;
 import com.on.server.global.common.exceptions.BadRequestException;
-import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.common.exceptions.ServiceUnavailableException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
