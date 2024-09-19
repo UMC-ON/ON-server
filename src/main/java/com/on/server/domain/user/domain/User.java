@@ -202,6 +202,10 @@ public class User extends BaseEntity implements UserDetails {
         this.deviceToken = deviceToken;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public User deleteUser() {
         this.loginId = "deleted_" + this.getId();
         this.password = "deleted" + this.getId();

@@ -4,7 +4,6 @@ import com.on.server.domain.dispatchCertify.application.DispatchCertifyService;
 import com.on.server.domain.dispatchCertify.domain.PermitStatus;
 import com.on.server.domain.dispatchCertify.dto.request.DispatchCertifyApplyRequestDto;
 import com.on.server.domain.dispatchCertify.dto.response.DispatchCertifyInfoResponseDto;
-import com.on.server.global.common.CommonResponse;
 import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

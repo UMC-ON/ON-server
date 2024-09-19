@@ -3,10 +3,7 @@ package com.on.server.domain.user.presentation;
 import com.on.server.domain.user.application.UserService;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
-import com.on.server.domain.user.dto.request.SignInRequestDto;
-import com.on.server.domain.user.dto.request.SignUpRequestDto;
-import com.on.server.domain.user.dto.request.JwtToken;
-import com.on.server.domain.user.dto.request.SignOutRequestDto;
+import com.on.server.domain.user.dto.request.*;
 import com.on.server.domain.user.dto.response.UserInfoResponseDto;
 import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -149,6 +146,22 @@ public class UserController {
     ) {
         userService.deleteUser(securityService.getUserByUserDetails(userDetails));
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @Operation(summary = "ID 찾기")
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findId(
+            @RequestBody FindIDRequestDto findIDRequestDto
+    ) {
+        return ResponseEntity.ok(userService.findId(findIDRequestDto));
+    }
+
+    @Operation(summary = "비밀번호 찾기")
+    @PostMapping("/find-password")
+    public ResponseEntity<String> findPassword(
+            @RequestBody FindPWRequestDto findPWRequestDto
+    ) {
+        return ResponseEntity.ok(userService.findPassword(findPWRequestDto));
     }
 
 

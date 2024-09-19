@@ -3,14 +3,12 @@ package com.on.server.domain.user.application;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
 import com.on.server.domain.user.domain.repository.UserRepository;
-import com.on.server.domain.user.dto.request.SignUpRequestDto;
-import com.on.server.domain.user.dto.request.SignOutRequestDto;
+import com.on.server.domain.user.dto.request.*;
 import com.on.server.domain.user.dto.response.UserInfoResponseDto;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.jwt.JwtTokenProvider;
-import com.on.server.domain.user.dto.request.JwtToken;
 import com.on.server.global.redis.RedisUtils;
 import com.on.server.global.util.StaticValue;
 import lombok.RequiredArgsConstructor;
@@ -159,4 +157,41 @@ public class UserService {
                 ));
     }
 
+    public String findId(FindIDRequestDto findIDRequestDto) {
+        User user = userRepository.findByName(findIDRequestDto.getName())
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
+
+        if (
+                !user.getPhone().equals(findIDRequestDto.getPhone())
+                || !user.getGender().equals(findIDRequestDto.getGender())
+                || !user.getAge().equals(findIDRequestDto.getAge())
+                || !user.getCountry().equals(findIDRequestDto.getNickname())
+        ) {
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "입력하신 정보와 일치하는 회원을 찾을 수 없습니다.");
+        }
+
+        return user.getLoginId();
+    }
+
+    @Transactional
+    public String findPassword(FindPWRequestDto findPWRequestDto) {
+        User user = userRepository.findByName(findPWRequestDto.getName())
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니��."));
+
+        if (
+                !user.getLoginId().equals(findPWRequestDto.getLoginId())
+                || !user.getPhone().equals(findPWRequestDto.getPhone())
+                || !user.getGender().equals(findPWRequestDto.getGender())
+                || !user.getAge().equals(findPWRequestDto.getAge())
+                || !user.getCountry().equals(findPWRequestDto.getNickname())
+        ) {
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "입력하신 정보와 일치하는 회원을 찾을 수 없습니다.");
+        }
+
+        String tempPassword = TempPasswordGenerator.generateTempPassword(8, 20);
+
+        user.setPassword(passwordEncoder.encode(tempPassword));
+
+        return userRepository.save(user).getPassword();
+    }
 }
