@@ -1,11 +1,9 @@
 package com.on.server.domain.alarm.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
-@AllArgsConstructor
 @Getter
 public class Notification {
     private String title;

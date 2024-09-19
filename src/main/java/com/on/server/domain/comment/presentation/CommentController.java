@@ -18,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "댓글 작성")
@@ -56,12 +57,12 @@ public class CommentController {
     // 3. 특정 게시글(postId)에 새로운 댓글을 작성
     @Operation(summary = "특정 게시글에 댓글 작성")
     @PostMapping("/{postId}")
+
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     public ResponseEntity<CommentResponseDTO> createComment(
             @PathVariable("postId") Long postId,
             @RequestBody CommentRequestDTO commentRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails)
-    {
+            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         User user = securityService.getUserByUserDetails(userDetails);
 
         CommentResponseDTO createdComment = commentService.createComment(postId, commentRequestDTO, user);
@@ -75,7 +76,7 @@ public class CommentController {
     public ResponseEntity<CommentResponseDTO> createReply(
             @PathVariable("commentId") Long commentId,
             @RequestBody CommentRequestDTO commentRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
 
         User user = securityService.getUserByUserDetails(userDetails);
 

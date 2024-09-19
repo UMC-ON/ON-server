@@ -34,9 +34,4 @@ public class SpecialChat extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "market_post_id")
     private MarketPost marketPost;
-
-    // *** 엔티티 생성 필요 ***
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "company_participant_id")
-//    private CompanyParticipant companyParticipant;
 }
