@@ -32,7 +32,7 @@ public class FcmTestController {
 
     @PostMapping("/alert")
     @Operation(summary = "알림 생성 테스트")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> pushMessage(
             @AuthenticationPrincipal UserDetails userDetails
     ) throws IOException {
@@ -46,7 +46,7 @@ public class FcmTestController {
 
     @PostMapping("/save")
     @Operation(summary = "알림 저장 테스트")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> makeAlert(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody FcmRequestDto fcmRequestDto

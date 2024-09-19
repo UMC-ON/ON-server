@@ -34,7 +34,7 @@ public class AlertController {
     // 사용자 디바이스 토큰 저장하기
     @PostMapping("/deviceToken")
     @Operation(summary = "사용자 디바이스 토큰 저장하기")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> saveDeviceToken(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody DeviceTokenRequestDto deviceTokenRequestDto
@@ -49,7 +49,7 @@ public class AlertController {
     // 알림 리스트 조회
     @GetMapping("/list")
     @Operation(summary = "사용자 알림 리스트 조회하기")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> getAlertList(
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject Pageable pageable
@@ -65,7 +65,7 @@ public class AlertController {
     // 알림 이동 페이지 조회
     @PostMapping("/{alertId}")
     @Operation(summary = "사용자 알림 읽음 상태 업데이트 및 URL 반환")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> getRedirect(
             @PathVariable Long alertId
     ) {
@@ -79,7 +79,7 @@ public class AlertController {
     // 안 읽은 알림 개수
     @GetMapping("/isNotRead")
     @Operation(summary = "읽지 않은 알림 개수")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> isNotRead(
             @AuthenticationPrincipal UserDetails userDetails
     ) {

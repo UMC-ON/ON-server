@@ -27,7 +27,7 @@ public class DiaryController {
     // 0. 날짜 설정하기
     @PostMapping("/startdate")
     @Operation(summary = "시작 날짜 설정")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> setStartDate(@AuthenticationPrincipal UserDetails userDetails,
                                           @RequestBody StartDateRequestDto startDateRequestDto) {
         User user = securityService.getUserByUserDetails(userDetails);
@@ -39,7 +39,7 @@ public class DiaryController {
     // 1. 일기 리스트 보여주는 일기 홈
     @GetMapping("/list")
     @Operation(summary = "일기 홈 조회", description = "D-Day 계산 : 2일 남은 경우 = 2, 당일인 경우 = 0, 2일 지난 경우 = -2")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> getDiaryHome(@AuthenticationPrincipal UserDetails userDetails) {
 
         User user = securityService.getUserByUserDetails(userDetails);
@@ -49,7 +49,7 @@ public class DiaryController {
     // 2, 일기 작성하기
     @PostMapping()
     @Operation(summary = "일기 작성하기")
-    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyRole('ACTIVE', 'AWAIT', 'TEMPORARY')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() and hasAnyAuthority('ACTIVE', 'AWAIT', 'TEMPORARY')")
     public ResponseEntity<?> createDiary(@AuthenticationPrincipal UserDetails userDetails,
                                          @RequestBody DiaryRequestDto diaryRequestDto) {
 

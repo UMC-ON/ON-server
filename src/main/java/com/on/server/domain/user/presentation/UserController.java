@@ -168,12 +168,12 @@ public class UserController {
     /** 로그인 테스트 API
      * PreAuthorize: 해당 메소드에 대한 접근 권한을 설정
      * @securityService.isNotTemporaryUser(): 임시 사용자가 아닌 경우 필터링
-     * hasAnyRole('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED'): ADMIN, ACTIVE, AWAIT, DENIED, NON_CERTIFIED 권한 중 하나라도 가지고 있는 경우 필터링
+     * hasAnyAuthority('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED'): ADMIN, ACTIVE, AWAIT, DENIED, NON_CERTIFIED 권한 중 하나라도 가지고 있는 경우 필터링
      */
     @Operation(summary = "로그인 테스트 API, test 용도")
     @PostMapping("/test")
     //
-    @PreAuthorize("@securityService.isNotTemporaryUser() or hasAnyRole('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED')")
+    @PreAuthorize("@securityService.isNotTemporaryUser() or hasAnyAuthority('ADMIN', 'ACTIVE', 'AWAIT', 'DENIED', 'NON_CERTIFIED')")
     public ResponseEntity<User> test(
             @AuthenticationPrincipal UserDetails userDetails
             ) {
