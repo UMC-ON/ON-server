@@ -1,11 +1,11 @@
 package com.on.server.domain.diary.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class DiaryDto {
 
