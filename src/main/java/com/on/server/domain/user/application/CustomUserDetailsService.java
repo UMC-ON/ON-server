@@ -4,7 +4,6 @@ package com.on.server.domain.user.application;
 import com.on.server.domain.user.domain.repository.UserRepository;
 
 import com.on.server.global.common.ResponseCode;
-import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -31,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // 해당하는 User 의 데이터가 존재한다면 UserDetails 객체로 만들어서 return
     private UserDetails createUserDetails(com.on.server.domain.user.domain.User user) {
         return User.builder()
-                .username(user.getEmail())
+                .username(user.getLoginId())
                 //.password(passwordEncoder.encode(user.getPassword()))
                 .password(user.getPassword())
                 .authorities(user.getAuthorities())

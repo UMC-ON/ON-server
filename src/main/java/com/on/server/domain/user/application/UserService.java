@@ -102,4 +102,11 @@ public class UserService {
         user.setUniversityUrl(universityUrl);
         userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteUser(User user) {
+        user = user.deleteUser();
+        userRepository.save(user);
+    }
+
 }

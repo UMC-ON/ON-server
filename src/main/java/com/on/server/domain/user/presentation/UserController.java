@@ -41,7 +41,7 @@ public class UserController {
         String email = signInRequestDto.getEmail();
         String password = signInRequestDto.getPassword();
         JwtToken jwtToken = userService.signIn(email, password);
-        log.info("request email = {}, password = {}", email, password);
+        log.info("request loginId = {}, password = {}", email, password);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
         return CommonResponse.ok(jwtToken);
     }
@@ -112,6 +112,17 @@ public class UserController {
             @RequestBody @URL(message = "올바른 URL 형식이 아닙니다.") String universityUrl
     ) {
         userService.updateUserUniversityUrl(securityService.getUserByUserDetails(userDetails), universityUrl);
+        return CommonResponse.success();
+    }
+
+    // 회원 탈퇴
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("/delete")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
+    public CommonResponse<Void> deleteUser(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        userService.deleteUser(securityService.getUserByUserDetails(userDetails));
         return CommonResponse.success();
     }
 

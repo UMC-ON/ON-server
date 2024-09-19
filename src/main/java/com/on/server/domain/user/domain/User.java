@@ -26,8 +26,8 @@ import java.time.LocalDate;
 @Table(name = "user")
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @Column(name = "login_id", nullable = false, unique = true)
+    private String loginId;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -109,7 +109,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.loginId;
     }
 
     @Override
@@ -200,6 +200,15 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
+    }
+
+    public User deleteUser() {
+        this.loginId = "deleted_" + this.getId();
+        this.password = "deleted" + this.getId();
+        this.nickname = "탈퇴사용자" + this.getId();
+        this.name = "탈퇴사용자" + this.getId();
+        this.phone = "탈퇴사용자" + this.getId();
+        return this;
     }
 
 }

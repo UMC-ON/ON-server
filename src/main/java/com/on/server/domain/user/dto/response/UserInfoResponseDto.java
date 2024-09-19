@@ -38,7 +38,7 @@ public class UserInfoResponseDto {
         if (user.getIsDispatchConfirmed()) {
             return UserInfoResponseDto.builder()
                     .id(user.getId())
-                    .email(user.getEmail())
+                    .email(user.getLoginId())
                     .nickname(user.getNickname())
                     .age(user.getAge())
                     .gender(user.getGender())
@@ -53,7 +53,7 @@ public class UserInfoResponseDto {
         }
         return UserInfoResponseDto.builder()
                 .id(user.getId())
-                .email(user.getEmail())
+                .email(user.getLoginId())
                 .nickname(user.getNickname())
                 .age(user.getAge())
                 .gender(user.getGender())

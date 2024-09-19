@@ -6,7 +6,6 @@ import com.on.server.domain.user.domain.DispatchType;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.Builder;
 import lombok.Getter;
-import org.joda.time.DateTime;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +30,7 @@ public class DispatchCertifyInfoResponseDto {
         return DispatchCertifyInfoResponseDto.builder()
                 .id(dispatchCertify.getId())
                 .userId(dispatchCertify.getUser().getId())
-                .userEmail(dispatchCertify.getUser().getEmail())
+                .userEmail(dispatchCertify.getUser().getLoginId())
                 .userName(dispatchCertify.getUser().getName())
                 .dispatchType(dispatchCertify.getDispatchType())
                 .dispatchedUniversity(dispatchCertify.getDispatchedUniversity())

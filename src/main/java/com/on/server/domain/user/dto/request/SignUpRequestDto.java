@@ -35,7 +35,7 @@ public class SignUpRequestDto {
 
     public User toEntity(String encodedPassword, UserStatus role) {
         User user = User.builder()
-                .email(email)
+                .loginId(email)
                 .password(encodedPassword)
                 .nickname(nickname)
                 .age(age)
