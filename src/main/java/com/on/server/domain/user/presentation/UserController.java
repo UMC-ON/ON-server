@@ -114,7 +114,7 @@ public class UserController {
     public ResponseEntity<UserInfoResponseDto> getCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        return ResponseEntity.ok(userService.getUserInfoByEmail(userDetails.getUsername()));
+        return ResponseEntity.ok(userService.getUserInfoByLoginId(userDetails.getUsername()));
     }
 
     // 현재 사용자 닉네임 수정

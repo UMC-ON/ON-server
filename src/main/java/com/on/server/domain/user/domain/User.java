@@ -208,8 +208,7 @@ public class User extends BaseEntity implements UserDetails {
         this.nickname = "탈퇴사용자" + this.getId();
         this.name = "탈퇴사용자" + this.getId();
         this.phone = "탈퇴사용자" + this.getId();
-        this.roles.clear();
-        this.roles.add(UserStatus.TEMPORARY);
+        this.changeRole(UserStatus.TEMPORARY);
         return this;
     }
 

@@ -114,7 +114,7 @@ public class UserService {
         return userStatusSet.stream().findFirst().get();
     }
 
-    public UserInfoResponseDto getUserInfoByEmail(String loginID) {
+    public UserInfoResponseDto getUserInfoByLoginId(String loginID) {
         User user = userRepository.findByLoginId(loginID).orElseThrow(
                 () -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
         return UserInfoResponseDto.from(user);

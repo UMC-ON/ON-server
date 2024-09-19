@@ -17,7 +17,8 @@ import java.util.Set;
 @Builder
 public class UserInfoResponseDto {
     private Long id;
-    private String email;
+    private String loginId;
+    private String name;
     private String nickname;
     private Integer age;
     private Gender gender;
@@ -38,7 +39,8 @@ public class UserInfoResponseDto {
         if (user.getIsDispatchConfirmed()) {
             return UserInfoResponseDto.builder()
                     .id(user.getId())
-                    .email(user.getLoginId())
+                    .loginId(user.getLoginId())
+                    .name(user.getName())
                     .nickname(user.getNickname())
                     .age(user.getAge())
                     .gender(user.getGender())
@@ -53,7 +55,8 @@ public class UserInfoResponseDto {
         }
         return UserInfoResponseDto.builder()
                 .id(user.getId())
-                .email(user.getLoginId())
+                .loginId(user.getLoginId())
+                .name(user.getName())
                 .nickname(user.getNickname())
                 .age(user.getAge())
                 .gender(user.getGender())
