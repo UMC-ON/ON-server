@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+        return userRepository.findByLoginId(email)
                 .map(this::createUserDetails)
                 .orElseThrow(() -> new UnauthorizedException(ResponseCode.INVALID_SIGNIN));
     }

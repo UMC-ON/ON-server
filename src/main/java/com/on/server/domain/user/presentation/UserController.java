@@ -6,12 +6,13 @@ import com.on.server.domain.user.domain.UserStatus;
 import com.on.server.domain.user.dto.request.SignInRequestDto;
 import com.on.server.domain.user.dto.request.SignUpRequestDto;
 import com.on.server.domain.user.dto.request.JwtToken;
+import com.on.server.domain.user.dto.request.SignOutRequestDto;
 import com.on.server.domain.user.dto.response.UserInfoResponseDto;
-import com.on.server.global.common.CommonResponse;
 import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -40,13 +41,34 @@ public class UserController {
             @RequestBody SignInRequestDto signInRequestDto
     ) {
         log.info("sign-in");
-        String email = signInRequestDto.getEmail();
+
+        String loginId = signInRequestDto.getLoginId();
         String password = signInRequestDto.getPassword();
-        JwtToken jwtToken = userService.signIn(email, password);
-        log.info("request loginId = {}, password = {}", email, password);
+        JwtToken jwtToken = userService.signIn(loginId, password);
+
+        log.info("request loginId = {}, password = {}", loginId, password);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
 
         return ResponseEntity.ok(jwtToken);
+    }
+
+    // 토큰 갱신
+    @Operation(summary = "토큰 갱신")
+    @PostMapping("/update-token")
+    public ResponseEntity<JwtToken> updateToken(
+            @RequestBody @NotBlank String refreshToken
+    ) {
+        return ResponseEntity.ok(userService.updateToken(refreshToken));
+    }
+
+    // 로그아웃
+    @Operation(summary = "로그아웃")
+    @PostMapping("/sign-out")
+    public ResponseEntity<Void> signOut(
+            @RequestBody @Valid SignOutRequestDto signoutRequestDto
+    ) {
+        userService.signOut(signoutRequestDto);
+        return ResponseEntity.ok().build();
     }
 
     // 회원가입
