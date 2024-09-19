@@ -3,6 +3,7 @@ package com.on.server.domain.marketPost.dto;
 import com.on.server.domain.marketPost.domain.DealStatus;
 import com.on.server.domain.marketPost.domain.DealType;
 import com.on.server.domain.marketPost.domain.MarketPost;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -55,5 +57,26 @@ public class MarketPostResponseDTO {
 
     // 작성 시간
     private LocalDateTime createdAt;
+
+    // MarketPost 엔티티를 MarketPostResponseDTO로 매핑하는 메서드
+    public static MarketPostResponseDTO from(MarketPost marketPost) {
+        return MarketPostResponseDTO.builder()
+                .marketPostId(marketPost.getId())
+                .userId(marketPost.getUser().getId())
+                .nickname(marketPost.getUser().getNickname())
+                .currentCountry(marketPost.getCurrentCountry())
+                .currentLocation(marketPost.getCurrentLocation())
+                .title(marketPost.getTitle())
+                .cost(marketPost.getCost())
+                .isShare(marketPost.isShare())
+                .dealType(marketPost.getDealType())
+                .dealStatus(marketPost.getDealStatus())
+                .content(marketPost.getContent())
+                .createdAt(marketPost.getCreatedAt())
+                .imageUrls(marketPost.getImages().stream()
+                        .map(UuidFile::getFileUrl)
+                        .collect(Collectors.toList())) // 이미지 URL 리스트
+                .build();
+    }
 
 }

@@ -38,7 +38,6 @@ jobs:
           touch $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
           
           echo "$OCCUPY_SECRET" > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
-
       # firebase 폴더 내 json 파일 github secret에서 복사해 오기
       - name: Copy firebase
         env:
@@ -49,7 +48,6 @@ jobs:
         run: |
           mkdir -p $OCCUPY_FIREBASE_DIR
           echo "$OCCUPY_FIREBASE" > $OCCUPY_FIREBASE_DIR/$OCCUPY_FIREBASE_DIR_FILE_NAME
-
       # gradlew 실행 권한 부여
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
@@ -66,7 +64,6 @@ jobs:
           name: build-artifacts
           path: |
             build/libs/*.jar
-
       - name: Upload project code
         uses: appleboy/scp-action@master
         with:

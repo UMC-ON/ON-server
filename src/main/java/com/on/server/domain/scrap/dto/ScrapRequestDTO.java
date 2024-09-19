@@ -8,7 +8,4 @@ import lombok.NoArgsConstructor;
 public class ScrapRequestDTO {
     //마켓글 ID
     private Long marketPostId;
-
-    //유저 ID
-    private Long userId;
 }

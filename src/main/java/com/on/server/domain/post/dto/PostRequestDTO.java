@@ -13,9 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class PostRequestDTO {
 
-    // 작성자 ID
-    private Long id;
-
     // 게시글 제목
     private String title;
 
