@@ -2,6 +2,7 @@ package com.on.server.global.common.exceptions;
 
 import com.on.server.global.common.BaseRuntimeException;
 import com.on.server.global.common.ResponseCode;
+import lombok.Getter;
 
 public class BadRequestException extends BaseRuntimeException {
 
