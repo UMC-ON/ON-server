@@ -52,7 +52,7 @@ public class DispatchCertifyController {
 
     @Operation(summary = "교환/파견교 인증 정보 상세 조회(관리자만 사용 가능)")
     @GetMapping("/info/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<DispatchCertifyInfoResponseDto> getDispatchCertifyInfo(
             @PathVariable(value = "id") Long id
     ) {
@@ -70,7 +70,7 @@ public class DispatchCertifyController {
 
     @Operation(summary = "특정 사용자의 교환/파견교 인증 정보 페이지 조회(관리자만 사용 가능)")
     @PostMapping("/info/target-user/{targetUserId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByUser(
             @PathVariable(value = "targetUserId") Long targetUserId,
             @ParameterObject Pageable pageable
@@ -80,7 +80,7 @@ public class DispatchCertifyController {
 
     @Operation(summary = "특정 상태의 교환/파견교 인증 정보 페이지 조회(관리자만 사용 가능)")
     @PostMapping("/info/{permitStatus}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Page<DispatchCertifyInfoResponseDto>> getDispatchCertifyInfoPageByPermitStatus(
             @PathVariable(value = "permitStatus") PermitStatus permitStatus,
             @ParameterObject Pageable pageable
@@ -90,7 +90,7 @@ public class DispatchCertifyController {
 
     @Operation(summary = "교환/파견교 인증 상태 변경(관리자만 사용 가능)")
     @PutMapping("/change-status/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> changePermitStatus(
             @PathVariable(value = "id") Long id,
             @RequestBody PermitStatus permitStatus
@@ -100,7 +100,7 @@ public class DispatchCertifyController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteDispatchCertify(
             @PathVariable(value = "id") Long id
     ) {

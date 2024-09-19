@@ -1,5 +1,6 @@
 package com.on.server.global.jwt;
 
+import com.on.server.domain.user.application.CustomUserDetailsService;
 import com.on.server.domain.user.dto.request.JwtToken;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.UnauthorizedException;
@@ -31,12 +32,14 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final RedisUtils redisUtils;
+    private final CustomUserDetailsService customUserDetailsService;
 
     // application.yml에서 secret 값 가져와서 key에 저장
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, RedisUtils redisUtils) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, RedisUtils redisUtils, CustomUserDetailsService customUserDetailsService) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.redisUtils = redisUtils;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     // User 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
@@ -73,6 +76,7 @@ public class JwtTokenProvider {
 
     // Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken) {
+        /*
         // Jwt 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
@@ -89,6 +93,17 @@ public class JwtTokenProvider {
         // UserDetails: interface, User: UserDetails를 구현한 class
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+
+         */
+        String userPk = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody()
+                .getSubject();
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(userPk);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     // 토큰 정보를 검증하는 메서드, (토큰이 만료되었는지, 블랙리스트에 있는지)

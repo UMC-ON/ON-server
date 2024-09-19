@@ -92,6 +92,7 @@ public class User extends BaseEntity implements UserDetails {
      */
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     @Builder.Default
     private Set<UserStatus> roles = new HashSet<>();
 
