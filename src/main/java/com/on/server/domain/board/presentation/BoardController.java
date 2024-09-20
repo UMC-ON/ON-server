@@ -4,7 +4,6 @@ import com.on.server.domain.board.application.BoardService;
 import com.on.server.domain.board.domain.BoardType;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.user.domain.User;
-import com.on.server.global.common.CommonResponse;
 import com.on.server.global.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

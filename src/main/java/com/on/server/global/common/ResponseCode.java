@@ -1,8 +1,10 @@
 package com.on.server.global.common;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum ResponseCode {
 
     /*
@@ -74,21 +76,8 @@ public enum ResponseCode {
 
 
     // =====================================
-    private int code;
-    private boolean inSuccess;
-    private String message;
+    private final Integer code;
+    private final Boolean  inSuccess;
+    private final String message;
 
-
-    /**
-     * 해당되는 코드 매핑
-     *
-     * @param code
-     * @param inSuccess
-     * @param message
-     **/
-    ResponseCode(int code, boolean inSuccess, String message) {
-        this.inSuccess = inSuccess;
-        this.code = code;
-        this.message = message;
-    }
 }

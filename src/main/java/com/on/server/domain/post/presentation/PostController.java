@@ -1,8 +1,6 @@
 package com.on.server.domain.post.presentation;
 
-import com.on.server.domain.board.domain.Board;
 import com.on.server.domain.post.application.PostService;
-import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.dto.PostRequestDTO;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.board.domain.BoardType;
@@ -14,18 +12,15 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "게시글 작성")
 @RestController

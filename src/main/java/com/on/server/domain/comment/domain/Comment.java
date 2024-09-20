@@ -6,9 +6,6 @@ import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Builder
 @AllArgsConstructor

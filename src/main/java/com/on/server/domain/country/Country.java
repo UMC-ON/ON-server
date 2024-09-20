@@ -3,7 +3,6 @@ package com.on.server.domain.country;
 import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 

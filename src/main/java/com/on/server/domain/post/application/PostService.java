@@ -8,12 +8,9 @@ import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.post.dto.PostRequestDTO;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.UserStatus;
-import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.aws.s3.uuidFile.application.UuidFileService;
 import com.on.server.global.aws.s3.uuidFile.domain.FilePath;
 import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
-import com.on.server.global.aws.s3.uuidFile.domain.repository.UuidFileRepository;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
@@ -25,9 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

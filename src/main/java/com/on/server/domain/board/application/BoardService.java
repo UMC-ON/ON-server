@@ -7,9 +7,6 @@ import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.post.dto.PostResponseDTO;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.UserStatus;
-import com.on.server.domain.user.domain.repository.UserRepository;
-import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 

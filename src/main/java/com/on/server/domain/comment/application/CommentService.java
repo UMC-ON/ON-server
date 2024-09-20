@@ -9,11 +9,9 @@ import com.on.server.domain.comment.domain.Comment;
 import com.on.server.domain.comment.domain.repository.CommentRepository;
 import com.on.server.domain.comment.dto.CommentRequestDTO;
 import com.on.server.domain.comment.dto.CommentResponseDTO;
-import com.on.server.domain.comment.dto.WriterInfo;
 import com.on.server.domain.post.domain.Post;
 import com.on.server.domain.post.domain.repository.PostRepository;
 import com.on.server.domain.user.domain.User;
-import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.ResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
