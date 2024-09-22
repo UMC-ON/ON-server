@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "물품거래글 작성")
@@ -117,7 +118,7 @@ public class MarketPostController {
     @Operation(summary = "거래 상태 업데이트")
     @PutMapping("/{marketPostId}/status")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId) {
+    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId) throws IOException {
 
         MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId);
         return ResponseEntity.ok(updatedPost);

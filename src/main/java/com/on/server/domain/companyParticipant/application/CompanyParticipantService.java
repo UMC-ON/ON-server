@@ -43,19 +43,11 @@ public class CompanyParticipantService {
 
         companyParticipantRepository.save(companyParticipant);
 
-        String title = "내 글에 " + user.getNickname() + "님이 동행 신청했어요.";
+        String title = user.getNickname() + "님이 채팅을 시작했어요.";
         AlertType alertType = AlertType.COMPANY;
-        String body = String.join(", ", companyPost.getTravelArea());
-        fcmService.sendMessage(companyPost.getUser().getDeviceToken(), alertType, title, body);
+        String body = "다음 글에서 시작된 채팅이에요: " + companyPost.getTitle();
 
-        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
-                .title(title)
-                .body(body)
-                .alertType(alertType)
-                .alertConnectId(companyPost.getId())
-                .build();
-
-        alertService.saveAlert(companyPost.getUser(), fcmRequestDto);
+        alertService.sendAndSaveAlert(companyPost.getUser(), alertType, title, body, companyPost.getId());
 
         // 응답 DTO 생성 및 반환
         return CompanyParticipantResponseDTO.builder()

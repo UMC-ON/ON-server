@@ -86,16 +86,7 @@ public class CommentService {
         }
         String body = commentRequestDTO.getContents();
 
-        fcmService.sendMessage(post.getUser().getDeviceToken(), alertType, title, body);
-
-        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
-                .title(title)
-                .body(body)
-                .alertType(alertType)
-                .alertConnectId(post.getId())
-                .build();
-
-        alertService.saveAlert(post.getUser(), fcmRequestDto);
+        alertService.sendAndSaveAlert(post.getUser(), alertType, title, body, post.getId());
 
         return CommentResponseDTO.from(comment, commentRepository);
     }
@@ -124,28 +115,17 @@ public class CommentService {
         Post post = postRepository.findById(parentComment.getPost().getId())
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
-        String title;
         AlertType alertType;
         if(post.getBoard().getType() == BoardType.INFO) { //정보게시판 댓글
-            title = "내 정보글에 새로운 대댓글이 달렸어요.";
             alertType = AlertType.INFORMATION;
         }
         else { //자유게시판 댓글
-            title = "내 자유글에 새로운 대댓글이 달렸어요.";
             alertType = AlertType.FREE;
         }
+        String title = "새로운 대댓글이 달렸어요.";
         String body = commentRequestDTO.getContents();
 
-        fcmService.sendMessage(post.getUser().getDeviceToken(), alertType, title, body);
-
-        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
-                .title(title)
-                .body(body)
-                .alertType(alertType)
-                .alertConnectId(post.getId())
-                .build();
-
-        alertService.saveAlert(post.getUser(), fcmRequestDto);
+        alertService.sendAndSaveAlert(post.getUser(), alertType, title, body, post.getId());
 
         return CommentResponseDTO.from(reply, commentRepository);
     }

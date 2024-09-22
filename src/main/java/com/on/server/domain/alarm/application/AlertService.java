@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -29,6 +30,8 @@ public class AlertService {
     private final UserRepository userRepository;
 
     private final PostRepository postRepository;
+
+    private final FcmService fcmService;
 
     // 1. 사용자 디바이스 토큰 저장하기
     @Transactional
@@ -117,6 +120,21 @@ public class AlertService {
     public AlertCountDto getIsNotReadAlert(User user) {
 
         return new AlertCountDto(alertRepository.countByUserAndIsReadFalse(user));
+    }
+
+    // 5. 알림 보내기 및 저장
+    @Transactional
+    public void sendAndSaveAlert(User user, AlertType alertType, String title, String body, Long connectId) throws IOException {
+        fcmService.sendMessage(user.getDeviceToken(), alertType, title, body);
+
+        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
+                .title(title)
+                .body(body)
+                .alertType(alertType)
+                .alertConnectId(connectId)
+                .build();
+
+        saveAlert(user, fcmRequestDto);
     }
 
 }
