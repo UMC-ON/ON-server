@@ -1,5 +1,7 @@
 package com.on.server.domain.chat.application;
 
+import com.on.server.domain.alarm.application.AlertService;
+import com.on.server.domain.alarm.domain.AlertType;
 import com.on.server.domain.chat.domain.Chat;
 import com.on.server.domain.chat.domain.ChatType;
 import com.on.server.domain.chat.domain.ChattingRoom;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -51,6 +54,8 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ChattingRoomRepository chattingRoomRepository;
     private final SpecialChatRepository specialChatRepository;
+
+    private final AlertService alertService;
 
     public Page<CompanyChatRoomListDto> getCompanyChatRoomList(User user, Pageable pageable) {
         // '동행 구하기' 채팅방 목록
@@ -294,7 +299,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void postMessage(User user, Long roomId, String message) {
+    public void postMessage(User user, Long roomId, String message) throws IOException {
         ChattingRoom currentChattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
@@ -305,6 +310,14 @@ public class ChatService {
                 .build();
 
         chatRepository.save(chat);
+
+        String title = user.getNickname();
+        String body = message;
+        AlertType alertType = AlertType.CHAT;
+
+        User alertUser = user != currentChattingRoom.getChatUserOne() ? currentChattingRoom.getChatUserOne() : currentChattingRoom.getChatUserTwo();
+
+        alertService.sendAndSaveAlert(alertUser, alertType, title, body, roomId);
     }
 
 

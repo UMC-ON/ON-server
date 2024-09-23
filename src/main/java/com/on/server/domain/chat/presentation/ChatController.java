@@ -15,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/chat")
@@ -113,7 +115,7 @@ public class ChatController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable("roomId") Long roomId,
             @RequestBody String message
-    ) {
+    ) throws IOException {
         User user = securityService.getUserByUserDetails(userDetails);
         chatService.postMessage(user, roomId, message);
 
