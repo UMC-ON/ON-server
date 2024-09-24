@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum AlertType {
-    COMPANY, MARKET, INFORMATION, FREE
+    COMPANY, MARKET, INFORMATION, FREE, CHAT
 }

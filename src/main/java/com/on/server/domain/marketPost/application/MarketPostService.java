@@ -1,5 +1,7 @@
 package com.on.server.domain.marketPost.application;
 
+import com.on.server.domain.alarm.application.AlertService;
+import com.on.server.domain.alarm.domain.AlertType;
 import com.on.server.domain.marketPost.domain.DealStatus;
 import com.on.server.domain.marketPost.domain.DealType;
 import com.on.server.domain.marketPost.domain.MarketPost;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +34,7 @@ public class MarketPostService {
 
     private final MarketPostRepository marketPostRepository;
     private final UuidFileService uuidFileService;
+    private final AlertService alertService;
 
     // 1. 모든 물품글 조회
     public Page<MarketPostResponseDTO> getAllMarketPosts(Pageable pageable) {
@@ -106,6 +110,12 @@ public class MarketPostService {
         marketPost.completeDeal(); // 상태 업데이트
 
         MarketPost updatedMarketPost = marketPostRepository.save(marketPost); // 저장
+
+        String title = "거래가 완료되었어요.";
+        AlertType alertType = AlertType.MARKET;
+        String body = "다음 글에서 시작된 거래에요: " + marketPost.getTitle();
+
+        alertService.sendAndSaveAlert(marketPost.getUser(), alertType, title, body, marketPost.getId());
 
         return MarketPostResponseDTO.from(updatedMarketPost);
     }
