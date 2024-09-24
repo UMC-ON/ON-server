@@ -115,7 +115,7 @@ public class ChatController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable("roomId") Long roomId,
             @RequestBody String message
-    ) throws IOException {
+    ) {
         User user = securityService.getUserByUserDetails(userDetails);
         chatService.postMessage(user, roomId, message);
 

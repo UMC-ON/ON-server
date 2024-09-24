@@ -118,7 +118,7 @@ public class MarketPostController {
     @Operation(summary = "거래 상태 업데이트")
     @PutMapping("/{marketPostId}/status")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId) throws IOException {
+    public ResponseEntity<MarketPostResponseDTO> updateMarketPostStatus(@PathVariable Long marketPostId) {
 
         MarketPostResponseDTO updatedPost = marketPostService.updateMarketPostStatus(marketPostId);
         return ResponseEntity.ok(updatedPost);

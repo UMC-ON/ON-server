@@ -124,17 +124,24 @@ public class AlertService {
 
     // 5. 알림 보내기 및 저장
     @Transactional
-    public void sendAndSaveAlert(User user, AlertType alertType, String title, String body, Long connectId) throws IOException {
-        fcmService.sendMessage(user.getDeviceToken(), alertType, title, body);
+    public void sendAndSaveAlert(User user, AlertType alertType, String title, String body, Long connectId) {
+        try {
+            // FCM 알림 전송
+            fcmService.sendMessage(user.getDeviceToken(), alertType, title, body);
 
-        FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
-                .title(title)
-                .body(body)
-                .alertType(alertType)
-                .alertConnectId(connectId)
-                .build();
+            FcmRequestDto fcmRequestDto = FcmRequestDto.builder()
+                    .title(title)
+                    .body(body)
+                    .alertType(alertType)
+                    .alertConnectId(connectId)
+                    .build();
 
-        saveAlert(user, fcmRequestDto);
+            // 알림 저장
+            saveAlert(user, fcmRequestDto);
+
+        } catch (IOException e) {
+            throw new InternalServerException(ResponseCode.FAILED_TO_SEND_ALERT, "알림 전송에 실패했습니다: " + e.getMessage());
+        }
     }
 
 }

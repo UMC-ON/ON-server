@@ -28,7 +28,10 @@ public class CompanyParticipantController {
     @Operation(summary = "동행구하기글에 동행 신청")
     @PostMapping("/apply")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    public ResponseEntity<CompanyParticipantResponseDTO> applyToCompanyPost(@RequestBody CompanyParticipantRequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+    public ResponseEntity<CompanyParticipantResponseDTO> applyToCompanyPost (
+            @RequestBody CompanyParticipantRequestDTO requestDTO,
+            @AuthenticationPrincipal UserDetails userDetails)
+    {
 
         User user = securityService.getUserByUserDetails(userDetails);
 

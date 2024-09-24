@@ -103,7 +103,7 @@ public class MarketPostService {
 
     // 6. 거래 상태 업데이트
     @Transactional
-    public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId) throws IOException {
+    public MarketPostResponseDTO updateMarketPostStatus(Long marketPostId) {
         MarketPost marketPost = marketPostRepository.findById(marketPostId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + marketPostId));
 

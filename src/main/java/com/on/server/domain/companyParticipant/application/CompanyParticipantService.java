@@ -28,7 +28,7 @@ public class CompanyParticipantService {
     private final FcmService fcmService;
     private final AlertService alertService;
 
-    public CompanyParticipantResponseDTO applyToCompanyPost(User user, CompanyParticipantRequestDTO requestDTO) throws IOException {
+    public CompanyParticipantResponseDTO applyToCompanyPost(User user, CompanyParticipantRequestDTO requestDTO) {
 
         // 신청한 게시글 정보 가져오기
         CompanyPost companyPost = companyPostRepository.findById(requestDTO.getCompanyPostId())

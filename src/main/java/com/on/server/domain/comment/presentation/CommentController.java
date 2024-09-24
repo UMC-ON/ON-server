@@ -60,7 +60,7 @@ public class CommentController {
     public ResponseEntity<CommentResponseDTO> createComment(
             @PathVariable("postId") Long postId,
             @RequestBody CommentRequestDTO commentRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+            @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityService.getUserByUserDetails(userDetails);
 
         CommentResponseDTO createdComment = commentService.createComment(postId, commentRequestDTO, user);
@@ -74,7 +74,7 @@ public class CommentController {
     public ResponseEntity<CommentResponseDTO> createReply(
             @PathVariable("commentId") Long commentId,
             @RequestBody CommentRequestDTO commentRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+            @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = securityService.getUserByUserDetails(userDetails);
 

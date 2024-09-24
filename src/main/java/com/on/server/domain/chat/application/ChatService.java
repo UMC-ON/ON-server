@@ -299,7 +299,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void postMessage(User user, Long roomId, String message) throws IOException {
+    public void postMessage(User user, Long roomId, String message) {
         ChattingRoom currentChattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 

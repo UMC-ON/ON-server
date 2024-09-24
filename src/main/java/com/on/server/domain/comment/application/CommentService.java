@@ -55,7 +55,7 @@ public class CommentService {
 
 
     // 새로운 댓글 작성
-    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO, User user) throws IOException {
+    public CommentResponseDTO createComment(Long postId, CommentRequestDTO commentRequestDTO, User user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
 
@@ -92,7 +92,7 @@ public class CommentService {
     }
 
     // 답글 작성
-    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO, User user) throws IOException {
+    public CommentResponseDTO createReply(Long parentCommentId, CommentRequestDTO commentRequestDTO, User user) {
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "부모 댓글을 찾을 수 없습니다. ID: " + parentCommentId));
 
