@@ -7,6 +7,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AlertListResponseDto {
+
+    private Long alertId;
+
     private String title;
 
     private String content;
@@ -14,4 +17,7 @@ public class AlertListResponseDto {
     private AlertType alertType;
 
     private Long alertConnectId; // 알림 사용 시 게시글 id, 채팅방 id 등
+
+    private boolean isRead;
+
 }
