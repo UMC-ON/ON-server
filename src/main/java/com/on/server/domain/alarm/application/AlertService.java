@@ -55,10 +55,12 @@ public class AlertService {
     private static List<AlertListResponseDto> getAlertListDto(Page<Alert> alertList) {
         return alertList.stream()
                 .map(alert -> new AlertListResponseDto(
+                                alert.getId(),
                                 alert.getTitle(),
                                 alert.getContents(),
                                 alert.getAlertType(),
-                                alert.getAlertConnectId()
+                                alert.getAlertConnectId(),
+                                alert.isRead()
                         )
                 ).toList();
     }
