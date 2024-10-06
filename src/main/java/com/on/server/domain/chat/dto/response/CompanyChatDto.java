@@ -1,4 +1,4 @@
-package com.on.server.domain.chat.dto;
+package com.on.server.domain.chat.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Getter
-public class CompanyChatResponseDto {
+public class CompanyChatDto {
     private boolean isFullyRecruited; // 모집 다 되었는지 여부
     private Long periodDay; // 예상 일정 일 횟수
     private LocalDate startDate; // 희망시기 시작

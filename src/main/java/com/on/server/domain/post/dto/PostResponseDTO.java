@@ -1,7 +1,10 @@
 package com.on.server.domain.post.dto;
 
 import com.on.server.domain.board.domain.BoardType;
+import com.on.server.domain.post.domain.Post;
+import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
+import com.on.server.global.aws.s3.uuidFile.domain.UuidFile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -46,24 +51,33 @@ public class PostResponseDTO {
     // 댓글 개수
     private Integer commentCount;
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class WriterInfo {
-        // 작성자 ID
-        private Long id;
 
-        // 작성자 닉네임
-        private String nickname;
+    public static PostResponseDTO from(Post post, boolean includeCommentCount) {
+        User user = post.getUser();
+        Set<UserStatus> roles = user.getRoles();
+        UserStatus userStatus = roles.iterator().next();
 
-        // 파견국가
-        private String country;
+        int commentCount = (post.getComments() != null) ? post.getComments().size() : 0;
 
-        // 파견교
-        private String dispatchedUniversity;
+        WriterInfo writerInfo = WriterInfo.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .country(user.getCountry())
+                .dispatchedUniversity(user.getDispatchedUniversity())
+                .userStatus(userStatus)
+                .build();
 
-        // 작성자 상태
-        private UserStatus userStatus;
+        return PostResponseDTO.builder()
+                .postId(post.getId())
+                .boardType(post.getBoard().getType())
+                .writerInfo(writerInfo)
+                .title(post.getTitle())
+                .content(post.getContent())
+                .isAnonymous(post.getIsAnonymous())
+                .isAnonymousUniv(post.getIsAnonymousUniv())
+                .createdAt(post.getCreatedAt())
+                .commentCount(includeCommentCount ? commentCount : 0)
+                .imageUrls(post.getImages().stream().map(UuidFile::getFileUrl).collect(Collectors.toList()))
+                .build();
     }
 }

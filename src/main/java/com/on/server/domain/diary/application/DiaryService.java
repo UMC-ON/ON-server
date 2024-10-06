@@ -65,7 +65,7 @@ public class DiaryService {
     private static List<DiaryDto> getDiaryDto(List<Diary> diaryList) {
         return diaryList.stream()
                 .map(diary -> new DiaryDto(
-                        diary.getWrittenDate(),
+                        diary.getCreatedAt().toLocalDate(),
                         diary.getContent(),
                         diary.getDDay())).toList();
     }
@@ -89,7 +89,6 @@ public class DiaryService {
         // 일기 저장하기
         Diary diary = Diary.builder()
                 .content(diaryRequestDto.getContent())
-                .writtenDate(diaryRequestDto.getDate())
                 .dDay(dDay)
                 .user(user)
                 .build();

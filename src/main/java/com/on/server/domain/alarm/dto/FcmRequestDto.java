@@ -1,11 +1,13 @@
 package com.on.server.domain.alarm.dto;
 
 import com.on.server.domain.alarm.domain.AlertType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 public class FcmRequestDto { //알림 저장하기 위한 dto
 
     // 알림 제목

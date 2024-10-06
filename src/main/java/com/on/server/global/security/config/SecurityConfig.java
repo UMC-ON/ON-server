@@ -1,5 +1,6 @@
 package com.on.server.global.security.config;
 
+import com.on.server.global.common.ResponseCode;
 import com.on.server.global.jwt.JwtAuthenticationFilter;
 import com.on.server.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -7,13 +8,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,6 +28,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -34,6 +40,8 @@ public class SecurityConfig {
 
         corsConfig.addAllowedOrigin("http://localhost:3000");
         corsConfig.addAllowedOrigin("http://localhost:8080");
+        corsConfig.addAllowedOrigin("https://on-boarding-abroad.vercel.app/");
+        corsConfig.addAllowedOrigin("https://on-refactoring-git-vercel-1425s-projects.vercel.app/");
         corsConfig.addAllowedMethod("*");
         corsConfig.addAllowedHeader("*");
         corsConfig.setAllowCredentials(true);
@@ -65,10 +73,12 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/user/sign-in").permitAll()
                                 // 회원 가입 API에 대해서는 모든 요청을 허가
                                 .requestMatchers("/api/v1/user/sign-up").permitAll()
+                                // 토큰 갱신 API에 대해서는 모든 요청을 허가
+                                .requestMatchers("/api/v1/user/update-token").permitAll()
                                 // 중복 체크 api에 대해서는 모든 요청을 허가
                                 .requestMatchers("/api/v1/user/duplicate_check/**").permitAll()
                                 // USER 권한이 있어야 요청할 수 있음
-                                .requestMatchers("/api/v1/user/test").hasAnyRole("AWAIT", "ACTIVE", "TEMPORARY")
+                                .requestMatchers("/api/v1/user/test").hasAnyAuthority("AWAIT", "ACTIVE", "TEMPORARY")
                                 // S3 upload 테스트 API
                                 .requestMatchers("api/v1/uuid-file/**").permitAll()
                                 // Swagger UI에 대해서는 모든 요청을 허가
@@ -90,6 +100,11 @@ public class SecurityConfig {
                                 // 이 밖에 모든 요청에 대해서 인증을 필요로 한다는 설정
                                 .anyRequest().authenticated()
                 )
+                // 권한 문제 발생 시 AccessDeniedHandler 사용
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler(accessDeniedHandler())  // 403 Forbidden 시 커스텀 핸들러
+                        .authenticationEntryPoint(authenticationEntryPoint())  // 인증 실패 시 커스텀 핸들러
+                )
                 // JWT 인증을 위하여 직접 구현한 필터를 UsernamePasswordAuthenticationFilter 전에 실행
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
@@ -106,4 +121,19 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.setStatus(ResponseCode.API_NOT_ALLOWED.getCode());
+            response.setContentType("application/json");
+            response.getWriter().write("{\"responseCode\":\"API_NOT_ALLOWED\",\"message\":\"API 접근이 허용되지 않습니다.\"}");
+        };
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new Http403ForbiddenEntryPoint();  // 인증 실패 시 403 Forbidden 응답
+    }
+
 }

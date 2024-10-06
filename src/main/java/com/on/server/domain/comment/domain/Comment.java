@@ -6,9 +6,6 @@ import com.on.server.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Builder
 @AllArgsConstructor
@@ -35,10 +32,6 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parentComment;
-
-    // 자식 답글
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> childrenComment = new ArrayList<>();
 
     @Column(name = "anonymous_index")
     private Integer anonymousIndex;

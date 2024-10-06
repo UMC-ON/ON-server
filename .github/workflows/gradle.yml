@@ -1,9 +1,7 @@
-name: Java CI/DE with Gradle(dev branch)
+name: Java CI/DE with Gradle(main branch)
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 permissions:
@@ -61,21 +59,11 @@ jobs:
         shell: bash
 
       - name: Upload Build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
           path: |
             build/libs/*.jar
-
-      - name: Upload project code
-        uses: appleboy/scp-action@master
-        with:
-          key: ${{ secrets.EC2_KEY }}
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          target: /home/ubuntu/app/spring_source
-          source: .
-
 
   deploy:
     name: CD with SSH
@@ -84,7 +72,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build-artifacts
 
@@ -97,6 +85,16 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           source: "*.jar"
           target: "/home/ubuntu/app"
+
+      # Redis Server 구동
+      - name: Start redis-server
+        uses: appleboy/ssh-action@master
+        with:
+          key: ${{ secrets.EC2_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          script: |
+            sudo systemctl start redis-server
 
       # EC2에 SSH로 배포 커맨드를 입력하는 step
       - name: Deploy SSH

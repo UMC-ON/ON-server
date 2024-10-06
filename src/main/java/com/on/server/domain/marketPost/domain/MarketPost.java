@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,6 +54,13 @@ public class MarketPost extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "market_post_id")
     private List<UuidFile> images = new ArrayList<>(); // 이미지 리스트 필드 추가
+
+    public void completeDeal() {
+        if (this.dealStatus != DealStatus.AWAIT) {
+            throw new IllegalStateException("거래 상태가 AWAIT인 경우에만 COMPLETE로 업데이트할 수 있습니다.");
+        }
+        this.dealStatus = DealStatus.COMPLETE;
+    }
 }
 
 

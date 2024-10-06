@@ -2,6 +2,7 @@ package com.on.server.domain.alarm.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.on.server.domain.alarm.domain.AlertType;
 import com.on.server.domain.alarm.dto.FcmMessage;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
@@ -24,9 +25,10 @@ public class FcmService {
 
     private final ObjectMapper objectMapper;
 
-    public Response sendMessage(String deviceToken, String title, String body) throws IOException {
+    public Response sendMessage(String deviceToken, AlertType alertType, String title, String body) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        FcmMessage message = FcmMessage.makeMessage(deviceToken, title, body);
+        String alertTitle = "[" + alertType + "] " + title;
+        FcmMessage message = FcmMessage.makeMessage(deviceToken, alertTitle, body);
         RequestBody requestBody = RequestBody.create(objectMapper.writeValueAsString(message),
                 MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()

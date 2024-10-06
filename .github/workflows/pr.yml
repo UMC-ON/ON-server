@@ -1,0 +1,66 @@
+name: Java CI/DE with Gradle(main branch)
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+
+    steps:
+      # 작업 엑세스 가능하게 $GITHUB_WORKSPACE에서 저장소를 체크아웃
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      # java 버전 세팅
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      # git ignore한 yml 파일들 github secret에서 복사해 오기
+      - name: Copy secret
+        env:
+          OCCUPY_SECRET: ${{ secrets.OCCUPY_SECRET_DEV }}
+          OCCUPY_SECRET_DIR: ./src/main/resources
+
+          OCCUPY_SECRET_DIR_FILE_NAME: application.yml
+        run: |
+          
+          touch $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+          
+          echo "$OCCUPY_SECRET" > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+
+      # firebase 폴더 내 json 파일 github secret에서 복사해 오기
+      - name: Copy firebase
+        env:
+          OCCUPY_FIREBASE: ${{ secrets.FIREBASE_JSON }}
+          OCCUPY_FIREBASE_DIR: ./src/main/resources/firebase
+
+          OCCUPY_FIREBASE_DIR_FILE_NAME: ${{ secrets.FIREBASE_JSON_NAME }}
+        run: |
+          mkdir -p $OCCUPY_FIREBASE_DIR
+          echo "$OCCUPY_FIREBASE" > $OCCUPY_FIREBASE_DIR/$OCCUPY_FIREBASE_DIR_FILE_NAME
+
+      # gradlew 실행 권한 부여
+      - name: Run chmod to make gradlew executable
+        run: chmod +x ./gradlew
+        shell: bash
+
+      # Build -> jar 파일 생성
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+        shell: bash
+
+      - name: Upload Build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            build/libs/*.jar

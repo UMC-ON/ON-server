@@ -1,15 +1,10 @@
 package com.on.server.domain.dispatchCertify.dto.request;
 
-import com.on.server.domain.dispatchCertify.domain.DispatchCertify;
-import com.on.server.domain.dispatchCertify.domain.PermitStatus;
 import com.on.server.domain.user.domain.DispatchType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.validator.constraints.URL;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Getter
 @Builder

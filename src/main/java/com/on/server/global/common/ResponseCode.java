@@ -1,8 +1,10 @@
 package com.on.server.global.common;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum ResponseCode {
 
     /*
@@ -70,25 +72,13 @@ public enum ResponseCode {
     SERVICE_UNAVAILABLE(5000, false, "서비스 이용이 불가능합니다."),
     DATA_NOT_EXIEST(5005, false, "데이터가 존재하지 않습니다."),
     FILE_UPLOAD_FAIL(5006, false, "파일 업로드에 실패했습니다."),
-    FILE_DELETE_FAIL(5007, false, "파일 삭제에 실패했습니다.");
+    FILE_DELETE_FAIL(5007, false, "파일 삭제에 실패했습니다."),
+    FAILED_TO_SEND_ALERT(5008, false, "알림 전송에 실패하였습니다.");
 
 
     // =====================================
-    private int code;
-    private boolean inSuccess;
-    private String message;
+    private final Integer code;
+    private final Boolean  inSuccess;
+    private final String message;
 
-
-    /**
-     * 해당되는 코드 매핑
-     *
-     * @param code
-     * @param inSuccess
-     * @param message
-     **/
-    ResponseCode(int code, boolean inSuccess, String message) {
-        this.inSuccess = inSuccess;
-        this.code = code;
-        this.message = message;
-    }
 }
