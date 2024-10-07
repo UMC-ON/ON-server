@@ -80,7 +80,7 @@ public class ChatService {
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
                     String chatContents = (chat != null) ? chat.getContents() : null;
-                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
+                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : formatLastChatTime(chattingRoom.getCreatedAt());
 
                     return new CompanyRoomDto(
                             chattingRoom.getId(),
