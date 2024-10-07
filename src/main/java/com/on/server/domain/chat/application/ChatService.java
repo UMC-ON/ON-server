@@ -30,7 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -291,7 +290,8 @@ public class ChatService {
                 )).toList();
 
         ChatListDto chatListResponseDto = ChatListDto.builder()
-                .currentUserId(user.getId())
+                .chatUserOne(currentChattingRoom.getChatUserOne().getId())
+                .chatUserTwo(currentChattingRoom.getChatUserTwo().getId())
                 .chatList(chatListDto)
                 .build();
 
