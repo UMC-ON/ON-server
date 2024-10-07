@@ -238,7 +238,7 @@ public class ChatService {
                 .periodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
-                .location(companyPost.getTravelArea().get(0))
+                .location(companyPost.getTravelArea())
                 .recruitNumber(companyPost.getTotalRecruitNumber())
                 .participantNumber(companyPost.getCurrentRecruitNumber())
                 .build();
