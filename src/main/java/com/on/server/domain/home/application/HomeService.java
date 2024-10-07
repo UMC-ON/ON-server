@@ -93,7 +93,7 @@ public class HomeService {
 
         String country = user.getCountry();
 
-        List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country, PageRequest.of(0, 5));
+        List<CompanyPost> companyPostList = companyPostRepository.findTop5ByTravelArea(country, user, PageRequest.of(0, 5));
 
 
         if (companyPostList.isEmpty()) {

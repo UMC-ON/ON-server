@@ -35,8 +35,11 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
         return findAll(pageable).getContent();
     }
 
-    @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT('%', :country, '%') AND c.isRecruitCompleted = false ORDER BY c.createdAt DESC")
-    List<CompanyPost> findTop5ByTravelArea(@Param("country") String country, Pageable pageable);
+//    @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT('%', :country, '%') AND c.isRecruitCompleted = false ORDER BY c.createdAt DESC")
+//    List<CompanyPost> findTop5ByTravelArea(@Param("country") String country, Pageable pageable);
+
+    @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT('%', :country, '%') AND c.isRecruitCompleted = false AND c.user <> :user ORDER BY c.createdAt DESC")
+    List<CompanyPost> findTop5ByTravelArea(@Param("country") String country, @Param("user") User user, Pageable pageable);
 
     @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT('%', :country, '%') AND c.isRecruitCompleted = false AND c.id <> :companyPostId ORDER BY c.createdAt DESC")
     List<CompanyPost> findTop5ByTravelAreaLike(@Param("country") String country, @Param("companyPostId") Long companyPostId);
