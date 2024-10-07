@@ -164,7 +164,7 @@ public class ChatService {
         User chatUserTwo = userRepository.findById(chatDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-        ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwo(user, chatUserTwo);
+        ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwoAndChattingRoomType(user, chatUserTwo, chatDto.getChatType());
 
         Long responseRoomId = 0L;
 
