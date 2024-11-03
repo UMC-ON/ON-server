@@ -26,7 +26,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 작성자의 국가를 기준으로 게시글 필터링
     @Query("SELECT p FROM Post p WHERE p.board = :board AND p.user.country = :country ORDER BY p.createdAt DESC")
-    List<Post> findByBoardAndUserCountry(@Param("board") Board board, @Param("country") String country);
+    Page<Post> findByBoardAndUserCountry(@Param("board") Board board, @Param("country") String country, Pageable pageable);
 
 
     // 특정 게시판에서 최신 게시글 4개 조회
