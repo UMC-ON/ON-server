@@ -30,7 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -81,7 +80,7 @@ public class ChatService {
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
                     String chatContents = (chat != null) ? chat.getContents() : null;
-                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
+                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : formatLastChatTime(chattingRoom.getCreatedAt());
 
                     return new CompanyRoomDto(
                             chattingRoom.getId(),
@@ -136,7 +135,7 @@ public class ChatService {
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
                     String chatContents = (chat != null) ? chat.getContents() : null;
-                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : null;
+                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : formatLastChatTime(chattingRoom.getCreatedAt());
 
                     String fileUrl = (!marketPost.getImages().isEmpty())
                             ? marketPost.getImages().get(0).getFileUrl()
@@ -165,7 +164,7 @@ public class ChatService {
         User chatUserTwo = userRepository.findById(chatDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-        ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwo(user, chatUserTwo);
+        ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwoAndChattingRoomType(user, chatUserTwo, chatDto.getChatType());
 
         Long responseRoomId = 0L;
 
@@ -239,7 +238,7 @@ public class ChatService {
                 .periodDay(companyPost.getSchedulePeriodDay())
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
-                .location(companyPost.getTravelArea().get(0))
+                .location(companyPost.getTravelArea())
                 .recruitNumber(companyPost.getTotalRecruitNumber())
                 .participantNumber(companyPost.getCurrentRecruitNumber())
                 .build();
@@ -291,7 +290,8 @@ public class ChatService {
                 )).toList();
 
         ChatListDto chatListResponseDto = ChatListDto.builder()
-                .currentUserId(user.getId())
+                .chatUserOne(currentChattingRoom.getChatUserOne().getId())
+                .chatUserTwo(currentChattingRoom.getChatUserTwo().getId())
                 .chatList(chatListDto)
                 .build();
 

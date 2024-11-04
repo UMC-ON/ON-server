@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @Getter
 public class ChatListDto {
-    private Long currentUserId;
+    private Long chatUserOne; // 채팅방 생성한 사람
+    private Long chatUserTwo;
     private List<ChatMessageDto> chatList;
 }
