@@ -31,6 +31,7 @@ public interface MarketPostRepository extends JpaRepository<MarketPost, Long> {
     // 검색: 국가와 물품에 대한 제목 또는 내용을 검색하는 메서드
     @Query("SELECT mp FROM MarketPost mp WHERE " +
             "mp.currentCountry LIKE %:keyword% OR " +
+            "mp.currentLocation LIKE %:keyword% OR " + // 도시로도 글이 검색되도록 추가
             "mp.title LIKE %:keyword% OR " +
             "mp.content LIKE %:keyword% " +
             "ORDER BY mp.createdAt DESC")
