@@ -81,11 +81,12 @@ public class PostController {
     @Operation(summary = "국가 필터링된 게시글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/filter/{boardType}")
-    public ResponseEntity<List<PostResponseDTO>> searchPostsByCountry(
+    public ResponseEntity<Page<PostResponseDTO>> searchPostsByCountry(
             @PathVariable("boardType") BoardType boardType,
-            @RequestParam(name = "country") String country
+            @RequestParam(name = "country") String country,
+            @ParameterObject Pageable pageable
     ) {
-        List<PostResponseDTO> filteredPosts = postService.getPostsByCountryAndBoardType(boardType, country);
+        Page<PostResponseDTO> filteredPosts = postService.getPostsByCountryAndBoardType(boardType, country, pageable);
         return ResponseEntity.ok(filteredPosts);
     }
 

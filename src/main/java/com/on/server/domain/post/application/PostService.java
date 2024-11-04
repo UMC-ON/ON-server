@@ -104,14 +104,11 @@ public class PostService {
     }
 
     // 국가 필터링 메서드
-    public List<PostResponseDTO> getPostsByCountryAndBoardType(BoardType boardType, String country) {
+    public Page<PostResponseDTO> getPostsByCountryAndBoardType(BoardType boardType, String country,  Pageable pageable) {
         Board board = boardRepository.findByType(boardType)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시판을 찾을 수 없습니다."));
+        Page<Post> posts = postRepository.findByBoardAndUserCountry(board, country, pageable);
 
-        List<Post> posts = postRepository.findByBoardAndUserCountry(board, country);
-
-        return posts.stream()
-                .map(post -> PostResponseDTO.from(post, true))
-                .collect(Collectors.toList());
+        return posts.map(post -> PostResponseDTO.from(post, true));
     }
 }
