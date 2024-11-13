@@ -1,6 +1,5 @@
 package com.on.server.domain.user.dto.request;
 
-import com.on.server.domain.user.domain.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,16 +9,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindIDRequestDto {
+public class ChangePWRequestDto {
 
-    private String name;
+    private String loginId;
 
-    private String phone;
+    private Integer authNum;
 
-    private Gender gender;
-
-    private String nickname;
-
-    private Integer age;
+    private String password;
 
 }

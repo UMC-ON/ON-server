@@ -173,12 +173,30 @@ public class UserController {
         return ResponseEntity.ok(userService.findId(findIDRequestDto));
     }
 
-    @Operation(summary = "비밀번호 찾기")
-    @PostMapping("/find-password")
-    public ResponseEntity<String> findPassword(
-            @RequestBody FindPWRequestDto findPWRequestDto
+    @Operation(summary = "비밀번호 찾기 인증번호 전송")
+    @PostMapping("/find-password/send-auth-num")
+    public ResponseEntity<Void> sendPWAuthNum(
+            @RequestBody SendPWAuthNumRequestDto sendPWAuthNumRequestDto
     ) {
-        return ResponseEntity.ok(userService.findPassword(findPWRequestDto));
+        userService.sendFindPWAuthNum(sendPWAuthNumRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "비밀번호 찾기 인증번호 확인")
+    @PutMapping("/find-password/check-auth-num")
+    public ResponseEntity<Boolean> checkPWAuthNum(
+            @RequestBody CheckAuthNumRequestDto checkAuthNumRequestDto
+    ) {
+        return ResponseEntity.ok(userService.getIsFindPWAuthNumRight(checkAuthNumRequestDto.getLoginId(), checkAuthNumRequestDto.getAuthNum()));
+    }
+
+    @Operation(summary = "비밀번호 변경")
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody ChangePWRequestDto changePWRequestDto
+    ) {
+        userService.changePW(changePWRequestDto);
+        return ResponseEntity.ok().build();
     }
 
 

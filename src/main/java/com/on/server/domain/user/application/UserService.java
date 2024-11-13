@@ -11,7 +11,6 @@ import com.on.server.global.common.exceptions.InternalServerException;
 import com.on.server.global.jwt.JwtTokenProvider;
 import com.on.server.global.mail.MailService;
 import com.on.server.global.redis.RedisUtils;
-import com.on.server.global.util.StaticValue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -192,26 +191,46 @@ public class UserService {
         return user.getLoginId();
     }
 
-    @Transactional
-    public String findPassword(FindPWRequestDto findPWRequestDto) {
-        User user = userRepository.findByName(findPWRequestDto.getName())
-                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니��."));
+    public void sendFindPWAuthNum(SendPWAuthNumRequestDto sendPWAuthNumRequestDto) {
+        User user = userRepository.findByLoginId(sendPWAuthNumRequestDto.getLoginId())
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
 
         if (
-                !user.getLoginId().equals(findPWRequestDto.getLoginId())
-                || !user.getPhone().equals(findPWRequestDto.getPhone())
-                || !user.getGender().equals(findPWRequestDto.getGender())
-                || !user.getAge().equals(findPWRequestDto.getAge())
-                || !user.getCountry().equals(findPWRequestDto.getNickname())
+                !user.getName().equals(sendPWAuthNumRequestDto.getName())
+                || !user.getPhone().equals(sendPWAuthNumRequestDto.getPhone())
+                || !user.getGender().equals(sendPWAuthNumRequestDto.getGender())
+                || !user.getAge().equals(sendPWAuthNumRequestDto.getAge())
+                || !user.getCountry().equals(sendPWAuthNumRequestDto.getNickname())
         ) {
             throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "입력하신 정보와 일치하는 회원을 찾을 수 없습니다.");
         }
 
-        String tempPassword = TempPasswordGenerator.generateTempPassword(8, 20);
+        redisUtils.setFindPasswordAuthNum(user.getId(), mailService.sendAuthNumMail(user.getLoginId()));
+    }
 
-        user.setPassword(passwordEncoder.encode(tempPassword));
+    public Boolean getIsFindPWAuthNumRight(String loginId, Integer authNum) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
 
-        return userRepository.save(user).getPassword();
+        Integer savedAuthNum = redisUtils.getFindPasswordAuthNum(user.getId());
+        if (savedAuthNum == null) {
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "인증번호가 만료되었습니다. 다시 인증번호를 요청해주세요.");
+        }
+        return savedAuthNum.equals(authNum);
+    }
+
+    @Transactional
+    public void changePW(ChangePWRequestDto changePWRequestDto) {
+        User user = userRepository.findByLoginId(changePWRequestDto.getLoginId())
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
+
+        if (!this.getIsFindPWAuthNumRight(user.getLoginId(), changePWRequestDto.getAuthNum())) {
+            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "인증번호가 일치하지 않습니다.");
+        }
+
+        user.setPassword(passwordEncoder.encode(changePWRequestDto.getPassword()));
+
+        userRepository.save(user);
     }
 
 }
