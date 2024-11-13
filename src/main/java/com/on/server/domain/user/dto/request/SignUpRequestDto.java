@@ -3,6 +3,7 @@ package com.on.server.domain.user.dto.request;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -11,8 +12,11 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 public class SignUpRequestDto {
 
-    @Length(min = 5, max = 20, message = "아이디는 5자 이상 20자 이하여야 합니다.")
+    @Email(message = "이메일 형식이 아닙니다.")
     private String loginId;
+
+    @NotBlank(message = "이메일 인증번호는 필수 입력 값입니다.")
+    private Integer signUpAuthNum;
 
     @Length(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하여야 합니다.")
     private String password;

@@ -68,6 +68,23 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "회원가입 시 인증번호 전송")
+    @PostMapping("/sign-up/send-auth-num")
+    public ResponseEntity<Void> sendSignUpAuthNum(
+            @RequestBody String email
+    ) {
+        userService.sendSignUpAuthNum(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "회원가입 시 이메일 인증번호 확인")
+    @PutMapping("/sign-up/check-auth-num")
+    public ResponseEntity<Boolean> checkSignUpAuthNum(
+            @RequestBody CheckAuthNumRequestDto checkAuthNumRequestDto
+    ) {
+        return ResponseEntity.ok(userService.getIsSignUpAuthNumRight(checkAuthNumRequestDto.getLoginId(), checkAuthNumRequestDto.getAuthNum()));
+    }
+
     // 회원가입
     @Operation(summary = "회원가입")
     @PostMapping("/sign-up")
