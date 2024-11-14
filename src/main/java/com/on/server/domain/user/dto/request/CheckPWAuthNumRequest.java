@@ -1,6 +1,5 @@
 package com.on.server.domain.user.dto.request;
 
-import com.on.server.domain.user.domain.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,16 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindIDRequestDto {
+public class CheckPWAuthNumRequest {
 
-    private String name;
+    private String loginId;
 
-    private String phone;
-
-    private Gender gender;
-
-    private String nickname;
-
-    private Integer age;
+    private Integer authNum;
 
 }
