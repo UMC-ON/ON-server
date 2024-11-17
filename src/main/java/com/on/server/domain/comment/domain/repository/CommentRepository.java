@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -32,4 +33,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 특정 댓글에 답글이 몇 개인지 카운트
     int countByParentComment(Comment parentComment);
+
+    // 댓글 인덱스
+    @Query("SELECT COUNT(c) FROM Comment c WHERE c.post = :post AND c.parentComment IS NULL AND c.createdAt <= :createdAt")
+    long countByPostAndCreatedAtLessThanEqual(@Param("post") Post post, @Param("createdAt") LocalDateTime createdAt);
 }

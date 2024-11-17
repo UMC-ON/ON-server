@@ -38,6 +38,9 @@ public class CommentResponseDTO {
     // 답글 개수
     private Integer replyCount;
 
+    // 댓글 인덱스
+    private Long commentIndex;
+
 
     public static CommentResponseDTO from(Comment comment, CommentRepository commentRepository) {
         boolean isReply = comment.getParentComment() != null;
@@ -51,6 +54,13 @@ public class CommentResponseDTO {
         }
 
         String nickname = comment.getIsAnonymous() ? "익명" + comment.getAnonymousIndex() : comment.getUser().getNickname();
+
+        // 댓글 인덱스 계산 (답글이 아닌 경우만)
+        Long commentIndex = isReply ? null :
+                commentRepository.countByPostAndCreatedAtLessThanEqual(
+                        comment.getPost(),
+                        comment.getCreatedAt()
+                ) - 1;
 
         WriterInfo writerInfo = WriterInfo.builder()
                 .id(comment.getUser().getId())
@@ -66,6 +76,7 @@ public class CommentResponseDTO {
                 .contents(comment.getContents())
                 .replyCount(isReply ? 0 : commentRepository.countByParentComment(comment))
              //   .replyCount(comment.getChildrenComment() != null ? comment.getChildrenComment().size() : 0)
+                .commentIndex(commentIndex) // 댓글 인덱스
                 .build();
     }
 
