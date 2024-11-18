@@ -16,12 +16,15 @@ import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,14 +36,29 @@ public class CommentService {
     private final FcmService fcmService;
     private final AlertService alertService;
 
-    // 특정 게시글의 모든 댓글 및 답글 조회
+    // 특정 게시글의 댓글을 페이징으로 조회하고, 댓글에 대한 모든 답글을 반환
     @Transactional(readOnly = true)
     public Page<CommentResponseDTO> getAllCommentsAndRepliesByPostId(Long postId, Pageable pageable) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + postId));
 
-        Page<Comment> comments = commentRepository.findByPost(post, pageable);
-        return comments.map(comment -> CommentResponseDTO.from(comment, commentRepository));
+        Page<Comment> parentComments  = commentRepository.findByPost(post, pageable);
+
+        List<CommentResponseDTO> responseDTOs = parentComments.stream()
+                .flatMap(parentComment -> {
+                    List<CommentResponseDTO> result = new ArrayList<>();
+                    result.add(CommentResponseDTO.from(parentComment, commentRepository));
+
+                    List<Comment> replies = commentRepository.findAllByParentComment(parentComment);
+                    result.addAll(replies.stream()
+                            .map(reply -> CommentResponseDTO.from(reply, commentRepository))
+                            .collect(Collectors.toList()));
+
+                    return result.stream();
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(responseDTOs, pageable, parentComments.getTotalElements());
     }
 
     // 특정 댓글의 모든 답글 조회
