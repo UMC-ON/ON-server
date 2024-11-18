@@ -198,7 +198,7 @@ public class ChatService {
                 .build();
     }
 
-
+    /* 동행 채팅방 상단 정보 */
     public CompanyChatDto getCompanyInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
@@ -230,6 +230,7 @@ public class ChatService {
         return companyChatDto;
     }
 
+    /* 중고거래 채팅방 상단 정보 */
     public MarketChatDto getMarketInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
@@ -248,12 +249,15 @@ public class ChatService {
         MarketPost marketPost = marketPostRepository.findById(specialChat.getMarketPost().getId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
+        String fileUrl = (!marketPost.getImages().isEmpty())
+                ? marketPost.getImages().get(0).getFileUrl()
+                : null;
 
         MarketChatDto marketChatDto = MarketChatDto.builder()
                 .productName(marketPost.getTitle())
                 .productPrice(marketPost.getCost())
                 .tradeMethod(marketPost.getDealType())
-                .imageUrl(marketPost.getImages().get(0).getFileUrl())
+                .imageUrl(fileUrl) // 이미지 없는 경우 null 반환
                 .build();
 
         return marketChatDto;
@@ -299,10 +303,9 @@ public class ChatService {
         String body = message;
 
         AlertType alertType;
-        if(currentChattingRoom.getChattingRoomType() == ChatType.MARKET) { // 마켓 채팅일 경우
+        if (currentChattingRoom.getChattingRoomType() == ChatType.MARKET) { // 마켓 채팅일 경우
             alertType = AlertType.MARKET_CHAT;
-        }
-        else { // 동행 채팅일 경우
+        } else { // 동행 채팅일 경우
             alertType = AlertType.COMPANY_CHAT;
         }
 
