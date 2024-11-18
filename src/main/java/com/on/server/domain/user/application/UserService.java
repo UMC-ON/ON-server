@@ -136,6 +136,7 @@ public class UserService {
         return UserInfoResponseDto.from(user);
     }
 
+    @Transactional
     public void updateUserNickName(User user, String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "이미 사용 중인 사용자 닉네임입니다.");
@@ -156,6 +157,7 @@ public class UserService {
         return userRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("해당하는 회원을 찾을 수 없습니다."));
     }
 
+    @Transactional
     public void updateUserUniversityUrl(User user, String universityUrl) {
         user.setUniversityUrl(universityUrl);
         userRepository.save(user);
