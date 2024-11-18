@@ -313,7 +313,14 @@ public class ChatService {
 
         String title = user.getNickname();
         String body = message;
-        AlertType alertType = AlertType.CHAT;
+
+        AlertType alertType;
+        if(currentChattingRoom.getChattingRoomType() == ChatType.MARKET) { // 마켓 채팅일 경우
+            alertType = AlertType.MARKET_CHAT;
+        }
+        else { // 동행 채팅일 경우
+            alertType = AlertType.COMPANY_CHAT;
+        }
 
         User alertUser = user != currentChattingRoom.getChatUserOne() ? currentChattingRoom.getChatUserOne() : currentChattingRoom.getChatUserTwo();
 
