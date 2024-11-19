@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -14,5 +16,5 @@ public class MarketRoomDto {
     private String senderName;
     private String profileImg;
     private String lastMessage;
-    private String lastChatTime;
+    private LocalDateTime lastChatTime;
 }
