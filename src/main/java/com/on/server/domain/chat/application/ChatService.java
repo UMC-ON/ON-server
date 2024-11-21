@@ -258,6 +258,7 @@ public class ChatService {
                 .productPrice(marketPost.getCost())
                 .tradeMethod(marketPost.getDealType())
                 .imageUrl(fileUrl) // 이미지 없는 경우 null 반환
+                .dealStatus(marketPost.getDealStatus()) // 상품 거래 여부
                 .build();
 
         return marketChatDto;
