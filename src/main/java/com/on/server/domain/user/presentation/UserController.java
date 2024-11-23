@@ -166,7 +166,7 @@ public class UserController {
     }
 
     @Operation(summary = "ID 찾기")
-    @PostMapping("/find-id")
+    @PostMapping("/find/id")
     public ResponseEntity<String> findId(
             @RequestBody FindIDRequestDto findIDRequestDto
     ) {
@@ -174,7 +174,7 @@ public class UserController {
     }
 
     @Operation(summary = "비밀번호 찾기 인증번호 전송")
-    @PostMapping("/find-password/send-auth-num")
+    @PostMapping("/find/password/send-auth-num")
     public ResponseEntity<Void> sendPWAuthNum(
             @RequestBody SendPWAuthNumRequestDto sendPWAuthNumRequestDto
     ) {
@@ -183,7 +183,7 @@ public class UserController {
     }
 
     @Operation(summary = "비밀번호 찾기 인증번호 확인")
-    @PutMapping("/find-password/check-auth-num")
+    @PutMapping("/find/password/check-auth-num")
     public ResponseEntity<Boolean> checkPWAuthNum(
             @RequestBody CheckAuthNumRequestDto checkAuthNumRequestDto
     ) {
@@ -191,7 +191,7 @@ public class UserController {
     }
 
     @Operation(summary = "비밀번호 변경")
-    @PutMapping("/change-password")
+    @PutMapping("/find/password/change-password")
     public ResponseEntity<Void> changePassword(
             @RequestBody ChangePWRequestDto changePWRequestDto
     ) {
