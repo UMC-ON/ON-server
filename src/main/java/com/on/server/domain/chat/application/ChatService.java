@@ -30,11 +30,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import static com.on.server.domain.companyParticipant.domain.CompanyParticipantStatus.PARTICIPANT;
@@ -80,7 +77,7 @@ public class ChatService {
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
                     String chatContents = (chat != null) ? chat.getContents() : null;
-                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : formatLastChatTime(chattingRoom.getCreatedAt());
+                    LocalDateTime lastChatTime = (chat != null) ? chat.getCreatedAt() : chattingRoom.getCreatedAt(); // 채팅 기록 없는 경우 채팅방 생성 시간
 
                     return new CompanyRoomDto(
                             chattingRoom.getId(),
@@ -97,19 +94,6 @@ public class ChatService {
                 .build();
 
         return new PageImpl<>(List.of(companyChatRoomListDto), pageable, roomListDto.size());
-    }
-
-    private String formatLastChatTime(LocalDateTime createdAt) {
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(createdAt, now);
-
-        if (duration.toDays() == 0) {
-            return createdAt.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH));
-        } else if (duration.toDays() == 1) {
-            return "1일 전";
-        } else {
-            return createdAt.format(DateTimeFormatter.ofPattern("M/d", Locale.ENGLISH));
-        }
     }
 
     public Page<MarketChatRoomListDto> getMarketChatRoomList(User user, Pageable pageable) {
@@ -135,7 +119,7 @@ public class ChatService {
                     String senderName = Objects.equals(user.getId(), chatUserOne.getId()) ? chatUserTwo.getNickname() : chatUserOne.getNickname();
 
                     String chatContents = (chat != null) ? chat.getContents() : null;
-                    String lastChatTime = (chat != null) ? formatLastChatTime(chat.getCreatedAt()) : formatLastChatTime(chattingRoom.getCreatedAt());
+                    LocalDateTime lastChatTime = (chat != null) ? chat.getCreatedAt() : chattingRoom.getCreatedAt(); // 채팅 기록 없는 경우 채팅방 생성 시간
 
                     String fileUrl = (!marketPost.getImages().isEmpty())
                             ? marketPost.getImages().get(0).getFileUrl()
@@ -214,7 +198,7 @@ public class ChatService {
                 .build();
     }
 
-
+    /* 동행 채팅방 상단 정보 */
     public CompanyChatDto getCompanyInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
@@ -246,6 +230,7 @@ public class ChatService {
         return companyChatDto;
     }
 
+    /* 중고거래 채팅방 상단 정보 */
     public MarketChatDto getMarketInfo(User user, Long roomId) {
         ChattingRoom chattingRoom = chattingRoomRepository.findById(roomId)
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
@@ -264,12 +249,15 @@ public class ChatService {
         MarketPost marketPost = marketPostRepository.findById(specialChat.getMarketPost().getId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
+        String fileUrl = (!marketPost.getImages().isEmpty())
+                ? marketPost.getImages().get(0).getFileUrl()
+                : null;
 
         MarketChatDto marketChatDto = MarketChatDto.builder()
                 .productName(marketPost.getTitle())
                 .productPrice(marketPost.getCost())
                 .tradeMethod(marketPost.getDealType())
-                .imageUrl(marketPost.getImages().get(0).getFileUrl())
+                .imageUrl(fileUrl) // 이미지 없는 경우 null 반환
                 .build();
 
         return marketChatDto;
@@ -315,10 +303,9 @@ public class ChatService {
         String body = message;
 
         AlertType alertType;
-        if(currentChattingRoom.getChattingRoomType() == ChatType.MARKET) { // 마켓 채팅일 경우
+        if (currentChattingRoom.getChattingRoomType() == ChatType.MARKET) { // 마켓 채팅일 경우
             alertType = AlertType.MARKET_CHAT;
-        }
-        else { // 동행 채팅일 경우
+        } else { // 동행 채팅일 경우
             alertType = AlertType.COMPANY_CHAT;
         }
 
