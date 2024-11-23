@@ -15,6 +15,7 @@ import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,7 +137,7 @@ public class CompanyPostService {
         String firstCountry = post.getTravelArea().get(0).split(" ")[0];
 
         // 국가와 일치하는 다른 게시글을 조회, 현재 게시글은 제외
-        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId);
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId, PageRequest.of(0, 5));
 
         return nearbyPosts.stream()
                 .map(CompanyPostResponseDTO::from)
