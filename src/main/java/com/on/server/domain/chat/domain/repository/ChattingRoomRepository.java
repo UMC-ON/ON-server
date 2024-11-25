@@ -7,10 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long> {
 
     Page<ChattingRoom> findChattingRoomByChatUserOneOrChatUserTwo(User user, User user1, Pageable pageable);
 
-    ChattingRoom findChattingRoomByChatUserOneAndChatUserTwoAndChattingRoomType(User user, User chatUserTwo, ChatType chatType);
+    List<ChattingRoom> findChattingRoomByChatUserOneAndChatUserTwoAndChattingRoomType(User user, User chatUserTwo, ChatType chatType);
 
 }

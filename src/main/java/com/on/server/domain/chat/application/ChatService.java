@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.on.server.domain.companyParticipant.domain.CompanyParticipantStatus.PARTICIPANT;
 
@@ -148,28 +149,52 @@ public class ChatService {
 
     }
 
+    /* chatUserOne, chatUserTwo, specialChat 비교하여 기존에 존재하는 채팅방인지 찾는 메소드 */
+    public Optional<ChattingRoom> findMatchingChatRoom(User user, User chatUserTwo, Long postId, ChatType chatType) {
+
+        List<ChattingRoom> existingRooms = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwoAndChattingRoomType(user, chatUserTwo, chatType);
+        List<SpecialChat> existSpecialChats;
+
+        if (chatType == ChatType.COMPANY) {
+            CompanyPost companyPost = companyPostRepository.findById(postId).orElse(null);
+            existSpecialChats = specialChatRepository.findByCompanyPost(companyPost);
+        } else {
+            MarketPost marketPost = marketPostRepository.findById(postId).orElse(null);
+            existSpecialChats = specialChatRepository.findByMarketPost(marketPost);
+        }
+
+        return existingRooms.stream()
+                .filter(room -> existSpecialChats.stream()
+                        .anyMatch(specialChat -> specialChat.getChattingRoom().getId().equals(room.getId()))
+                )
+                .findFirst();
+    }
+
     @Transactional
     public ChatDto createChatRoom(User user, com.on.server.domain.chat.dto.request.ChatDto chatDto) {
         User chatUserTwo = userRepository.findById(chatDto.getReceiverId())
                 .orElseThrow(() -> new InternalServerException(ResponseCode.INVALID_PARAMETER));
 
-        ChattingRoom existingRoom = chattingRoomRepository.findChattingRoomByChatUserOneAndChatUserTwoAndChattingRoomType(user, chatUserTwo, chatDto.getChatType());
-
         Long responseRoomId = 0L;
 
-        if (existingRoom != null) {
-            responseRoomId = existingRoom.getId();
-        } else {
-            ChattingRoom chattingRoom = ChattingRoom.builder()
-                    .chattingRoomType(chatDto.getChatType())
-                    .chatUserOne(user) // 글 보고 채팅 신청하는 사람
-                    .chatUserTwo(chatUserTwo) // 글 주인
-                    .build();
+        if (chatDto.getChatType() == ChatType.COMPANY) {
 
-            ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
+            CompanyPost companyPost = companyPostRepository.findById(chatDto.getPostId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
 
-            if (chatDto.getChatType() == ChatType.COMPANY) {
-                CompanyPost companyPost = companyPostRepository.findById(chatDto.getPostId()).orElse(null);
+            Optional<ChattingRoom> existChattingRoom = findMatchingChatRoom(user, chatUserTwo, chatDto.getPostId(), ChatType.COMPANY);
+
+            if (existChattingRoom.isPresent()) {
+                responseRoomId = existChattingRoom.get().getId();
+            } else { // 새로운 동행 구하기 채팅인 경우
+
+                ChattingRoom chattingRoom = ChattingRoom.builder()
+                        .chattingRoomType(chatDto.getChatType())
+                        .chatUserOne(user) // 글 보고 채팅 신청하는 사람
+                        .chatUserTwo(chatUserTwo) // 글 주인
+                        .build();
+
+                ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
 
                 SpecialChat specialChat = SpecialChat.builder()
                         .chattingRoom(savedChattingRoom)
@@ -179,9 +204,26 @@ public class ChatService {
                         .build();
 
                 specialChatRepository.save(specialChat);
+                responseRoomId = savedChattingRoom.getId();
 
-            } else {
-                MarketPost marketPost = marketPostRepository.findById(chatDto.getPostId()).orElse(null);
+            }
+        } else { // 물품 거래 채팅
+
+            MarketPost marketPost = marketPostRepository.findById(chatDto.getPostId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+
+            Optional<ChattingRoom> existChattingRoom = findMatchingChatRoom(user, chatUserTwo, chatDto.getPostId(), ChatType.MARKET);
+
+            if (existChattingRoom.isPresent()) {
+                responseRoomId = existChattingRoom.get().getId();
+            } else { // 새로운 물품 거래 채팅인 경우
+                ChattingRoom chattingRoom = ChattingRoom.builder()
+                        .chattingRoomType(chatDto.getChatType())
+                        .chatUserOne(user) // 글 보고 채팅 신청하는 사람
+                        .chatUserTwo(chatUserTwo) // 글 주인
+                        .build();
+
+                ChattingRoom savedChattingRoom = chattingRoomRepository.save(chattingRoom);
 
                 SpecialChat specialChat = SpecialChat.builder()
                         .chattingRoom(savedChattingRoom)
@@ -191,11 +233,8 @@ public class ChatService {
                         .build();
 
                 specialChatRepository.save(specialChat);
-
+                responseRoomId = savedChattingRoom.getId();
             }
-
-            responseRoomId = savedChattingRoom.getId();
-
         }
 
         return ChatDto.builder()
