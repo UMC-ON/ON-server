@@ -56,7 +56,7 @@ public class DiaryService {
 
         // date List 만들기
         List<LocalDate> dateList = diaryDtoList.stream()
-                .map(DiaryDto::getWrittenDate)
+                .map(DiaryDto::getDiaryDate)
                 .collect(Collectors.toList());
 
         return new DiaryResponseDto(user.getDispatchedUniversity(), dDayNow, diaryDtoList, dateList);
@@ -65,7 +65,7 @@ public class DiaryService {
     private static List<DiaryDto> getDiaryDto(List<Diary> diaryList) {
         return diaryList.stream()
                 .map(diary -> new DiaryDto(
-                        diary.getCreatedAt().toLocalDate(),
+                        diary.getDiaryDate(),
                         diary.getContent(),
                         diary.getDDay())).toList();
     }
@@ -82,7 +82,7 @@ public class DiaryService {
             dDay = null;
         }
         else { //startDate 저장되어있는 경우
-            dDay = ChronoUnit.DAYS.between(diaryRequestDto.getDate(), startDate);
+            dDay = ChronoUnit.DAYS.between(diaryRequestDto.getDiaryDate(), startDate);
         }
 
 
@@ -90,6 +90,7 @@ public class DiaryService {
         Diary diary = Diary.builder()
                 .content(diaryRequestDto.getContent())
                 .dDay(dDay)
+                .diaryDate(diaryRequestDto.getDiaryDate())
                 .user(user)
                 .build();
 
