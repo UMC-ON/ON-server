@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -86,7 +87,9 @@ public class ChatService {
                             chatContents,
                             lastChatTime
                     );
-                }).toList();
+                })
+                .sorted(Comparator.comparing(CompanyRoomDto::getLastChatTime).reversed()) // 최신순 정렬
+                .toList();
 
         CompanyChatRoomListDto companyChatRoomListDto = CompanyChatRoomListDto.builder()
                 .roomCount(roomCount)
@@ -132,7 +135,9 @@ public class ChatService {
                             chatContents,
                             lastChatTime
                     );
-                }).toList();
+                })
+                .sorted(Comparator.comparing(MarketRoomDto::getLastChatTime).reversed()) // 최신순 정렬
+                .toList();
 
         MarketChatRoomListDto marketChatRoomListDto = MarketChatRoomListDto.builder()
                 .roomCount(roomCount)
@@ -254,10 +259,12 @@ public class ChatService {
                 : null;
 
         MarketChatDto marketChatDto = MarketChatDto.builder()
+                .MarketPostId(specialChat.getMarketPost().getId()) // 물품 거래 postId
                 .productName(marketPost.getTitle())
                 .productPrice(marketPost.getCost())
                 .tradeMethod(marketPost.getDealType())
                 .imageUrl(fileUrl) // 이미지 없는 경우 null 반환
+                .dealStatus(marketPost.getDealStatus()) // 상품 거래 여부
                 .build();
 
         return marketChatDto;
