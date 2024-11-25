@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class MarketChatDto {
+    private Long MarketPostId; // 물품 거래 postId
     private String productName; // 상품 이름
     private Long productPrice; // 상품 가격
     private DealType tradeMethod; // 거래 방법

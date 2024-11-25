@@ -259,6 +259,7 @@ public class ChatService {
                 : null;
 
         MarketChatDto marketChatDto = MarketChatDto.builder()
+                .MarketPostId(specialChat.getMarketPost().getId()) // 물품 거래 postId
                 .productName(marketPost.getTitle())
                 .productPrice(marketPost.getCost())
                 .tradeMethod(marketPost.getDealType())
