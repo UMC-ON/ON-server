@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DiaryRequestDto {
 
-    private LocalDate date;
+    private LocalDate diaryDate;
 
     private String content;
 
