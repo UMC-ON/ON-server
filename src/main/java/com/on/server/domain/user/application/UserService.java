@@ -200,9 +200,6 @@ public class UserService {
         if (
                 !user.getName().equals(sendPWAuthNumRequestDto.getName())
                 || !user.getPhone().equals(sendPWAuthNumRequestDto.getPhone())
-                || !user.getGender().equals(sendPWAuthNumRequestDto.getGender())
-                || !user.getAge().equals(sendPWAuthNumRequestDto.getAge())
-                || !user.getCountry().equals(sendPWAuthNumRequestDto.getNickname())
         ) {
             throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "입력하신 정보와 일치하는 회원을 찾을 수 없습니다.");
         }

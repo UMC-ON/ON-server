@@ -65,8 +65,8 @@ public class RedisUtils {
     }
 
     public void setSignUpAuthNum(String email, Integer authNum) {
-        String redisKye = "SignUpAuthNum:" + email;
-        redisTemplate.opsForValue().set(redisKye, authNum, StaticValue.SIGN_UP_AUTH_NUMBER_VALID_TIME, TimeUnit.MILLISECONDS);
+        String redisKey = "SignUpAuthNum:" + email;
+        redisTemplate.opsForValue().set(redisKey, authNum, StaticValue.SIGN_UP_AUTH_NUMBER_VALID_TIME, TimeUnit.MILLISECONDS);
     }
 
     public Integer getSignUpAuthNum(String email) {
