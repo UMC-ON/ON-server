@@ -15,6 +15,7 @@ import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,7 +128,7 @@ public class CompanyPostService {
     }
 
     // 내 주변 동행글 조회
-    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(Long companyPostId) {
+    public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(Long companyPostId, User user) {
 
         // 여러 개의 travel area 중에서 첫 번째만 선택
         CompanyPostResponseDTO post = getCompanyPostById(companyPostId).get(0);
@@ -135,8 +136,8 @@ public class CompanyPostService {
         // 국가만 일치해도 조회되도록 국가 부분만 추출
         String firstCountry = post.getTravelArea().get(0).split(" ")[0];
 
-        // 국가와 일치하는 다른 게시글을 조회, 현재 게시글은 제외
-        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelAreaLike(firstCountry, companyPostId);
+        // 국가와 일치하는 다른 게시글을 조회, 현재 사용자가 작성한 게시글은 제외
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelArea(firstCountry, user, PageRequest.of(0, 5));
 
         return nearbyPosts.stream()
                 .map(CompanyPostResponseDTO::from)
