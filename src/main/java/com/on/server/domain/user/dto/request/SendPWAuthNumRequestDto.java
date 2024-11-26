@@ -18,10 +18,4 @@ public class SendPWAuthNumRequestDto {
 
     private String phone;
 
-    private Gender gender;
-
-    private String nickname;
-
-    private Integer age;
-
 }
