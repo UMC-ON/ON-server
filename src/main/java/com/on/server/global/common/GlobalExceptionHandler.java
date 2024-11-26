@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        exception.getResponseCode().getCode()
+                        exception.getResponseCode().getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        ResponseCode.INVALID_PARAMETER.getCode()
+                        ResponseCode.INVALID_PARAMETER.getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        ResponseCode.INVALID_PARAMETER.getCode()
+                        ResponseCode.INVALID_PARAMETER.getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        ResponseCode.INVALID_HTTP_METHOD.getCode()
+                        ResponseCode.INVALID_HTTP_METHOD.getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        exception.getResponseCode().getCode()
+                        exception.getResponseCode().getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        exception.getResponseCode().getCode()
+                        exception.getResponseCode().getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -120,7 +120,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        ResponseCode.API_NOT_ALLOWED.getCode()
+                        ResponseCode.API_NOT_ALLOWED.getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -135,7 +135,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.debug("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        ResponseCode.API_NOT_ALLOWED.getCode()
+                        ResponseCode.API_NOT_ALLOWED.getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
@@ -150,7 +150,7 @@ public class GlobalExceptionHandler {
         GlobalExceptionHandler.log.error("[Error message]", exception);
         return ResponseEntity
                 .status(
-                        ResponseCode.INTERNAL_SERVER.getCode()
+                        ResponseCode.INTERNAL_SERVER.getResponseType().getResponseCode()
                 )
                 .body(
                         ErrorResponseDto.of(
