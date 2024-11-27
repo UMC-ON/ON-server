@@ -115,8 +115,10 @@ public class CompanyPostController {
     @Operation(summary = "내 주변 동행글 조회")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
     @GetMapping("/{companyPostId}/nearby")
-    public ResponseEntity<List<CompanyPostResponseDTO>> getNearbyCompanyPostsByLikeTravelArea(@PathVariable Long companyPostId) {
-        List<CompanyPostResponseDTO> nearbyPosts = companyPostService.getNearbyCompanyPostsByLikeTravelArea(companyPostId);
+    public ResponseEntity<List<CompanyPostResponseDTO>> getNearbyCompanyPostsByLikeTravelArea(@PathVariable Long companyPostId, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityService.getUserByUserDetails(userDetails);
+
+        List<CompanyPostResponseDTO> nearbyPosts = companyPostService.getNearbyCompanyPostsByLikeTravelArea(companyPostId, user);
         return ResponseEntity.ok(nearbyPosts);
     }
 }

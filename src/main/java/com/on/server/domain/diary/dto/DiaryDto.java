@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class DiaryDto {
 
-    private LocalDate writtenDate;
+    private LocalDate diaryDate;
 
     private String content;
 
