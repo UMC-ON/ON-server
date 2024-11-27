@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -178,19 +179,20 @@ public class UserService {
     }
 
     public String findId(FindIDRequestDto findIDRequestDto) {
-        User user = userRepository.findByName(findIDRequestDto.getName())
-                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "해당하는 회원을 찾을 수 없습니다."));
+        List<User> userList = userRepository.findByName(findIDRequestDto.getName());
 
-        if (
-                !user.getPhone().equals(findIDRequestDto.getPhone())
-                || !user.getGender().equals(findIDRequestDto.getGender())
-                || !user.getAge().equals(findIDRequestDto.getAge())
-                || !user.getCountry().equals(findIDRequestDto.getNickname())
-        ) {
-            throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "입력하신 정보와 일치하는 회원을 찾을 수 없습니다.");
+        if (userList.isEmpty()) {
+            throw new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "이름에 해당하는 회원을 찾을 수 없습니다.");
         }
 
-        return user.getLoginId();
+        for (User user : userList) {
+            if (user.getPhone().equals(findIDRequestDto.getPhone())
+                    && user.getGender().equals(findIDRequestDto.getGender())) {
+                return user.getLoginId();
+            }
+        }
+
+        throw new BadRequestException(ResponseCode.INVALID_PARAMETER, "입력하신 정보와 일치하는 회원을 찾을 수 없습니다.");
     }
 
     public void sendFindPWAuthNum(SendPWAuthNumRequestDto sendPWAuthNumRequestDto) {

@@ -10,16 +10,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindIDRequestDto {
+public class
+FindIDRequestDto {
 
     private String name;
 
     private String phone;
 
     private Gender gender;
-
-    private String nickname;
-
-    private Integer age;
 
 }

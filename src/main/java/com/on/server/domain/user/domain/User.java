@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,8 +36,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(name = "age", nullable = false)
-    private Integer age;
+    @Column(name = "birth", nullable = false)
+    private LocalDate birth;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -215,6 +216,16 @@ public class User extends BaseEntity implements UserDetails {
         this.phone = "탈퇴사용자" + this.getId();
         this.changeRole(UserStatus.TEMPORARY);
         return this;
+    }
+
+    public Integer getAge() {
+        Period period = Period.between(this.birth, LocalDate.now());
+
+        int age = period.getYears();
+        if (this.birth.plusYears(age).isAfter(LocalDate.now()))
+            age--;
+
+        return age;
     }
 
 }

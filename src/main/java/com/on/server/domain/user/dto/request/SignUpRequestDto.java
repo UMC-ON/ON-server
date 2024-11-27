@@ -3,11 +3,15 @@ package com.on.server.domain.user.dto.request;
 import com.on.server.domain.user.domain.Gender;
 import com.on.server.domain.user.domain.User;
 import com.on.server.domain.user.domain.UserStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
+
+import java.time.LocalDate;
 
 @Getter
 public class SignUpRequestDto {
@@ -24,8 +28,9 @@ public class SignUpRequestDto {
     @NotBlank(message = "닉네임은 필수 입력 값입니다.")
     private String nickname;
 
-    @Positive(message = "나이는 양수여야 합니다.")
-    private Integer age;
+    @Schema(description = "생년월일", example = "1999-01-01")
+    @NotNull(message = "생년월일은 필수 입력 값입니다.")
+    private LocalDate birth;
 
     @NotBlank(message = "이름은 필수 입력 값입니다.")
     private String name;
@@ -41,7 +46,7 @@ public class SignUpRequestDto {
                 .loginId(loginId)
                 .password(encodedPassword)
                 .nickname(nickname)
-                .age(age)
+                .birth(birth)
                 .name(name)
                 .gender(gender)
                 .phone(phone)
