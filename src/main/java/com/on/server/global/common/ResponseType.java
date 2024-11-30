@@ -8,8 +8,8 @@ import lombok.Getter;
 public enum ResponseType {
 
     SUCCESS(100),
-    BAD_REQUEST(401),
-    UNAUTHORIZED(403),
+    BAD_REQUEST(400),
+    UNAUTHORIZED(401),
     INTERNAL_SERVER_ERROR(500),
     SERVICE_UNAVAILABLE(503);
 

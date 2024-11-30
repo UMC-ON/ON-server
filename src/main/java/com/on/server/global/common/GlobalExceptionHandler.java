@@ -5,6 +5,7 @@ import com.on.server.global.common.exceptions.ServiceUnavailableException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -140,6 +141,21 @@ public class GlobalExceptionHandler {
                 .body(
                         ErrorResponseDto.of(
                                 ResponseCode.API_NOT_ALLOWED
+                        )
+                );
+    }
+
+    @ExceptionHandler(value = {BadCredentialsException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ErrorResponseDto> handleBadCredentialsException(BadCredentialsException exception) {
+        GlobalExceptionHandler.log.debug("[Error message]", exception);
+        return ResponseEntity
+                .status(
+                        ResponseCode.INVALID_SIGNIN.getResponseType().getResponseCode()
+                )
+                .body(
+                        ErrorResponseDto.of(
+                                ResponseCode.INVALID_SIGNIN
                         )
                 );
     }
