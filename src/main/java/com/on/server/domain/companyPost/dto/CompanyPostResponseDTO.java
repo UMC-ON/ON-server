@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,7 +101,9 @@ public class CompanyPostResponseDTO {
                 .startDate(companyPost.getStartDate())
                 .endDate(companyPost.getEndDate())
                 .currentCountry(companyPost.getCurrentCountry())
-                .createdAt(companyPost.getCreatedAt())
+                .createdAt(companyPost.getCreatedAt().atZone(ZoneId.of("UTC"))
+                        .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                        .toLocalDateTime())
                 .imageUrls(companyPost.getImages().stream()
                         .map(UuidFile::getFileUrl)
                         .collect(Collectors.toList()))  // 이미지 URL 리스트
