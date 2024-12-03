@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,6 +68,11 @@ public class PostResponseDTO {
                 .userStatus(userStatus)
                 .build();
 
+        LocalDateTime createdAtInSeoul = post.getCreatedAt()
+                .atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                .toLocalDateTime();
+
         return PostResponseDTO.builder()
                 .postId(post.getId())
                 .boardType(post.getBoard().getType())
@@ -75,7 +81,7 @@ public class PostResponseDTO {
                 .content(post.getContent())
                 .isAnonymous(post.getIsAnonymous())
                 .isAnonymousUniv(post.getIsAnonymousUniv())
-                .createdAt(post.getCreatedAt())
+                .createdAt(createdAtInSeoul)
                 .commentCount(includeCommentCount ? commentCount : 0)
                 .imageUrls(post.getImages().stream().map(UuidFile::getFileUrl).collect(Collectors.toList()))
                 .build();
