@@ -389,7 +389,7 @@ public class ChatService {
         // 2. companyParticipant status -> participant로 바꾸기
         User userParticipant = chattingRoom.getChatUserOne();
 
-        CompanyParticipant companyParticipant = companyParticipantRepository.findByUser(userParticipant);
+        CompanyParticipant companyParticipant = companyParticipantRepository.findByUserAndCompanyPostId(userParticipant, companyPost.getId());
 
         // 상태 업데이트
         companyParticipant.setCompanyParticipantstatus(PARTICIPANT);

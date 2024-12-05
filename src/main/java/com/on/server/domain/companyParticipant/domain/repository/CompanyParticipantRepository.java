@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CompanyParticipantRepository extends JpaRepository<CompanyParticipant, Long> {
 
-    CompanyParticipant findByUser(User user);
+    CompanyParticipant findByUserAndCompanyPostId(User userParticipant, Long companyPostId);
 }
