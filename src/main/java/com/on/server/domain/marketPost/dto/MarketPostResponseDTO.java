@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,9 @@ public class MarketPostResponseDTO {
                 .dealType(marketPost.getDealType())
                 .dealStatus(marketPost.getDealStatus())
                 .content(marketPost.getContent())
-                .createdAt(marketPost.getCreatedAt())
+                .createdAt(marketPost.getCreatedAt().atZone(ZoneId.of("UTC"))
+                        .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                        .toLocalDateTime())
                 .imageUrls(marketPost.getImages().stream()
                         .map(UuidFile::getFileUrl)
                         .collect(Collectors.toList())) // 이미지 URL 리스트
