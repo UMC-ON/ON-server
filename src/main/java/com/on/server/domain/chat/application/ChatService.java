@@ -57,19 +57,13 @@ public class ChatService {
 
     public Page<CompanyChatRoomListDto> getCompanyChatRoomList(User user, Pageable pageable) {
         // '동행 구하기' 채팅방 목록
-        Page<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user, pageable);
-
-        Integer roomCount = (int) chattingRoomList.stream()
-                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY)
-                .count();
+        Page<ChattingRoom> chattingRoomList = chattingRoomRepository.findByChatUserOneOrChatUserTwoAndChattingRoomType(user, ChatType.COMPANY, pageable);
 
         List<CompanyRoomDto> roomListDto = chattingRoomList.stream()
-                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY) // ChatType.COMPANY로 필터링
+                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.COMPANY)
                 .map(chattingRoom -> {
 
                     Chat chat = chatRepository.findFirstByChattingRoomOrderByCreatedAtDesc(chattingRoom);
-
-
                     SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
                     CompanyPost companyPost = specialChat.getCompanyPost();
 
@@ -92,21 +86,19 @@ public class ChatService {
                 .sorted(Comparator.comparing(CompanyRoomDto::getLastChatTime).reversed()) // 최신순 정렬
                 .toList();
 
+
         CompanyChatRoomListDto companyChatRoomListDto = CompanyChatRoomListDto.builder()
-                .roomCount(roomCount)
+                .roomCount(roomListDto.size())
                 .roomList(roomListDto)
                 .build();
 
-        return new PageImpl<>(List.of(companyChatRoomListDto), pageable, roomListDto.size());
+        return new PageImpl<>(List.of(companyChatRoomListDto), pageable, chattingRoomList.getTotalElements());
     }
+
 
     public Page<MarketChatRoomListDto> getMarketChatRoomList(User user, Pageable pageable) {
         // '중고 거래' 채팅방 목록
-        Page<ChattingRoom> chattingRoomList = chattingRoomRepository.findChattingRoomByChatUserOneOrChatUserTwo(user, user, pageable);
-
-        Integer roomCount = (int) chattingRoomList.stream()
-                .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
-                .count();
+        Page<ChattingRoom> chattingRoomList = chattingRoomRepository.findByChatUserOneOrChatUserTwoAndChattingRoomType(user, ChatType.MARKET, pageable);
 
         List<MarketRoomDto> roomListDto = chattingRoomList.stream()
                 .filter(chattingRoom -> chattingRoom.getChattingRoomType() == ChatType.MARKET)
@@ -140,13 +132,13 @@ public class ChatService {
                 .sorted(Comparator.comparing(MarketRoomDto::getLastChatTime).reversed()) // 최신순 정렬
                 .toList();
 
+
         MarketChatRoomListDto marketChatRoomListDto = MarketChatRoomListDto.builder()
-                .roomCount(roomCount)
+                .roomCount(roomListDto.size())
                 .roomList(roomListDto)
                 .build();
 
-        return new PageImpl<>(List.of(marketChatRoomListDto), pageable, roomListDto.size());
-
+        return new PageImpl<>(List.of(marketChatRoomListDto), pageable, chattingRoomList.getTotalElements());
     }
 
     /* chatUserOne, chatUserTwo, specialChat 비교하여 기존에 존재하는 채팅방인지 찾는 메소드 */
