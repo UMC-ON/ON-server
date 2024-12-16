@@ -137,7 +137,7 @@ public class CompanyPostService {
         String firstCountry = post.getTravelArea().get(0).split(" ")[0];
 
         // 국가와 일치하는 다른 게시글을 조회, 현재 사용자가 작성한 게시글은 제외
-        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5ByTravelArea(firstCountry, user, PageRequest.of(0, 5));
+        List<CompanyPost> nearbyPosts = companyPostRepository.findTop5NearbyCompanyPosts(firstCountry, companyPostId, user, PageRequest.of(0, 5));
 
         return nearbyPosts.stream()
                 .map(CompanyPostResponseDTO::from)

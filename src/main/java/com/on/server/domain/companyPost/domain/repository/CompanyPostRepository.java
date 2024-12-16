@@ -35,9 +35,6 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
         return findAll(pageable).getContent();
     }
 
-//    @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT('%', :country, '%') AND c.isRecruitCompleted = false ORDER BY c.createdAt DESC")
-//    List<CompanyPost> findTop5ByTravelArea(@Param("country") String country, Pageable pageable);
-
     /**
     * 사용자가 작성하지 않은 동행글 중에서,
     * 특정 국가명을 포함하고 모집이 완료되지 않은 글
@@ -47,6 +44,10 @@ public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> 
     */
     @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT(:country, ' %') AND c.isRecruitCompleted = false AND c.user <> :user ORDER BY c.createdAt DESC")
     List<CompanyPost> findTop5ByTravelArea(@Param("country") String country, @Param("user") User user, Pageable pageable);
+
+    // 동행글 상세보기의 동행글 추천에서 같은 글은 조회에서 제외
+    @Query("SELECT c FROM CompanyPost c JOIN c.travelArea t WHERE t LIKE CONCAT(:country, ' %') AND c.isRecruitCompleted = false AND c.id <> :companyPostId AND c.user <> :user ORDER BY c.createdAt DESC")
+    List<CompanyPost> findTop5NearbyCompanyPosts(@Param("country") String country, @Param("companyPostId") Long companyPostId, @Param("user") User user, Pageable pageable);
 
     // 최신순 정렬
     Page<CompanyPost> findAllByOrderByCreatedAtDesc(Pageable pageable);
