@@ -131,10 +131,11 @@ public class CompanyPostService {
     public List<CompanyPostResponseDTO> getNearbyCompanyPostsByLikeTravelArea(Long companyPostId, User user) {
 
         // 여러 개의 travel area 중에서 첫 번째만 선택
-        CompanyPostResponseDTO post = getCompanyPostById(companyPostId).get(0);
+        CompanyPost companyPost = companyPostRepository.findById(companyPostId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + companyPostId));
 
         // 국가만 일치해도 조회되도록 국가 부분만 추출
-        String firstCountry = post.getTravelArea().get(0).split(" ")[0];
+        String firstCountry = companyPost.getTravelArea().get(0).split(" ")[0];
 
         // 국가와 일치하는 다른 게시글을 조회, 현재 사용자가 작성한 게시글은 제외
         List<CompanyPost> nearbyPosts = companyPostRepository.findTop5NearbyCompanyPosts(firstCountry, companyPostId, user, PageRequest.of(0, 5));
