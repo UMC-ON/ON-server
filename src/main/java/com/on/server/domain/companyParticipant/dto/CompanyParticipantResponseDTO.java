@@ -1,5 +1,8 @@
 package com.on.server.domain.companyParticipant.dto;
+import com.on.server.domain.companyParticipant.domain.CompanyParticipant;
 import com.on.server.domain.companyParticipant.domain.CompanyParticipantStatus;
+import com.on.server.domain.companyPost.domain.CompanyPost;
+import com.on.server.domain.companyPost.dto.CompanyPostResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,4 +25,13 @@ public class CompanyParticipantResponseDTO {
 
     // 상태
     private CompanyParticipantStatus companyParticipantStatus;
+
+    public static CompanyParticipantResponseDTO from(CompanyParticipant companyParticipant) {
+       return CompanyParticipantResponseDTO.builder()
+               .companyParticipantId(companyParticipant.getId())
+               .companyPostId(companyParticipant.getCompanyPost().getId())
+               .userId(companyParticipant.getUser().getId())
+               .companyParticipantStatus(companyParticipant.getCompanyParticipantstatus())
+               .build();
+    }
 }

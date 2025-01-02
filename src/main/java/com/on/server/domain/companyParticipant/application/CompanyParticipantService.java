@@ -3,7 +3,6 @@ package com.on.server.domain.companyParticipant.application;
 import com.on.server.domain.alarm.application.AlertService;
 import com.on.server.domain.alarm.application.FcmService;
 import com.on.server.domain.alarm.domain.AlertType;
-import com.on.server.domain.alarm.dto.FcmRequestDto;
 import com.on.server.domain.companyParticipant.domain.repository.CompanyParticipantRepository;
 import com.on.server.domain.companyParticipant.dto.CompanyParticipantRequestDTO;
 import com.on.server.domain.companyParticipant.dto.CompanyParticipantResponseDTO;
@@ -12,11 +11,14 @@ import com.on.server.domain.companyParticipant.domain.CompanyParticipantStatus;
 import com.on.server.domain.companyPost.domain.CompanyPost;
 import com.on.server.domain.companyPost.domain.repository.CompanyPostRepository;
 import com.on.server.domain.user.domain.User;
+import com.on.server.domain.user.domain.repository.UserRepository;
+import com.on.server.global.common.ResponseCode;
+import com.on.server.global.common.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class CompanyParticipantService {
 
     private final CompanyParticipantRepository companyParticipantRepository;
     private final CompanyPostRepository companyPostRepository;
+    private final UserRepository userRepository;
     private final FcmService fcmService;
     private final AlertService alertService;
 
@@ -56,5 +59,21 @@ public class CompanyParticipantService {
                 .userId(companyParticipant.getUser().getId())
                 .companyParticipantStatus(companyParticipant.getCompanyParticipantstatus())
                 .build();
+    }
+
+
+    // 특정 사용자가 특정 동행글에 대한 동행 신청 상태 확인
+    @Transactional(readOnly = true)
+    public List<CompanyParticipantResponseDTO> getCompanyParticipantStatus(Long userId, Long companyPostId) {
+
+        userRepository.findById(userId).
+                orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "사용자를 찾을 수 없습니다. ID: " + userId));
+        companyPostRepository.findById(companyPostId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + companyPostId));
+
+        return companyParticipantRepository.findByUser_IdAndCompanyPost_Id(userId, companyPostId)
+                .stream()
+                .map(CompanyParticipantResponseDTO::from)
+                .collect(Collectors.toList());
     }
 }
