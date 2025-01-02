@@ -13,8 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "동행 신청하기")
 @RestController
@@ -38,5 +37,15 @@ public class CompanyParticipantController {
         CompanyParticipantResponseDTO responseDTO = companyParticipantService.applyToCompanyPost(user, requestDTO);
 
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @Operation(summary = "특정 사용자가 특정 동행글에 대한 동행 신청 상태 확인")
+    @PreAuthorize("@securityService.isNotTemporaryUser()")
+    @GetMapping("/status/{userId}/{companyPostId}")
+    public ResponseEntity<List<CompanyParticipantResponseDTO>> getCompanyParticipantStatus(@PathVariable Long userId,
+                                                                                           @PathVariable Long companyPostId) {
+
+        List<CompanyParticipantResponseDTO> status = companyParticipantService.getCompanyParticipantStatus(userId, companyPostId);
+        return ResponseEntity.ok(status);
     }
 }
