@@ -39,13 +39,13 @@ public class CompanyParticipantController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @Operation(summary = "특정 사용자가 특정 동행글에 대한 동행 신청 상태 확인")
+    @Operation(summary = "특정 채팅방의 동행 신청자의 동행 신청 상태 확인")
     @PreAuthorize("@securityService.isNotTemporaryUser()")
-    @GetMapping("/status/{userId}/{companyPostId}")
-    public ResponseEntity<List<CompanyParticipantResponseDTO>> getCompanyParticipantStatus(@PathVariable Long userId,
-                                                                                           @PathVariable Long companyPostId) {
+    @GetMapping("/status/{userId}/{chattingRoomId}")
+    public ResponseEntity<CompanyParticipantResponseDTO> getCompanyParticipantStatus(@PathVariable Long userId,
+                                                                                     @PathVariable Long chattingRoomId) {
 
-        List<CompanyParticipantResponseDTO> status = companyParticipantService.getCompanyParticipantStatus(userId, companyPostId);
+        CompanyParticipantResponseDTO status = companyParticipantService.getCompanyParticipantStatus(userId, chattingRoomId);
         return ResponseEntity.ok(status);
     }
 }

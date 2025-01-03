@@ -20,16 +20,20 @@ public class CompanyParticipantResponseDTO {
     // 동행 구하기 글 ID
     private Long companyPostId;
 
+    // 채팅룸 번호
+    private Long chattingRoomId;
+
     // 작성자 ID
     private Long userId;
 
     // 상태
     private CompanyParticipantStatus companyParticipantStatus;
 
-    public static CompanyParticipantResponseDTO from(CompanyParticipant companyParticipant) {
+    public static CompanyParticipantResponseDTO from(CompanyParticipant companyParticipant, Long chattingRoomId) {
        return CompanyParticipantResponseDTO.builder()
                .companyParticipantId(companyParticipant.getId())
                .companyPostId(companyParticipant.getCompanyPost().getId())
+               .chattingRoomId(chattingRoomId)
                .userId(companyParticipant.getUser().getId())
                .companyParticipantStatus(companyParticipant.getCompanyParticipantstatus())
                .build();
