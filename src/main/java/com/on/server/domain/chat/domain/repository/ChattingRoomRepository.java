@@ -14,7 +14,12 @@ import java.util.List;
 
 public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long> {
 
-    @Query("SELECT cr FROM ChattingRoom cr WHERE (cr.chatUserOne = :user OR cr.chatUserTwo = :user) AND cr.chattingRoomType = :chattingRoomType")
+    @Query("SELECT cr FROM ChattingRoom cr " +
+            "LEFT JOIN Chat c ON c.chattingRoom = cr " +
+            "WHERE (cr.chatUserOne = :user OR cr.chatUserTwo = :user) " +
+            "AND cr.chattingRoomType = :chattingRoomType " +
+            "GROUP BY cr " +
+            "ORDER BY COALESCE(MAX(c.createdAt), cr.createdAt) DESC")
     Page<ChattingRoom> findByChatUserOneOrChatUserTwoAndChattingRoomType(
             @Param("user") User user,
             @Param("chattingRoomType") ChatType chattingRoomType,
