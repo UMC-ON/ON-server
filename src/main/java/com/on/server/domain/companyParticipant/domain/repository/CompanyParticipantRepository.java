@@ -12,6 +12,5 @@ public interface CompanyParticipantRepository extends JpaRepository<CompanyParti
 
     CompanyParticipant findByUserAndCompanyPostId(User userParticipant, Long companyPostId);
 
-    List<CompanyParticipant> findByUser_IdAndCompanyPost_Id(Long userId, Long companyPostId);
-
+    CompanyParticipant findByUser_IdAndCompanyPost_Id(Long userId, Long companyPostId);
 }

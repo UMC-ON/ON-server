@@ -3,6 +3,10 @@ package com.on.server.domain.companyParticipant.application;
 import com.on.server.domain.alarm.application.AlertService;
 import com.on.server.domain.alarm.application.FcmService;
 import com.on.server.domain.alarm.domain.AlertType;
+import com.on.server.domain.chat.domain.ChattingRoom;
+import com.on.server.domain.chat.domain.SpecialChat;
+import com.on.server.domain.chat.domain.repository.ChattingRoomRepository;
+import com.on.server.domain.chat.domain.repository.SpecialChatRepository;
 import com.on.server.domain.companyParticipant.domain.repository.CompanyParticipantRepository;
 import com.on.server.domain.companyParticipant.dto.CompanyParticipantRequestDTO;
 import com.on.server.domain.companyParticipant.dto.CompanyParticipantResponseDTO;
@@ -15,8 +19,7 @@ import com.on.server.domain.user.domain.repository.UserRepository;
 import com.on.server.global.common.ResponseCode;
 import com.on.server.global.common.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +33,8 @@ public class CompanyParticipantService {
     private final UserRepository userRepository;
     private final FcmService fcmService;
     private final AlertService alertService;
+    private final ChattingRoomRepository chattingRoomRepository;
+    private final SpecialChatRepository specialChatRepository;
 
     public CompanyParticipantResponseDTO applyToCompanyPost(User user, CompanyParticipantRequestDTO requestDTO) {
 
@@ -62,18 +67,31 @@ public class CompanyParticipantService {
     }
 
 
-    // 특정 사용자가 특정 동행글에 대한 동행 신청 상태 확인
+    // 특정 채팅방의 동행 신청자의 동행 신청 상태 확인
     @Transactional(readOnly = true)
-    public List<CompanyParticipantResponseDTO> getCompanyParticipantStatus(Long userId, Long companyPostId) {
+    public CompanyParticipantResponseDTO getCompanyParticipantStatus(Long userId, Long chattingRoomId) {
 
-        userRepository.findById(userId).
-                orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "사용자를 찾을 수 없습니다. ID: " + userId));
-        companyPostRepository.findById(companyPostId)
-                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "게시글을 찾을 수 없습니다. ID: " + companyPostId));
+        // 채팅방이 존재하는지 확인
+        ChattingRoom chattingRoom = chattingRoomRepository.findById(chattingRoomId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "채팅방을 찾을 수 없습니다."));
 
-        return companyParticipantRepository.findByUser_IdAndCompanyPost_Id(userId, companyPostId)
-                .stream()
-                .map(CompanyParticipantResponseDTO::from)
-                .collect(Collectors.toList());
+        // userId로 User 조회
+        userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(ResponseCode.ROW_DOES_NOT_EXIST, "사용자를 찾을 수 없습니다."));
+
+        // SpecialChat 조회
+        SpecialChat specialChat = specialChatRepository.findByChattingRoom(chattingRoom);
+
+        // SpecialChat에서 CompanyPost 정보 가져오기
+        CompanyPost companyPost = specialChat.getCompanyPost();
+
+        // CompanyParticipant 조회 (status 확인용)
+        CompanyParticipant companyParticipant = companyParticipantRepository.findByUser_IdAndCompanyPost_Id(userId, companyPost.getId());
+
+        if (companyParticipant == null) { // 없으면 null 반환
+            return null;
+        }
+
+        return CompanyParticipantResponseDTO.from(companyParticipant, chattingRoomId);
     }
 }
