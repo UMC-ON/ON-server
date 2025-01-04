@@ -19,14 +19,17 @@ import java.util.List;
 public interface CompanyPostRepository extends JpaRepository<CompanyPost, Long> {
 
     // 필터링을 위한 쿼리
-    @Query("SELECT cp FROM CompanyPost cp WHERE (:startDate IS NULL OR cp.startDate >= :startDate) " +
+    @Query("SELECT DISTINCT cp FROM CompanyPost cp JOIN cp.travelArea ta WHERE " +
+            "(:startDate IS NULL OR cp.startDate >= :startDate) " +
             "AND (:endDate IS NULL OR cp.endDate <= :endDate) " +
             "AND (:gender IS NULL OR cp.user.gender = :gender) " +
+            "AND (:country IS NULL OR SUBSTRING(ta, 1, LOCATE(' ', ta) - 1) = :country) " +
             "ORDER BY cp.createdAt DESC")
-    Page<CompanyPost> findFilteredCompanyPostsWithoutCountry(
+    Page<CompanyPost> findFilteredCompanyPosts(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("gender") Gender gender,
+            @Param("country") String country,
             Pageable pageable);
 
     // 최신 4개의 글을 최신순으로 가져오기
