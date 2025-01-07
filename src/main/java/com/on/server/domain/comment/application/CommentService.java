@@ -104,7 +104,11 @@ public class CommentService {
         }
         String body = commentRequestDTO.getContents();
 
-        alertService.sendAndSaveAlert(post.getUser(), alertType, title, body, post.getId());
+        // 게시글 작성자와 댓글 작성자 다를 경우에만 알림 전송
+        // 본인이 쓴 게시물에 댓글 작성 시 알림 전송 x
+        if(!user.equals(post.getUser())){
+            alertService.sendAndSaveAlert(post.getUser(), alertType, title, body, post.getId());
+        }
 
         return CommentResponseDTO.from(comment, commentRepository);
     }
@@ -143,7 +147,14 @@ public class CommentService {
         String title = "새로운 대댓글이 달렸어요.";
         String body = commentRequestDTO.getContents();
 
-        alertService.sendAndSaveAlert(post.getUser(), alertType, title, body, post.getId());
+        // 대댓글 작성자가 부모댓글, 게시글 댓글 작성자가 아닐 경우에만 알림 보내기
+        // 대댓글 작성자 = user, 부모댓글 작성자 = parentComment.getUser(), 게시글 작성자 = post.getUser()
+        if (!user.equals(parentComment.getUser())) {
+            alertService.sendAndSaveAlert(parentComment.getUser(), alertType, title, body, post.getId());
+        }
+        else if (!user.equals(post.getUser())) {
+            alertService.sendAndSaveAlert(post.getUser(), alertType, title, body, post.getId());
+        }
 
         return CommentResponseDTO.from(reply, commentRepository);
     }
