@@ -345,7 +345,9 @@ public class ChatService {
             alertType = AlertType.COMPANY_CHAT;
         }
 
-        User alertUser = user != currentChattingRoom.getChatUserOne() ? currentChattingRoom.getChatUserOne() : currentChattingRoom.getChatUserTwo();
+        User alertUser = user.equals(currentChattingRoom.getChatUserOne())
+                ? currentChattingRoom.getChatUserTwo()
+                : currentChattingRoom.getChatUserOne();
 
         alertService.sendAndSaveAlert(alertUser, alertType, title, body, roomId);
     }
