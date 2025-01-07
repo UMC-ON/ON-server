@@ -83,7 +83,6 @@ public class ChatService {
                             lastChatTime
                     );
                 })
-                .sorted(Comparator.comparing(CompanyRoomDto::getLastChatTime).reversed()) // 최신순 정렬
                 .toList();
 
 
@@ -129,7 +128,6 @@ public class ChatService {
                             lastChatTime
                     );
                 })
-                .sorted(Comparator.comparing(MarketRoomDto::getLastChatTime).reversed()) // 최신순 정렬
                 .toList();
 
 

@@ -14,7 +14,6 @@ import com.on.server.global.common.exceptions.BadRequestException;
 import com.on.server.global.common.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,18 +35,7 @@ public class CompanyPostService {
 
     // 필터링 기능 추가
     public Page<CompanyPostResponseDTO> getFilteredCompanyPosts(LocalDate startDate, LocalDate endDate, Gender gender, String country, Pageable pageable) {
-        Page<CompanyPost> posts = companyPostRepository.findFilteredCompanyPostsWithoutCountry(startDate, endDate, gender, pageable);
-
-        if (country != null && !country.isEmpty()) {
-            posts = posts.stream()
-                    .filter(post -> post.getTravelArea().stream()
-                            .anyMatch(area -> {
-                                String firstWord = area.split(" ")[0];  // travelArea의 첫 번째 단어 추출
-                                return firstWord.equalsIgnoreCase(country);
-                            }))
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> new PageImpl<>(list, pageable, list.size())));
-        }
-
+        Page<CompanyPost> posts = companyPostRepository.findFilteredCompanyPosts(startDate, endDate, gender, country, pageable);
         return posts.map(CompanyPostResponseDTO::from);
     }
 
